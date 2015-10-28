@@ -1,0 +1,18 @@
+<resources>
+
+    <string name="app_name">App Lock</string>
+
+    <string name="pin__description_create">Enter a %1$s-digit code to lock %2$s!</string>
+    <string name="pin__description_confirm">Re-enter your PIN to confirm!</string>
+    <string name="pin__description_unlock">%1$s is currently locked! Enter your PIN to unlock it!</string>
+
+    <string name="pin__unlock_error_no_matching_pin_found">There is no saved PIN to unlock!</string>
+    <string name="pin__unlock_error_match_failed">The PINs don\'t match!</string>
+    <string name="pin__unlock_error_insufficient_selection">You didn\'t select the required number of digits! Please try again</string>
+    <string name="pin__unlock_error_retry_limit_exceeded">You failed too many times. Try again in %1$s.</string>
+
+    <string name="pin__toast_lock_success">%1$s is now locked!</string>
+    <string name="pin__toast_unlock_success">%1$s was successfully unlocked!</string>
+    <string name="pin__toast_unlock_required">You need to unlock to do that!</string>
+
+</resources>

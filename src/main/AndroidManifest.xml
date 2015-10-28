@@ -1,0 +1,16 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="guardanis.applock">
+
+    <application>
+
+        <activity
+            android:name="guardanis.applock.AppLockActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/Pin__AppTheme" >
+        </activity>
+
+    </application>
+
+</manifest>
