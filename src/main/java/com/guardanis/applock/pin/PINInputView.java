@@ -1,4 +1,4 @@
-package guardanis.applock.pin;
+package com.guardanis.applock.pin;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -17,7 +17,7 @@ import android.widget.TextView;
 
 import java.util.WeakHashMap;
 
-import guardanis.applock.R;
+import com.guardanis.applock.R;
 
 public class PINInputView extends LinearLayout implements TextWatcher {
 

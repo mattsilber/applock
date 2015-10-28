@@ -1,4 +1,4 @@
-package guardanis.applock.pin;
+package com.guardanis.applock.pin;
 
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;

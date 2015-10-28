@@ -1,4 +1,4 @@
-package guardanis.applock;
+package com.guardanis.applock;
 
 import android.support.v7.app.AppCompatActivity;
 

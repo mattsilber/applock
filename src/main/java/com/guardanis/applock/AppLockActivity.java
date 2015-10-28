@@ -1,4 +1,4 @@
-package guardanis.applock;
+package com.guardanis.applock;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -6,8 +6,8 @@ import android.view.KeyEvent;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import guardanis.applock.pin.PINInputController;
-import guardanis.applock.pin.PINInputView;
+import com.guardanis.applock.pin.PINInputController;
+import com.guardanis.applock.pin.PINInputView;
 
 public class AppLockActivity extends AppCompatActivity implements LockingHelper.LockEventListener {
 
@@ -84,6 +84,10 @@ public class AppLockActivity extends AppCompatActivity implements LockingHelper.
                     Toast.makeText(AppLockActivity.this, String.format(getString(R.string.pin__toast_lock_success), getString(R.string.app_name)), Toast.LENGTH_LONG).show();
                     lockingHelper.saveLockPIN(input);
                     setupUnlock();
+                }
+                else {
+                    Toast.makeText(AppLockActivity.this, getString(R.string.pin__unlock_error_match_failed), Toast.LENGTH_LONG).show();
+                    setupCreateCode();
                 }
             }
         });

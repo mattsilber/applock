@@ -1,10 +1,9 @@
-package guardanis.applock;
+package com.guardanis.applock;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 
 import java.security.MessageDigest;
 import java.util.concurrent.TimeUnit;

@@ -1,4 +1,4 @@
-package guardanis.applock.pin;
+package com.guardanis.applock.pin;
 
 public class PINItemAnimator extends Thread {
 

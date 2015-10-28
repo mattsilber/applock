@@ -1,4 +1,4 @@
-package guardanis.applock.pin;
+package com.guardanis.applock.pin;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
