@@ -1,14 +1,16 @@
-package com.guardanis.applock;
+package com.guardanis.applock.locking;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import com.guardanis.applock.R;
+
 import java.security.MessageDigest;
 import java.util.concurrent.TimeUnit;
 
-public class LockingHelper {
+public abstract class LockingHelper {
 
     public interface LockEventListener {
         public void onUnlockSuccessful();
@@ -16,50 +18,27 @@ public class LockingHelper {
         public void onUnlockFailed(String reason);
     }
 
+    public static final int REQUEST_CODE_UNLOCK = 93371;
+
     private static final String PREF_SAVED_LOCKED_PASSWORD = "pin__saved_locked_password";
     private static final String PREF_UNLOCK_FAILURE_TIME = "pin__unlock_failure_time";
+    private static final String PREF_UNLOCK_SUCCESS_TIME = "pin__unlock_success_time";
 
-    private Activity activity;
-    private LockEventListener eventListener;
+    protected Activity activity;
+    protected LockEventListener eventListener;
 
-    private int retryCount = 1;
+    protected int retryCount = 1;
+
+    protected LockingHelper(Activity activity){
+        this(activity, null);
+    }
 
     public LockingHelper(Activity activity, LockEventListener eventListener) {
         this.activity = activity;
         this.eventListener = eventListener;
     }
 
-    private SharedPreferences getSavedLockPreference() {
-        return getSavedLockPreference(activity);
-    }
-
-    private static SharedPreferences getSavedLockPreference(Context context) {
-        return context.getSharedPreferences(LockingHelper.class.getName(), 0);
-    }
-
-    private String getSavedLockPIN() {
-        return getSavedLockPIN(activity);
-    }
-
-    private static String getSavedLockPIN(Context context) {
-        return getSavedLockPreference(context)
-                .getString(PREF_SAVED_LOCKED_PASSWORD, null);
-    }
-
-    public boolean isUnlockRequired() {
-        return isUnlockRequired(activity);
-    }
-
-    public static boolean isUnlockRequired(Context context) {
-        return getSavedLockPIN(context) != null;
-    }
-
-    public void saveLockPIN(String pin) {
-        getSavedLockPreference()
-                .edit()
-                .putString(PREF_SAVED_LOCKED_PASSWORD, encrypt(pin))
-                .commit();
-    }
+    public abstract boolean isUnlockRequired();
 
     public void attemptUnlock(String pin) {
         if(!isUnlockRequired()){
@@ -77,12 +56,8 @@ public class LockingHelper {
             }
         }
 
-        if(encrypt(pin).equals(getSavedLockPIN())){
-            removeSavedLockPIN();
-            resetUnlockFailure();
-
-            eventListener.onUnlockSuccessful();
-        }
+        if(encrypt(pin).equals(getSavedLockPIN()))
+            onUnlockSuccessful();
         else{
             retryCount++;
             eventListener.onUnlockFailed(activity.getString(R.string.pin__unlock_error_match_failed));
@@ -92,14 +67,30 @@ public class LockingHelper {
         }
     }
 
-    private void removeSavedLockPIN() {
+    protected SharedPreferences getSavedLockPreference(){
+        return activity.getSharedPreferences(LockingHelper.class.getName(), 0);
+    }
+
+    protected String getSavedLockPIN() {
+        return getSavedLockPreference()
+                .getString(PREF_SAVED_LOCKED_PASSWORD, null);
+    }
+
+    public void saveLockPIN(String pin) {
+        getSavedLockPreference()
+                .edit()
+                .putString(PREF_SAVED_LOCKED_PASSWORD, encrypt(pin))
+                .commit();
+    }
+
+    public void removeSavedLockPIN() {
         getSavedLockPreference()
                 .edit()
                 .remove(PREF_SAVED_LOCKED_PASSWORD)
                 .commit();
     }
 
-    private String encrypt(String text) {
+    protected String encrypt(String text) {
         try{
             MessageDigest md = MessageDigest.getInstance("SHA-1");
             md.update(text.getBytes("UTF-8"), 0, text.length());
@@ -123,7 +114,7 @@ public class LockingHelper {
         return buf.toString();
     }
 
-    private void onFailureExceedsLimit(){
+    protected void onFailureExceedsLimit(){
         getSavedLockPreference()
                 .edit()
                 .putLong(PREF_UNLOCK_FAILURE_TIME, System.currentTimeMillis())
@@ -135,11 +126,25 @@ public class LockingHelper {
                 || System.currentTimeMillis() - getUnlockFailureBlockStart() < getFailureDelayMs();
     }
 
-    private long getUnlockFailureBlockStart() {
+    protected long getUnlockFailureBlockStart() {
         return getSavedLockPreference().getLong(PREF_UNLOCK_FAILURE_TIME, 0);
     }
 
-    private void resetUnlockFailure() {
+    protected void onUnlockSuccessful(){
+        getSavedLockPreference()
+                .edit()
+                .putLong(PREF_UNLOCK_SUCCESS_TIME, System.currentTimeMillis())
+                .commit();
+
+        resetUnlockFailure();
+        eventListener.onUnlockSuccessful();
+    }
+
+    protected long getUnlockSuccessTime() {
+        return getSavedLockPreference().getLong(PREF_UNLOCK_SUCCESS_TIME, 0);
+    }
+
+    protected void resetUnlockFailure() {
         retryCount = 1;
 
         getSavedLockPreference()
@@ -148,7 +153,7 @@ public class LockingHelper {
                 .commit();
     }
 
-    private String formatTimeRemaining() {
+    protected String formatTimeRemaining() {
         long millis = getFailureDelayMs() - (System.currentTimeMillis() - getUnlockFailureBlockStart());
         long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
 
@@ -158,15 +163,8 @@ public class LockingHelper {
             return String.format("%d minutes, %d seconds", TimeUnit.MILLISECONDS.toMinutes(millis), seconds);
     }
 
-    private long getFailureDelayMs(){
+    protected long getFailureDelayMs(){
         return TimeUnit.MINUTES.toMillis(activity.getResources().getInteger(R.integer.pin__default_failure_retry_delay));
-    }
-
-    public static void onActivityResumed(Activity activity){
-        if(isUnlockRequired(activity)){
-            Intent intent = new Intent(activity, AppLockActivity.class);
-            activity.startActivity(intent);
-        }
     }
 
 }
