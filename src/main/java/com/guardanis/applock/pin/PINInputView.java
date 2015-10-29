@@ -175,6 +175,7 @@ public class PINInputView extends LinearLayout implements TextWatcher {
 
     private void animate(PINItemView view, PINItemAnimator.ItemAnimationDirection direction) {
         cancelPreviousAnimation(view);
+        view.setAnimationDirection(direction);
         PINItemAnimator animator = new PINItemAnimator(this, view, direction);
         animators.put(view, animator);
         animator.start();

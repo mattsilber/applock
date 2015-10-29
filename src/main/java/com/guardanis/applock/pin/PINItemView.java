@@ -14,6 +14,8 @@ public class PINItemView {
     private float[] textPosition;
     private Paint textPaint;
 
+    private PINItemAnimator.ItemAnimationDirection animationDirection = PINItemAnimator.ItemAnimationDirection.OUT;
+
     public PINItemView(float[] position, int intendedRadius, Paint textPaint, Paint backgroundPaint) {
         this.position = position;
         this.intendedRadius = intendedRadius;
@@ -34,12 +36,16 @@ public class PINItemView {
         canvas.drawText(textValue, textPosition[0], textPosition[1], textPaint);
     }
 
+    public void setAnimationDirection(PINItemAnimator.ItemAnimationDirection animationDirection){
+        this.animationDirection = animationDirection;
+    }
+
     public void onAnimationUpdate(float percentCompleted) {
         this.currentRadius = (int) (intendedRadius * percentCompleted);
     }
 
     public boolean isAnimatedOut() {
-        return currentRadius == smallestRadius;
+        return animationDirection == PINItemAnimator.ItemAnimationDirection.OUT;
     }
 
 }
