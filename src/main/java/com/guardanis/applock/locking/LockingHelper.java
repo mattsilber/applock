@@ -18,8 +18,8 @@ public abstract class LockingHelper {
         public void onUnlockFailed(String reason);
     }
 
-    public static final int REQUEST_CODE_UNLOCK = 93371;
-    public static final int REQUEST_CODE_CREATE_LOCK = 93372;
+    public static final int REQUEST_CODE_UNLOCK = 9371;
+    public static final int REQUEST_CODE_CREATE_LOCK = 9372;
 
     private static final String PREF_SAVED_LOCKED_PASSWORD = "pin__saved_locked_password";
     private static final String PREF_UNLOCK_FAILURE_TIME = "pin__unlock_failure_time";
