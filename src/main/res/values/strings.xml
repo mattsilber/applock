@@ -9,7 +9,7 @@
     <string name="pin__unlock_error_no_matching_pin_found">There is no saved PIN to unlock!</string>
     <string name="pin__unlock_error_match_failed">The PINs don\'t match!</string>
     <string name="pin__unlock_error_insufficient_selection">You didn\'t select the required number of digits! Please try again</string>
-    <string name="pin__unlock_error_retry_limit_exceeded">You failed too many times. Try again in %1$s.</string>
+    <string name="pin__unlock_error_retry_limit_exceeded">You failed too many times. You may try again in %1$s.</string>
 
     <string name="pin__toast_lock_success">%1$s is now locked!</string>
     <string name="pin__toast_unlock_success">%1$s was successfully unlocked!</string>

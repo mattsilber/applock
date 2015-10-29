@@ -149,13 +149,13 @@ public class LockingHelper {
     }
 
     private String formatTimeRemaining() {
-        long millis = getFailureDelayMs() - System.currentTimeMillis() - getUnlockFailureBlockStart();
+        long millis = getFailureDelayMs() - (System.currentTimeMillis() - getUnlockFailureBlockStart());
         long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
 
         if(TimeUnit.MILLISECONDS.toMinutes(millis) < 1)
-            return String.format("%d sec", seconds);
+            return String.format("%d seconds", seconds);
         else
-            return String.format("%d min, %d sec", TimeUnit.MILLISECONDS.toMinutes(millis), seconds);
+            return String.format("%d minutes, %d seconds", TimeUnit.MILLISECONDS.toMinutes(millis), seconds);
     }
 
     private long getFailureDelayMs(){
