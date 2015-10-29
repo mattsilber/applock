@@ -16,19 +16,31 @@ public class PINItemView {
 
     private PINItemAnimator.ItemAnimationDirection animationDirection = PINItemAnimator.ItemAnimationDirection.OUT;
 
-    public PINItemView(float[] position, int intendedRadius, Paint textPaint, Paint backgroundPaint) {
+    public PINItemView(float[] position, int intendedRadius, Paint baseTextPaint, Paint baseBackgroundPaint) {
         this.position = position;
         this.intendedRadius = intendedRadius;
         this.smallestRadius = intendedRadius / 5;
         this.currentRadius = smallestRadius;
 
-        this.textPaint = textPaint;
+        setupPaints(baseTextPaint, baseBackgroundPaint);
+    }
+
+    private void setupPaints(Paint baseTextPaint, Paint baseBackgroundPaint){
+        this.textPaint = new Paint();
+        this.textPaint.setTextAlign(Paint.Align.CENTER);
+        this.textPaint.setAntiAlias(true);
+        this.textPaint.setColor(baseTextPaint.getColor());
+        this.textPaint.setTextSize(baseTextPaint.getTextSize());
+
         this.textPosition = new float[]{
                 position[0],
                 position[1] - ((textPaint.descent() + textPaint.ascent()) / 2)
         };
 
-        this.backgroundPaint = backgroundPaint;
+        this.backgroundPaint = new Paint();
+        this.backgroundPaint.setTextAlign(Paint.Align.CENTER);
+        this.backgroundPaint.setAntiAlias(true);
+        this.backgroundPaint.setColor(baseBackgroundPaint.getColor());
     }
 
     public void draw(Canvas canvas, String textValue) {
@@ -42,6 +54,7 @@ public class PINItemView {
 
     public void onAnimationUpdate(float percentCompleted) {
         this.currentRadius = (int) (intendedRadius * percentCompleted);
+        this.textPaint.setAlpha((int) (255 * percentCompleted));
     }
 
     public boolean isAnimatedOut() {

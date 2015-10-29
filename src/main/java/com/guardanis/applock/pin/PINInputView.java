@@ -48,13 +48,9 @@ public class PINInputView extends LinearLayout implements TextWatcher {
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.PINInputView);
 
         itemTextPaint = new Paint();
-        itemTextPaint.setTextAlign(Paint.Align.CENTER);
-        itemTextPaint.setAntiAlias(true);
         itemTextPaint.setColor(a.getColor(R.styleable.PINInputView_pinTextColor, getResources().getColor(R.color.pin__default_item_text)));
 
         itemBackgroundPaint = new Paint();
-        itemBackgroundPaint.setTextAlign(Paint.Align.CENTER);
-        itemBackgroundPaint.setAntiAlias(true);
         itemBackgroundPaint.setColor(a.getColor(R.styleable.PINInputView_pinBackgroundColor, getResources().getColor(R.color.pin__default_item_background)));
 
         inputViewsCount = getResources().getInteger(R.integer.pin__default_input_count);
@@ -121,7 +117,7 @@ public class PINInputView extends LinearLayout implements TextWatcher {
         int cellWidth = canvas.getWidth() / inputViewsCount;
         int desiredRadius = Math.min(cellWidth / 2, canvas.getHeight() / 2);
 
-        itemTextPaint.setTextSize(desiredRadius);
+        itemTextPaint.setTextSize((int)(desiredRadius * .85));
 
         for(int i = 0; i < pinItemViews.length; i++)
             pinItemViews[i] = new PINItemView(getPositionInCanvas(canvas, i, cellWidth), desiredRadius, itemTextPaint, itemBackgroundPaint);

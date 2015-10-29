@@ -47,7 +47,7 @@ public class AppLockActivity extends AppCompatActivity implements LockingHelper.
         PINInputView view = (PINInputView) findViewById(R.id.pin__input_view);
         inputController = new PINInputController(view, null)
                 .setInputNumbersCount(inputViewsCount)
-                .setPasswordCharactersEnabled(getIntent().getBooleanExtra(INTENT_DISPLAY_CHARACTERS_AS_PASSWORD, true));
+                .setPasswordCharactersEnabled(getIntent().getBooleanExtra(INTENT_DISPLAY_CHARACTERS_AS_PASSWORD, getResources().getBoolean(R.bool.pin__default_item_password_chars_enabled)));
 
         descriptionView = (TextView) findViewById(R.id.pin__description);
 
