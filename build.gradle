@@ -49,7 +49,7 @@ ext {
     artifact = 'applock'
 
     libraryDescription = 'A simply library for locking and unlocking Activities (e.g. child lock) with a PIN code.'
-    libraryVersion = '1.0.3'
+    libraryVersion = '1.0.4'
 
     developerId = 'mattsilber'
     developerName = 'Matt Silber'
