@@ -2,12 +2,15 @@ package com.guardanis.applock;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.guardanis.applock.locking.ActivityLockingHelper;
 import com.guardanis.applock.pin.PINInputController;
 
 public class UnlockActivity extends BaseLockActivity implements ActivityLockingHelper.LockEventListener {
+
+    public static final String INTENT_ALLOW_UNLOCKED_EXIT = "pin_allow_activity_exit"; // false by default
 
     private ActivityLockingHelper lockingHelper;
 
@@ -16,6 +19,17 @@ public class UnlockActivity extends BaseLockActivity implements ActivityLockingH
         super.onCreate(savedInstance);
         setContentView(R.layout.activity_app_lock);
         setup();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0){
+            if(!getIntent().getBooleanExtra(INTENT_ALLOW_UNLOCKED_EXIT, false)){
+                Toast.makeText(this, getString(R.string.pin__toast_unlock_required), Toast.LENGTH_LONG).show();
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override

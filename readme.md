@@ -23,21 +23,45 @@ I should have it on *jcenter/mavenCentral* soon enough, but apparently that take
 The goal of AppLock is to allow users to enter and confirm a PIN in order to temporarily lock the application from being used, until the PIN is re-entered by the user. To open the Activity to create a PIN, you can simply open the *AppLockActivity* via
 
 ```
-    Intent intent = new Intent(activity, AppLockActivity.class);
-    activity.startActivity(intent);
+    Intent intent = new Intent(activity, CreateLockActivity.class);
+    startActivityForResult(intent, LockingHelper.REQUEST_CODE_CREATE_LOCK);
 ```
 
-To ensure an Activity remains locked once a PIN has been entered, ensure that you override *onPostResume()* and call *LockingHelper.onActivityResumed(Activity);* e.g.
+To check if a saved PIN exists, you can simply call *LockingHelper.hasSavedPIN(Activity)* and redirect to the *UnlockActivity* if the action requires PIN-authentication:
+
+```
+    Intent intent = new Intent(activity, UnlockActivity.class);
+    startActivityForResult(intent, LockingHelper.REQUEST_CODE_ULOCK);    
+```
+
+If you want to do both of the above in a single step (that is, check if there's a saved PIN and open the unlock flow if yes), you can call:
+
+```
+    if(!ActionLockingHelper.unlockIfRequired(Activity))
+        doSomethingThatRequiresLockingIfEnabled();
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        if(requestCode == LockingHelper.REQUEST_CODE_ULOCK)
+            doSomethingThatRequiresLockingIfEnabled();
+    }
+
+```
+
+If you want an Activity to remain locked once a PIN has been entered, ensure that you override *onPostResume()* and call *ActivityLockingHelper.onActivityResumed(Activity);* e.g.
 
 ```
     @Override
     protected void onPostResume(){
         super.onPostResume();
-        LockingHelper.onActivityResumed(this);
+        ActivityLockingHelper.onActivityResumed(this);
     }
 ```
 
 or you can simply have your Activity extend one of the Lockable Activites available in the library (*LockableCompatActivity* and *LockableActionBarActivity*)
+
+By default, the ActivityLockingHelper considers a successful login as valid for 15 minutes, regardless of application state. You can shorten or extend that length by overriding the integer value for *pin__default_activity_lock_reenable_minutes* in your resources. Doing so will cause any Activity to re-open the *UnlockActivity* after the delay has passed. If you only want PIN-validation on a specific action (e.g. payments), you should use the ActionLockingHelper's methods posted above instead of locking the entre Activity.
 
 To change the default length of the PIN, you can override
 

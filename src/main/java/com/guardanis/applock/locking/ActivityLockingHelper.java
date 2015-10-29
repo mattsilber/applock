@@ -31,6 +31,7 @@ public class ActivityLockingHelper extends LockingHelper {
         ActivityLockingHelper helper = new ActivityLockingHelper(activity);
         if(helper.isUnlockRequired()){
             Intent intent = new Intent(activity, UnlockActivity.class);
+            intent.putExtra(UnlockActivity.INTENT_ALLOW_UNLOCKED_EXIT, false);
             activity.startActivityForResult(intent, REQUEST_CODE_UNLOCK);
         }
     }

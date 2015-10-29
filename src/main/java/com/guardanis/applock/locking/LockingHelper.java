@@ -42,7 +42,7 @@ public abstract class LockingHelper {
     public abstract boolean isUnlockRequired();
 
     public void attemptUnlock(String pin) {
-        if(!isUnlockRequired()){
+        if(getSavedLockPIN() == null){
             eventListener.onUnlockFailed(activity.getString(R.string.pin__unlock_error_no_matching_pin_found));
             return;
         }
