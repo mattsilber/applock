@@ -12,7 +12,7 @@ A simply library for locking and unlocking Activities (e.g. child lock) with a P
     }
 
     dependencies {
-        compile('com.guardanis:applock:1.0.0')
+        compile('com.guardanis:applock:1.0.4')
     }
 ```
 
