@@ -1,6 +1,8 @@
 # App Lock
 
-A simply library for locking and unlocking Activities (e.g. child lock) with a PIN code. (screenshots coming soon)
+A simply library for locking and unlocking Activities (e.g. child lock) with a PIN code. 
+
+![AppLock Sample](https://github.com/mattsilber/applock/raw/master/applock.gif)
 
 # Installation
 
