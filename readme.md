@@ -8,15 +8,14 @@ A simply library for locking and unlocking Activities (e.g. child lock) with a P
 
 ```
     repositories {
-        maven { url "http://dl.bintray.com/mattsilber/maven" }
+        jcenter()
     }
 
     dependencies {
-        compile('com.guardanis:applock:1.0.4')
+        compile('com.guardanis:applock:1.0.5')
     }
 ```
 
-I should have it on *jcenter/mavenCentral* soon enough, but apparently that takes a bit...
 
 # Usage
 
@@ -49,7 +48,19 @@ If you want to do both of the above in a single step (that is, check if there's 
 
 ```
 
-If you want an Activity to remain locked once a PIN has been entered, ensure that you override *onPostResume()* and call *ActivityLockingHelper.onActivityResumed(Activity);* e.g.
+If you want to do the above with a Dialog, instead of an Activity (which looks cooler, IMHO), you can simply call:
+
+```
+    ActionLockingHelper.unlockIfRequired(Activity, new UnlockEventListener(){
+        public void onCanceled(){ } // Dialog was closed without entry
+        public void onUnlockFailed(String reason){ } // Not called with default Dialog, instead is handled internally
+        public void onUnlockSuccessful(){
+            doSomethingThatRequiresLockingIfEnabled();
+        }
+    });
+```
+
+If you want an Activity to remain fully locked once a PIN has been entered, ensure that you override *onPostResume()* and call *ActivityLockingHelper.onActivityResumed(Activity);* e.g.
 
 ```
     @Override

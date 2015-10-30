@@ -168,12 +168,14 @@ public abstract class LockingHelper {
         return TimeUnit.MINUTES.toMillis(activity.getResources().getInteger(R.integer.pin__default_failure_retry_delay));
     }
 
+    /**
+     * Check if there is a saved PIN in the preferences. This is only safe to call when using this
+     * library's Activity/Action-LockingHelper classes. Any further overridden classes using separate preferences
+     * will cause this to return incorrectly since it doesn't rely on the instance.
+     */
     public static boolean hasSavedPIN(Activity activity){
-        return new LockingHelper(activity) {
-            public boolean isUnlockRequired() {
-                return false;
-            }
-        }.getSavedLockPIN() != null;
+        return activity.getSharedPreferences(LockingHelper.class.getName(), 0)
+                .getString(PREF_SAVED_LOCKED_PASSWORD, null) != null;
     }
 
 }
