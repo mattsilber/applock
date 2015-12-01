@@ -8,7 +8,7 @@ public class PINItemAnimator extends Thread {
 
     private static final float MIN_SIZE_PERCENT = .2f;
     private static final float ANIMATION_EXPONENTIAL_FACTOR = 3.5f;
-    private static final int ANIMATION_DURATION = 350;
+    private static final int ANIMATION_DURATION = 250;
     private static final int UPDATE_RATE = 25;
 
     private PINInputView inputView;
