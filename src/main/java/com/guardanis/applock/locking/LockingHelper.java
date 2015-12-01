@@ -21,6 +21,8 @@ public abstract class LockingHelper {
     public static final int REQUEST_CODE_UNLOCK = 9371;
     public static final int REQUEST_CODE_CREATE_LOCK = 9372;
 
+    private static final String PREFS = "pin__preferences";
+
     private static final String PREF_SAVED_LOCKED_PASSWORD = "pin__saved_locked_password";
     private static final String PREF_UNLOCK_FAILURE_TIME = "pin__unlock_failure_time";
     private static final String PREF_UNLOCK_SUCCESS_TIME = "pin__unlock_success_time";
@@ -69,7 +71,7 @@ public abstract class LockingHelper {
     }
 
     protected SharedPreferences getSavedLockPreference(){
-        return activity.getSharedPreferences(LockingHelper.class.getName(), 0);
+        return activity.getSharedPreferences(PREFS, 0);
     }
 
     protected String getSavedLockPIN() {
@@ -174,7 +176,7 @@ public abstract class LockingHelper {
      * will cause this to return incorrectly since it doesn't rely on the instance.
      */
     public static boolean hasSavedPIN(Activity activity){
-        return activity.getSharedPreferences(LockingHelper.class.getName(), 0)
+        return activity.getSharedPreferences(PREFS, 0)
                 .getString(PREF_SAVED_LOCKED_PASSWORD, null) != null;
     }
 
