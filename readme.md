@@ -1,6 +1,6 @@
 # App Lock
 
-A simply library for locking and unlocking Activities (e.g. child lock) with a PIN code. 
+A simple library for locking and unlocking Activities (e.g. child lock) with a PIN code. 
 
 ![AppLock Sample](https://github.com/mattsilber/applock/raw/master/applock.gif)
 
@@ -12,7 +12,7 @@ A simply library for locking and unlocking Activities (e.g. child lock) with a P
     }
 
     dependencies {
-        compile('com.guardanis:applock:1.0.5')
+        compile('com.guardanis:applock:1.0.7')
     }
 ```
 
@@ -58,6 +58,18 @@ If you want to do the above with a Dialog, instead of an Activity (which looks c
             doSomethingThatRequiresLockingIfEnabled();
         }
     });
+```
+
+As of version 1.0.7, you can now create the lock PIN with a Dialog as well (why? because it looks cooler):
+```
+    new CreateLockDialogBuilder(Activity, 
+        new LockCreationListener(){
+            public void onLockCanceled(){ } // Dialog was closed without entry
+            public void onLockSuccessful(){
+                doSomethingOnAppLocked();
+            }
+        })
+        .show();
 ```
 
 If you want an Activity to remain fully locked once a PIN has been entered, ensure that you override *onPostResume()* and call *ActivityLockingHelper.onActivityResumed(Activity);* e.g.
