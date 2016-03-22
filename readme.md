@@ -19,7 +19,9 @@ A simple library for locking and unlocking Activities (e.g. child lock) with a P
 
 # Usage
 
-The goal of AppLock is to allow users to enter and confirm a PIN in order to temporarily lock the application from being used, until the PIN is re-entered by the user. To open the Activity to create a PIN, you can simply open the *AppLockActivity* via
+The goal of AppLock is to allow users to enter and confirm a PIN in order to temporarily lock the application from being used, until the PIN is re-entered by the user. 
+
+To open the Activity to create a PIN, you can simply open the *AppLockActivity* via (PS: If you want to use the dialog instead of the Activity (which looks cooler), see the dialog stuff below):
 
 ```
     Intent intent = new Intent(activity, CreateLockActivity.class);
