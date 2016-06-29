@@ -1,16 +1,11 @@
 package com.guardanis.applock;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.DialogInterface;
-import android.support.v7.app.AlertDialog;
-import android.view.View;
 import android.widget.TextView;
 
 import com.guardanis.applock.locking.ActionLockingHelper;
 import com.guardanis.applock.locking.LockingHelper;
-import com.guardanis.applock.pin.PINInputController;
-import com.guardanis.applock.pin.PINInputView;
 
 public class UnlockDialogBuilder extends AppLockDialogBuilder<ActionLockingHelper> implements LockingHelper.LockEventListener {
 
@@ -35,7 +30,8 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<ActionLockingHelpe
         super.setupInputViews();
 
         descriptionView = (TextView) parentView.findViewById(R.id.pin__description);
-        descriptionView.setText(String.format(activity.getString(R.string.pin__description_unlock), activity.getString(R.string.app_name)));
+        descriptionView.setText(String.format(activity.getString(R.string.pin__description_unlock),
+                activity.getString(R.string.app_name)));
     }
 
     @Override

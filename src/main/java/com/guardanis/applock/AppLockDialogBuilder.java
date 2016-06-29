@@ -10,7 +10,6 @@ import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.TextView;
 
-import com.guardanis.applock.locking.ActionLockingHelper;
 import com.guardanis.applock.locking.LockingHelper;
 import com.guardanis.applock.pin.PINInputController;
 import com.guardanis.applock.pin.PINInputView;

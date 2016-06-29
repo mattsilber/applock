@@ -15,9 +15,9 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.WeakHashMap;
-
 import com.guardanis.applock.R;
+
+import java.util.WeakHashMap;
 
 public class PINInputView extends LinearLayout implements TextWatcher {
 
@@ -48,10 +48,12 @@ public class PINInputView extends LinearLayout implements TextWatcher {
         TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.PINInputView);
 
         itemTextPaint = new Paint();
-        itemTextPaint.setColor(a.getColor(R.styleable.PINInputView_pinTextColor, getResources().getColor(R.color.pin__default_item_text)));
+        itemTextPaint.setColor(a.getColor(R.styleable.PINInputView_pinTextColor,
+                getResources().getColor(R.color.pin__default_item_text)));
 
         itemBackgroundPaint = new Paint();
-        itemBackgroundPaint.setColor(a.getColor(R.styleable.PINInputView_pinBackgroundColor, getResources().getColor(R.color.pin__default_item_background)));
+        itemBackgroundPaint.setColor(a.getColor(R.styleable.PINInputView_pinBackgroundColor,
+                getResources().getColor(R.color.pin__default_item_background)));
 
         inputViewsCount = getResources().getInteger(R.integer.pin__default_input_count);
 
@@ -97,6 +99,7 @@ public class PINInputView extends LinearLayout implements TextWatcher {
 
     public void ensureKeyboardVisible() {
         editText.requestFocus();
+
         ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
                 .showSoftInput(editText, 0);
     }
@@ -107,20 +110,30 @@ public class PINInputView extends LinearLayout implements TextWatcher {
             setupItemViews(canvas);
 
         String text = editText.getText().toString();
+
         for(int i = 0; i < pinItemViews.length; i++)
-            pinItemViews[i].draw(canvas, i < text.length() ? (passwordCharactersEnabled ? "*" : text.substring(i, i + 1)) : "");
+            pinItemViews[i].draw(canvas, i < text.length()
+                    ? (passwordCharactersEnabled
+                            ? "*"
+                            : text.substring(i, i + 1))
+                    : "");
     }
 
     private void setupItemViews(Canvas canvas) {
         pinItemViews = new PINItemView[inputViewsCount];
 
         int cellWidth = canvas.getWidth() / inputViewsCount;
-        int desiredRadius = Math.min(cellWidth / 2, canvas.getHeight() / 2);
+
+        int desiredRadius = Math.min(cellWidth / 2,
+                canvas.getHeight() / 2);
 
         itemTextPaint.setTextSize((int)(desiredRadius * .85));
 
         for(int i = 0; i < pinItemViews.length; i++)
-            pinItemViews[i] = new PINItemView(getPositionInCanvas(canvas, i, cellWidth), desiredRadius, itemTextPaint, itemBackgroundPaint);
+            pinItemViews[i] = new PINItemView(getPositionInCanvas(canvas, i, cellWidth),
+                    desiredRadius,
+                    itemTextPaint,
+                    itemBackgroundPaint);
     }
 
     private float[] getPositionInCanvas(Canvas canvas, int position, int cellWidth) {

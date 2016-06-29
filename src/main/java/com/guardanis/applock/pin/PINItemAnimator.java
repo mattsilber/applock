@@ -38,6 +38,7 @@ public class PINItemAnimator extends Thread {
 
     private void animateIn() throws Exception {
         float percent = MIN_SIZE_PERCENT;
+
         while(percent < 1 && !canceled){
             percent = Math.min(MIN_SIZE_PERCENT + calculatePercentComplete(), 1);
             updateView(percent);
@@ -47,6 +48,7 @@ public class PINItemAnimator extends Thread {
 
     private void animateOut() throws Exception {
         float percent = 1 - calculatePercentComplete();
+
         while(MIN_SIZE_PERCENT < percent && !canceled){
             percent = Math.max(1 - calculatePercentComplete(), MIN_SIZE_PERCENT);
             updateView(percent);
@@ -55,7 +57,8 @@ public class PINItemAnimator extends Thread {
     }
 
     private float calculatePercentComplete() {
-        return (float) Math.pow(((float) (System.currentTimeMillis() - startTime)) / ANIMATION_DURATION, ANIMATION_EXPONENTIAL_FACTOR);
+        return (float) Math.pow(((float) (System.currentTimeMillis() - startTime)) / ANIMATION_DURATION,
+                ANIMATION_EXPONENTIAL_FACTOR);
     }
 
     private void updateView(final float percent) {

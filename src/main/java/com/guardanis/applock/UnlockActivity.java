@@ -25,7 +25,9 @@ public class UnlockActivity extends BaseLockActivity implements ActivityLockingH
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0){
             if(!getIntent().getBooleanExtra(INTENT_ALLOW_UNLOCKED_EXIT, false)){
-                Toast.makeText(this, getString(R.string.pin__toast_unlock_required), Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getString(R.string.pin__toast_unlock_required), Toast.LENGTH_LONG)
+                        .show();
+
                 return true;
             }
         }
@@ -41,7 +43,8 @@ public class UnlockActivity extends BaseLockActivity implements ActivityLockingH
     }
 
     private void setupUnlock() {
-        descriptionView.setText(String.format(getString(R.string.pin__description_unlock), getString(R.string.app_name)));
+        descriptionView.setText(String.format(getString(R.string.pin__description_unlock),
+                getString(R.string.app_name)));
 
         inputController.setInputEventListener(new PINInputController.InputEventListener() {
             public void onInputEntered(String input) {
@@ -52,7 +55,8 @@ public class UnlockActivity extends BaseLockActivity implements ActivityLockingH
 
     @Override
     public void onUnlockSuccessful() {
-        Toast.makeText(UnlockActivity.this, String.format(getString(R.string.pin__toast_unlock_success), getString(R.string.app_name)), Toast.LENGTH_LONG).show();
+        Toast.makeText(UnlockActivity.this, String.format(getString(R.string.pin__toast_unlock_success), getString(R.string.app_name)), Toast.LENGTH_LONG)
+                .show();
 
         setResult(Activity.RESULT_OK);
         finish();

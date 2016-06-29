@@ -24,14 +24,17 @@ public class ActionLockingHelper extends LockingHelper {
 
     /**
      * Check if an action-based unlock is required and navigates to the UnlockActivity if true.
-     * @return true is unlock is required.
+     * @return true if unlock is required.
      */
     public static boolean unlockIfRequired(Activity activity){
         ActionLockingHelper helper = new ActionLockingHelper(activity);
+
         if(helper.isUnlockRequired()){
-            Intent intent = new Intent(activity, UnlockActivity.class);
-            intent.putExtra(UnlockActivity.INTENT_ALLOW_UNLOCKED_EXIT, true);
+            Intent intent = new Intent(activity, UnlockActivity.class)
+                    .putExtra(UnlockActivity.INTENT_ALLOW_UNLOCKED_EXIT, true);
+
             activity.startActivityForResult(intent, REQUEST_CODE_UNLOCK);
+
             return true;
         }
         else return false;
@@ -43,10 +46,9 @@ public class ActionLockingHelper extends LockingHelper {
      */
     public static void unlockIfRequired(Activity activity, @NonNull UnlockDialogBuilder.UnlockEventListener eventListener){
         ActionLockingHelper helper = new ActionLockingHelper(activity);
-        if(helper.isUnlockRequired()){
-            UnlockDialogBuilder builder = new UnlockDialogBuilder(activity, eventListener);
-            builder.show();
-        }
+        if(helper.isUnlockRequired())
+            new UnlockDialogBuilder(activity, eventListener)
+                    .show();
         else eventListener.onUnlockSuccessful();
     }
 

@@ -1,8 +1,6 @@
 package com.guardanis.applock.locking;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 
 import com.guardanis.applock.R;
@@ -54,7 +52,9 @@ public abstract class LockingHelper {
             if(getFailureDelayMs() < System.currentTimeMillis() - getUnlockFailureBlockStart())
                 resetUnlockFailure();
             else{
-                eventListener.onUnlockFailed(String.format(activity.getString(R.string.pin__unlock_error_retry_limit_exceeded), formatTimeRemaining()));
+                eventListener.onUnlockFailed(String.format(activity.getString(R.string.pin__unlock_error_retry_limit_exceeded),
+                        formatTimeRemaining()));
+
                 return;
             }
         }
@@ -97,8 +97,8 @@ public abstract class LockingHelper {
         try{
             MessageDigest md = MessageDigest.getInstance("SHA-1");
             md.update(text.getBytes("UTF-8"), 0, text.length());
-            byte[] sha1hash = md.digest();
-            return convertToHex(sha1hash);
+
+            return convertToHex(md.digest());
         }
         catch(Exception e){ e.printStackTrace(); }
         return "";
@@ -107,12 +107,16 @@ public abstract class LockingHelper {
     private String convertToHex(byte[] data) {
         StringBuilder buf = new StringBuilder();
         for(byte b : data){
-            int halfbyte = (b >>> 4) & 0x0F;
-            int two_halfs = 0;
+            int half = (b >>> 4) & 0x0F;
+            int twoHalves = 0;
+
             do{
-                buf.append((0 <= halfbyte) && (halfbyte <= 9) ? (char) ('0' + halfbyte) : (char) ('a' + (halfbyte - 10)));
-                halfbyte = b & 0x0F;
-            } while(two_halfs++ < 1);
+                buf.append((0 <= half) && (half <= 9)
+                        ? (char) ('0' + half)
+                        : (char) ('a' + (half - 10)));
+
+                half = b & 0x0F;
+            } while(twoHalves++ < 1);
         }
         return buf.toString();
     }

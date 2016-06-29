@@ -50,8 +50,11 @@ public class PINInputController implements TextView.OnEditorActionListener {
     @Override
     public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
         if(isSoftKeyboardFinishedAction(textView, i, keyEvent)){
-            if(eventListener != null) eventListener.onInputEntered(inputView.getText().toString());
+            if(eventListener != null)
+                eventListener.onInputEntered(inputView.getText().toString());
+
             inputView.reset();
+
             return true;
         }
         return false;
@@ -59,7 +62,10 @@ public class PINInputController implements TextView.OnEditorActionListener {
 
     private boolean isSoftKeyboardFinishedAction(TextView view, int action, KeyEvent event) {
         // Some devices return null event on editor actions for Enter Button
-        return (action == EditorInfo.IME_ACTION_DONE || action == EditorInfo.IME_ACTION_GO || action == EditorInfo.IME_ACTION_SEND) && (event == null || event.getAction() == KeyEvent.ACTION_DOWN);
+        return (event == null || event.getAction() == KeyEvent.ACTION_DOWN)
+                && (action == EditorInfo.IME_ACTION_DONE
+                        || action == EditorInfo.IME_ACTION_GO
+                        || action == EditorInfo.IME_ACTION_SEND);
     }
 
 }

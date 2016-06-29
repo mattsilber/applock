@@ -1,14 +1,11 @@
 package com.guardanis.applock.locking;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 
 import com.guardanis.applock.R;
 import com.guardanis.applock.UnlockActivity;
 
-import java.security.MessageDigest;
 import java.util.concurrent.TimeUnit;
 
 public class ActivityLockingHelper extends LockingHelper {
@@ -29,9 +26,11 @@ public class ActivityLockingHelper extends LockingHelper {
 
     public static void onActivityResumed(Activity activity){
         ActivityLockingHelper helper = new ActivityLockingHelper(activity);
+
         if(helper.isUnlockRequired()){
-            Intent intent = new Intent(activity, UnlockActivity.class);
-            intent.putExtra(UnlockActivity.INTENT_ALLOW_UNLOCKED_EXIT, false);
+            Intent intent = new Intent(activity, UnlockActivity.class)
+                    .putExtra(UnlockActivity.INTENT_ALLOW_UNLOCKED_EXIT, false);
+
             activity.startActivityForResult(intent, REQUEST_CODE_UNLOCK);
         }
     }
