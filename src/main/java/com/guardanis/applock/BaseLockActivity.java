@@ -20,14 +20,17 @@ public abstract class BaseLockActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
+
         setContentView(R.layout.activity_app_lock);
         setup();
     }
 
     protected void setup() {
-        inputViewsCount = getIntent().getIntExtra(INTENT_OVERRIDE_VIEW_COUNT, getResources().getInteger(R.integer.pin__default_input_count));
+        inputViewsCount = getIntent().getIntExtra(INTENT_OVERRIDE_VIEW_COUNT,
+                getResources().getInteger(R.integer.pin__default_input_count));
 
         PINInputView view = (PINInputView) findViewById(R.id.pin__input_view);
+
         inputController = new PINInputController(view, null)
                 .setInputNumbersCount(inputViewsCount)
                 .setPasswordCharactersEnabled(getIntent().getBooleanExtra(INTENT_DISPLAY_CHARACTERS_AS_PASSWORD, 

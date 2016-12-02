@@ -17,6 +17,7 @@ public class CreateLockActivity extends BaseLockActivity {
     @Override
     public void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
+
         setContentView(R.layout.activity_app_lock);
         setup();
     }
@@ -26,6 +27,7 @@ public class CreateLockActivity extends BaseLockActivity {
         super.setup();
 
         lockingHelper = new ActivityLockingHelper(this, null);
+
         setupCreateCode();
     }
 

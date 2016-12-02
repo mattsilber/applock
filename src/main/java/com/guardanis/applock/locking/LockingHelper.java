@@ -1,6 +1,7 @@
 package com.guardanis.applock.locking;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.guardanis.applock.R;
@@ -25,17 +26,17 @@ public abstract class LockingHelper {
     private static final String PREF_UNLOCK_FAILURE_TIME = "pin__unlock_failure_time";
     private static final String PREF_UNLOCK_SUCCESS_TIME = "pin__unlock_success_time";
 
-    protected Activity activity;
+    protected Context context;
     protected LockEventListener eventListener;
 
     protected int retryCount = 1;
 
-    protected LockingHelper(Activity activity){
-        this(activity, null);
+    protected LockingHelper(Context context){
+        this(context, null);
     }
 
-    public LockingHelper(Activity activity, LockEventListener eventListener) {
-        this.activity = activity;
+    public LockingHelper(Context context, LockEventListener eventListener) {
+        this.context = context;
         this.eventListener = eventListener;
     }
 
@@ -43,7 +44,8 @@ public abstract class LockingHelper {
 
     public void attemptUnlock(String pin) {
         if(getSavedLockPIN() == null){
-            eventListener.onUnlockFailed(activity.getString(R.string.pin__unlock_error_no_matching_pin_found));
+            eventListener.onUnlockFailed(context.getString(R.string.pin__unlock_error_no_matching_pin_found));
+
             return;
         }
         else if(isUnlockFailureBlockEnabled()){
@@ -52,7 +54,7 @@ public abstract class LockingHelper {
             if(getFailureDelayMs() < System.currentTimeMillis() - getUnlockFailureBlockStart())
                 resetUnlockFailure();
             else{
-                eventListener.onUnlockFailed(String.format(activity.getString(R.string.pin__unlock_error_retry_limit_exceeded),
+                eventListener.onUnlockFailed(String.format(context.getString(R.string.pin__unlock_error_retry_limit_exceeded),
                         formatTimeRemaining()));
 
                 return;
@@ -63,15 +65,16 @@ public abstract class LockingHelper {
             onUnlockSuccessful();
         else{
             retryCount++;
-            eventListener.onUnlockFailed(activity.getString(R.string.pin__unlock_error_match_failed));
 
-            if(activity.getResources().getInteger(R.integer.pin__default_max_retry_count) < retryCount)
+            eventListener.onUnlockFailed(context.getString(R.string.pin__unlock_error_match_failed));
+
+            if(context.getResources().getInteger(R.integer.pin__default_max_retry_count) < retryCount)
                 onFailureExceedsLimit();
         }
     }
 
     protected SharedPreferences getSavedLockPreference(){
-        return activity.getSharedPreferences(PREFS, 0);
+        return context.getSharedPreferences(PREFS, 0);
     }
 
     protected String getSavedLockPIN() {
@@ -101,11 +104,13 @@ public abstract class LockingHelper {
             return convertToHex(md.digest());
         }
         catch(Exception e){ e.printStackTrace(); }
+
         return "";
     }
 
     private String convertToHex(byte[] data) {
         StringBuilder buf = new StringBuilder();
+
         for(byte b : data){
             int half = (b >>> 4) & 0x0F;
             int twoHalves = 0;
@@ -118,6 +123,7 @@ public abstract class LockingHelper {
                 half = b & 0x0F;
             } while(twoHalves++ < 1);
         }
+
         return buf.toString();
     }
 
@@ -129,12 +135,13 @@ public abstract class LockingHelper {
     }
 
     public boolean isUnlockFailureBlockEnabled() {
-        return activity.getResources().getInteger(R.integer.pin__default_max_retry_count) < retryCount
+        return context.getResources().getInteger(R.integer.pin__default_max_retry_count) < retryCount
                 || System.currentTimeMillis() - getUnlockFailureBlockStart() < getFailureDelayMs();
     }
 
     protected long getUnlockFailureBlockStart() {
-        return getSavedLockPreference().getLong(PREF_UNLOCK_FAILURE_TIME, 0);
+        return getSavedLockPreference()
+                .getLong(PREF_UNLOCK_FAILURE_TIME, 0);
     }
 
     protected void onUnlockSuccessful(){
@@ -148,7 +155,8 @@ public abstract class LockingHelper {
     }
 
     protected long getUnlockSuccessTime() {
-        return getSavedLockPreference().getLong(PREF_UNLOCK_SUCCESS_TIME, 0);
+        return getSavedLockPreference()
+                .getLong(PREF_UNLOCK_SUCCESS_TIME, 0);
     }
 
     protected void resetUnlockFailure() {
@@ -165,23 +173,39 @@ public abstract class LockingHelper {
         long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
 
         if(TimeUnit.MILLISECONDS.toMinutes(millis) < 1)
-            return String.format("%d seconds", seconds);
+            return String.format("%d seconds",
+                    seconds);
         else
-            return String.format("%d minutes, %d seconds", TimeUnit.MILLISECONDS.toMinutes(millis), seconds);
+            return String.format("%d minutes, %d seconds",
+                    TimeUnit.MILLISECONDS.toMinutes(millis),
+                    seconds);
     }
 
     protected long getFailureDelayMs(){
-        return TimeUnit.MINUTES.toMillis(activity.getResources().getInteger(R.integer.pin__default_failure_retry_delay));
+        return TimeUnit.MINUTES.toMillis(context.getResources()
+                .getInteger(R.integer.pin__default_failure_retry_delay));
     }
 
     /**
-     * Check if there is a saved PIN in the preferences. This is only safe to call when using this
-     * library's Activity/Action-LockingHelper classes. Any further overridden classes using separate preferences
-     * will cause this to return incorrectly since it doesn't rely on the instance.
+     * Check if there is a saved PIN in the preferences. Keep in mind this only works for the default setup
+     * and does not access any concrete implementation of the LockingHelper classes, therefor overridden versions
+     * of getSavedLockPreference() will not work with this call, and should instead be done on the implementation instance.
      */
-    public static boolean hasSavedPIN(Activity activity){
-        return activity.getSharedPreferences(PREFS, 0)
+    public static boolean hasSavedPIN(Context context){
+        return context.getSharedPreferences(PREFS, 0)
                 .getString(PREF_SAVED_LOCKED_PASSWORD, null) != null;
+    }
+
+    /**
+     * Remove any saved PIN from the preferences. Keep in mind this only destroys the PIN for the default setup
+     * and does not access any concrete implementation of the LockingHelper classes, therefor overridden versions
+     * of getSavedLockPreference() will not work with this call, and should instead be done on the implementation instance.
+     */
+    public static void removeSavedPIN(Context context){
+        context.getSharedPreferences(PREFS, 0)
+                .edit()
+                .remove(PREF_SAVED_LOCKED_PASSWORD)
+                .commit();
     }
 
 }

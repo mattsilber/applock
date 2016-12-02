@@ -9,6 +9,7 @@ public class LockableCompatActivity extends AppCompatActivity {
     @Override
     protected void onPostResume(){
         super.onPostResume();
+
         ActivityLockingHelper.onActivityResumed(this);
     }
 

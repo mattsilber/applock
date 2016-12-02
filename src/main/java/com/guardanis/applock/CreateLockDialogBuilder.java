@@ -21,6 +21,7 @@ public class CreateLockDialogBuilder extends AppLockDialogBuilder<ActivityLockin
 
     public CreateLockDialogBuilder(Activity activity, LockCreationListener eventListener){
         super(activity);
+
         this.eventListener = eventListener;
     }
 
@@ -32,6 +33,7 @@ public class CreateLockDialogBuilder extends AppLockDialogBuilder<ActivityLockin
     @Override
     protected void setupInputViews(){
         super.setupInputViews();
+
         setupCreateCode();
     }
 

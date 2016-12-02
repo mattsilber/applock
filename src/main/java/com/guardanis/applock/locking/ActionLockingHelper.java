@@ -1,6 +1,7 @@
 package com.guardanis.applock.locking;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 
@@ -9,12 +10,12 @@ import com.guardanis.applock.UnlockDialogBuilder;
 
 public class ActionLockingHelper extends LockingHelper {
 
-    private ActionLockingHelper(Activity activity){
-        this(activity, null);
+    private ActionLockingHelper(Context context){
+        this(context, null);
     }
 
-    public ActionLockingHelper(Activity activity, LockEventListener eventListener) {
-        super(activity, eventListener);
+    public ActionLockingHelper(Context context, LockEventListener eventListener) {
+        super(context, eventListener);
     }
 
     @Override
@@ -46,6 +47,7 @@ public class ActionLockingHelper extends LockingHelper {
      */
     public static void unlockIfRequired(Activity activity, @NonNull UnlockDialogBuilder.UnlockEventListener eventListener){
         ActionLockingHelper helper = new ActionLockingHelper(activity);
+
         if(helper.isUnlockRequired())
             new UnlockDialogBuilder(activity, eventListener)
                     .show();

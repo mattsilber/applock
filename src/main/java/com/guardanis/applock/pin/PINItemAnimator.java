@@ -42,6 +42,7 @@ public class PINItemAnimator extends Thread {
         while(percent < 1 && !canceled){
             percent = Math.min(MIN_SIZE_PERCENT + calculatePercentComplete(), 1);
             updateView(percent);
+
             Thread.sleep(UPDATE_RATE);
         }
     }
@@ -52,6 +53,7 @@ public class PINItemAnimator extends Thread {
         while(MIN_SIZE_PERCENT < percent && !canceled){
             percent = Math.max(1 - calculatePercentComplete(), MIN_SIZE_PERCENT);
             updateView(percent);
+
             Thread.sleep(UPDATE_RATE);
         }
     }
@@ -65,6 +67,7 @@ public class PINItemAnimator extends Thread {
         inputView.post(new Runnable() {
             public void run() {
                 itemView.onAnimationUpdate(percent);
+
                 inputView.invalidate();
             }
         });

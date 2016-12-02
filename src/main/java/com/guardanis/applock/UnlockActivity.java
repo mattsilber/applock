@@ -17,6 +17,7 @@ public class UnlockActivity extends BaseLockActivity implements ActivityLockingH
     @Override
     public void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
+
         setContentView(R.layout.activity_app_lock);
         setup();
     }
@@ -31,6 +32,7 @@ public class UnlockActivity extends BaseLockActivity implements ActivityLockingH
                 return true;
             }
         }
+
         return super.onKeyDown(keyCode, event);
     }
 
@@ -39,6 +41,7 @@ public class UnlockActivity extends BaseLockActivity implements ActivityLockingH
         super.setup();
 
         lockingHelper = new ActivityLockingHelper(this, this);
+
         setupUnlock();
     }
 

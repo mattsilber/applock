@@ -33,8 +33,12 @@ public abstract class AppLockDialogBuilder<L extends LockingHelper>
     public AppLockDialogBuilder(Activity activity){
         this.activity = activity;
         this.lockingHelper = buildLockingHelper();
-        this.inputViewsCount = activity.getResources().getInteger(R.integer.pin__default_input_count);
-        this.passwordCharsEnabled = activity.getResources().getBoolean(R.bool.pin__default_item_password_chars_enabled);
+
+        this.inputViewsCount = activity.getResources()
+                .getInteger(R.integer.pin__default_input_count);
+
+        this.passwordCharsEnabled = activity.getResources()
+                .getBoolean(R.bool.pin__default_item_password_chars_enabled);
     }
 
     protected abstract L buildLockingHelper();
@@ -61,9 +65,11 @@ public abstract class AppLockDialogBuilder<L extends LockingHelper>
     }
 
     protected void setupInputViews(){
-        this.parentView = activity.getLayoutInflater().inflate(R.layout.activity_app_lock, null, false);
+        this.parentView = activity.getLayoutInflater()
+                .inflate(R.layout.activity_app_lock, null, false);
 
         PINInputView view = (PINInputView) parentView.findViewById(R.id.pin__input_view);
+
         inputController = new PINInputController(view, this)
                 .setInputNumbersCount(inputViewsCount)
                 .setPasswordCharactersEnabled(passwordCharsEnabled);

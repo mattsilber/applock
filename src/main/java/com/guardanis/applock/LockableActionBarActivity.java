@@ -9,6 +9,7 @@ public class LockableActionBarActivity extends ActionBarActivity {
     @Override
     protected void onPostResume(){
         super.onPostResume();
+
         ActivityLockingHelper.onActivityResumed(this);
     }
 
