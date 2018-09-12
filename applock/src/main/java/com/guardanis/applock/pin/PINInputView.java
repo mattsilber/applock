@@ -33,11 +33,13 @@ public class PINInputView extends LinearLayout implements TextWatcher {
     private String lastText = "";
 
     private boolean passwordCharactersEnabled = true;
+    private String passwordCharacter;
 
     private WeakHashMap<PINItemView, PINItemAnimator> animators = new WeakHashMap<PINItemView, PINItemAnimator>();
 
     public PINInputView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
         init(attrs);
     }
 
@@ -56,6 +58,8 @@ public class PINInputView extends LinearLayout implements TextWatcher {
                 getResources().getColor(R.color.pin__default_item_background)));
 
         inputViewsCount = getResources().getInteger(R.integer.pin__default_input_count);
+
+        passwordCharacter = getResources().getString(R.string.pin__default_password_char);
 
         a.recycle();
     }
@@ -76,16 +80,18 @@ public class PINInputView extends LinearLayout implements TextWatcher {
 
     public PINInputView setInputViewsCount(int inputViewsCount) {
         this.inputViewsCount = inputViewsCount;
-        reset();
-        return this;
+
+        return reset();
     }
 
-    public void reset() {
+    public PINInputView reset() {
         this.lastText = "";
         this.editText.setText("");
 
         if(pinItemViews != null)
             animateLastOut();
+
+        return this;
     }
 
     @Override
@@ -94,6 +100,7 @@ public class PINInputView extends LinearLayout implements TextWatcher {
             ensureKeyboardVisible();
             return true;
         }
+
         return super.onTouchEvent(event);
     }
 
@@ -111,29 +118,30 @@ public class PINInputView extends LinearLayout implements TextWatcher {
 
         String text = editText.getText().toString();
 
-        for(int i = 0; i < pinItemViews.length; i++)
-            pinItemViews[i].draw(canvas, i < text.length()
-                    ? (passwordCharactersEnabled
-                            ? "*"
-                            : text.substring(i, i + 1))
-                    : "");
+        for(int i = 0; i < pinItemViews.length; i++) {
+            String textItem =  i < text.length()
+                    ? (passwordCharactersEnabled ? passwordCharacter : text.substring(i, i + 1))
+                    : "";
+
+            pinItemViews[i].draw(canvas, textItem);
+        }
     }
 
     private void setupItemViews(Canvas canvas) {
         pinItemViews = new PINItemView[inputViewsCount];
 
         int cellWidth = canvas.getWidth() / inputViewsCount;
+        int largestRadius = Math.min(cellWidth / 2, canvas.getHeight() / 2);
+        int smallestRadius = (int) (largestRadius * Float.parseFloat(getResources().getString(R.string.pin__empty_item_min_size_percent)));
+        int[] minMaxRadius = new int[] { smallestRadius, largestRadius };
 
-        int desiredRadius = Math.min(cellWidth / 2,
-                canvas.getHeight() / 2);
+        itemTextPaint.setTextSize((int)(largestRadius * .85));
 
-        itemTextPaint.setTextSize((int)(desiredRadius * .85));
+        for(int i = 0; i < pinItemViews.length; i++) {
+            float[] positionInCanvas = getPositionInCanvas(canvas, i, cellWidth);
 
-        for(int i = 0; i < pinItemViews.length; i++)
-            pinItemViews[i] = new PINItemView(getPositionInCanvas(canvas, i, cellWidth),
-                    desiredRadius,
-                    itemTextPaint,
-                    itemBackgroundPaint);
+            pinItemViews[i] = new PINItemView(positionInCanvas, minMaxRadius, itemTextPaint, itemBackgroundPaint);
+        }
     }
 
     private float[] getPositionInCanvas(Canvas canvas, int position, int cellWidth) {
@@ -185,6 +193,7 @@ public class PINInputView extends LinearLayout implements TextWatcher {
     private void animate(PINItemView view, PINItemAnimator.ItemAnimationDirection direction) {
         cancelPreviousAnimation(view);
         view.setAnimationDirection(direction);
+
         PINItemAnimator animator = new PINItemAnimator(this, view, direction);
         animators.put(view, animator);
         animator.start();
@@ -212,4 +221,7 @@ public class PINInputView extends LinearLayout implements TextWatcher {
         this.passwordCharactersEnabled = passwordCharactersEnabled;
     }
 
+    public void setPasswordCharacter(String passwordCharacter) {
+        this.passwordCharacter = passwordCharacter;
+    }
 }

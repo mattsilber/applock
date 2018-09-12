@@ -2,13 +2,13 @@ package com.guardanis.applock.pin;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Point;
 
 public class PINItemView {
 
     private float[] position;
     private int intendedRadius;
     private int currentRadius;
-    private int smallestRadius;
     private Paint backgroundPaint;
 
     private float[] textPosition;
@@ -16,11 +16,10 @@ public class PINItemView {
 
     private PINItemAnimator.ItemAnimationDirection animationDirection = PINItemAnimator.ItemAnimationDirection.OUT;
 
-    public PINItemView(float[] position, int intendedRadius, Paint baseTextPaint, Paint baseBackgroundPaint) {
+    public PINItemView(float[] position, int[] minMaxRadius, Paint baseTextPaint, Paint baseBackgroundPaint) {
         this.position = position;
-        this.intendedRadius = intendedRadius;
-        this.smallestRadius = intendedRadius / 5;
-        this.currentRadius = smallestRadius;
+        this.intendedRadius = minMaxRadius[1];
+        this.currentRadius = minMaxRadius[0];
 
         setupPaints(baseTextPaint, baseBackgroundPaint);
     }

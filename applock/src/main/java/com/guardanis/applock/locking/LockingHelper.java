@@ -13,7 +13,6 @@ public abstract class LockingHelper {
 
     public interface LockEventListener {
         public void onUnlockSuccessful();
-
         public void onUnlockFailed(String reason);
     }
 

@@ -1,19 +1,26 @@
 package com.guardanis.applock.pin;
 
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Interpolator;
+
+import com.guardanis.applock.R;
+
 public class PINItemAnimator extends Thread {
 
     public enum ItemAnimationDirection {
         IN, OUT;
     }
 
-    private static final float MIN_SIZE_PERCENT = .2f;
-    private static final float ANIMATION_EXPONENTIAL_FACTOR = 3.5f;
     private static final int ANIMATION_DURATION = 250;
     private static final int UPDATE_RATE = 25;
 
     private PINInputView inputView;
     private PINItemView itemView;
     private ItemAnimationDirection animationDirection;
+    private Interpolator itemInterpolator = new AccelerateDecelerateInterpolator();
+
+    private float minSizePercent;
 
     private long startTime;
     private boolean canceled = false;
@@ -22,6 +29,7 @@ public class PINItemAnimator extends Thread {
         this.inputView = inputView;
         this.itemView = itemView;
         this.animationDirection = animationDirection;
+        this.minSizePercent = Float.parseFloat(inputView.getResources().getString(R.string.pin__empty_item_min_size_percent));
     }
 
     @Override
@@ -31,16 +39,17 @@ public class PINItemAnimator extends Thread {
         try{
             if(animationDirection == ItemAnimationDirection.IN)
                 animateIn();
-            else animateOut();
+            else
+                animateOut();
         }
         catch(Exception e){ e.printStackTrace(); }
     }
 
     private void animateIn() throws Exception {
-        float percent = MIN_SIZE_PERCENT;
+        float percent = minSizePercent;
 
         while(percent < 1 && !canceled){
-            percent = Math.min(MIN_SIZE_PERCENT + calculatePercentComplete(), 1);
+            percent = Math.min(minSizePercent + calculatePercentComplete(), 1);
             updateView(percent);
 
             Thread.sleep(UPDATE_RATE);
@@ -50,17 +59,18 @@ public class PINItemAnimator extends Thread {
     private void animateOut() throws Exception {
         float percent = 1 - calculatePercentComplete();
 
-        while(MIN_SIZE_PERCENT < percent && !canceled){
-            percent = Math.max(1 - calculatePercentComplete(), MIN_SIZE_PERCENT);
+        while(minSizePercent < percent && !canceled){
+            percent = Math.max(1 - calculatePercentComplete(), minSizePercent);
             updateView(percent);
 
             Thread.sleep(UPDATE_RATE);
         }
     }
 
-    private float calculatePercentComplete() {
-        return (float) Math.pow(((float) (System.currentTimeMillis() - startTime)) / ANIMATION_DURATION,
-                ANIMATION_EXPONENTIAL_FACTOR);
+    protected float calculatePercentComplete() {
+        float completed = ((float) (System.currentTimeMillis() - startTime)) / ANIMATION_DURATION;
+
+        return itemInterpolator.getInterpolation(completed);
     }
 
     private void updateView(final float percent) {

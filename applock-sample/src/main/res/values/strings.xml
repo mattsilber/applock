@@ -1,0 +1,16 @@
+<resources>
+
+    <string name="app_name">Applock Sample</string>
+
+
+    <string name="alert_action_ok">Ok</string>
+    <string name="alert_action_cancel">Cancel</string>
+    <string name="alert_action_leave">Leave</string>
+
+
+    <string-array name="fu__font_family_resources">
+        <item>roboto--normal=fonts/roboto.ttf,bold=fonts/roboto_bold.ttf</item>
+    </string-array>
+
+
+</resources>

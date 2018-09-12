@@ -51,7 +51,8 @@ public class ActionLockingHelper extends LockingHelper {
         if(helper.isUnlockRequired())
             new UnlockDialogBuilder(activity, eventListener)
                     .show();
-        else eventListener.onUnlockSuccessful();
+        else
+            eventListener.onUnlockSuccessful();
     }
 
 }
