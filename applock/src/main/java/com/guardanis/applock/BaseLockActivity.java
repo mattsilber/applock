@@ -13,6 +13,7 @@ public abstract class BaseLockActivity extends AppCompatActivity {
     public static final String INTENT_DISPLAY_CHARACTERS_AS_PASSWORD = "intent_characters_as_password";
 
     protected PINInputController inputController;
+    protected PINInputView pinInputView;
     protected TextView descriptionView;
 
     protected int inputViewsCount = 4;
@@ -21,22 +22,18 @@ public abstract class BaseLockActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
 
-        setContentView(R.layout.activity_app_lock);
+        setContentView(R.layout.applock__main);
         setup();
     }
 
     protected void setup() {
-        inputViewsCount = getIntent().getIntExtra(INTENT_OVERRIDE_VIEW_COUNT,
-                getResources().getInteger(R.integer.pin__default_input_count));
+        this.inputViewsCount = getIntent().getIntExtra(INTENT_OVERRIDE_VIEW_COUNT, getResources().getInteger(R.integer.pin__default_input_count));
+        this.descriptionView = (TextView) findViewById(R.id.pin__description);
+        this.pinInputView = (PINInputView) findViewById(R.id.pin__input_view);
 
-        PINInputView view = (PINInputView) findViewById(R.id.pin__input_view);
-
-        inputController = new PINInputController(view, null)
+        this.inputController = new PINInputController(pinInputView, null)
                 .setInputNumbersCount(inputViewsCount)
                 .setPasswordCharactersEnabled(getIntent().getBooleanExtra(INTENT_DISPLAY_CHARACTERS_AS_PASSWORD, 
                         getResources().getBoolean(R.bool.pin__default_item_password_chars_enabled)));
-
-        descriptionView = (TextView) findViewById(R.id.pin__description);
     }
-
 }

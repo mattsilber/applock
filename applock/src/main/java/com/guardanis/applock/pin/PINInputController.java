@@ -57,6 +57,7 @@ public class PINInputController implements TextView.OnEditorActionListener {
 
             return true;
         }
+
         return false;
     }
 

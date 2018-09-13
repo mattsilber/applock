@@ -3,12 +3,12 @@ package com.guardanis.applock.sample
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import com.guardanis.applock.locking.LockingHelper
+import com.guardanis.applock.AppLock
 import com.guardanis.applock.CreateLockDialogBuilder.LockCreationListener
 import android.widget.Toast
 import com.guardanis.applock.CreateLockDialogBuilder
 import com.guardanis.applock.UnlockDialogBuilder.UnlockEventListener
-import com.guardanis.applock.locking.ActionLockingHelper
+import com.guardanis.applock.utils.PINUtils
 
 class MainActivity: AppCompatActivity() {
 
@@ -19,7 +19,7 @@ class MainActivity: AppCompatActivity() {
     }
 
     fun openApplockFlowClicked(view: View?) {
-        if (!LockingHelper.hasSavedPIN(this)) {
+        if (!AppLock.isUnlockMethodPresent(this)) {
             showCreateLockFlow()
             return
         }
@@ -46,7 +46,7 @@ class MainActivity: AppCompatActivity() {
     }
 
     fun showUnlockFlow() {
-        ActionLockingHelper.unlockIfRequired(
+        AppLock.unlockIfRequired(
                 this,
                 object: UnlockEventListener {
 
@@ -61,7 +61,7 @@ class MainActivity: AppCompatActivity() {
                         Toast.makeText(this@MainActivity, "Lock removed!", Toast.LENGTH_SHORT)
                                 .show()
 
-                        LockingHelper.removeSavedPIN(this@MainActivity)
+                        PINUtils.removePIN(this@MainActivity)
                     }
         })
     }

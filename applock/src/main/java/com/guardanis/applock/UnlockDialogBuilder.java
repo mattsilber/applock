@@ -4,12 +4,9 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.widget.TextView;
 
-import com.guardanis.applock.locking.ActionLockingHelper;
-import com.guardanis.applock.locking.LockingHelper;
+public class UnlockDialogBuilder extends AppLockDialogBuilder implements AppLock.LockEventListener {
 
-public class UnlockDialogBuilder extends AppLockDialogBuilder<ActionLockingHelper> implements LockingHelper.LockEventListener {
-
-    public interface UnlockEventListener extends LockingHelper.LockEventListener {
+    public interface UnlockEventListener extends AppLock.LockEventListener {
         public void onCanceled();
     }
 
@@ -17,12 +14,8 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<ActionLockingHelpe
 
     public UnlockDialogBuilder(Activity activity, UnlockEventListener eventListener){
         super(activity);
-        this.eventListener = eventListener;
-    }
 
-    @Override
-    protected ActionLockingHelper buildLockingHelper() {
-        return new ActionLockingHelper(activity, this);
+        this.eventListener = eventListener;
     }
 
     @Override
@@ -30,13 +23,13 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<ActionLockingHelpe
         super.setupInputViews();
 
         descriptionView = (TextView) parentView.findViewById(R.id.pin__description);
-        descriptionView.setText(String.format(activity.getString(R.string.pin__description_unlock),
-                activity.getString(R.string.app_name)));
+        descriptionView.setText(R.string.pin__description_unlock);
     }
 
     @Override
     public void onInputEntered(String input) {
-        lockingHelper.attemptUnlock(input);
+        AppLock.getInstance(activity)
+                .attemptUnlock(input, this);
     }
 
     @Override
@@ -59,5 +52,4 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<ActionLockingHelpe
 
         super.onCancel(dialogInterface);
     }
-
 }

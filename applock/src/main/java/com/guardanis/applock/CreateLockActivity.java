@@ -2,23 +2,26 @@ package com.guardanis.applock;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
-import com.guardanis.applock.locking.ActivityLockingHelper;
 import com.guardanis.applock.pin.PINInputController;
+import com.guardanis.applock.utils.PINUtils;
 
 public class CreateLockActivity extends BaseLockActivity {
 
-    private ActivityLockingHelper lockingHelper;
     private int inputViewsCount = 4;
 
     private String pinFirst;
+
+    protected View chooserParent;
+    protected View fingerprintAuthImageView;
 
     @Override
     public void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
 
-        setContentView(R.layout.activity_app_lock);
+        setContentView(R.layout.applock__main);
         setup();
     }
 
@@ -26,20 +29,23 @@ public class CreateLockActivity extends BaseLockActivity {
     protected void setup() {
         super.setup();
 
-        lockingHelper = new ActivityLockingHelper(this, null);
+        this.chooserParent = findViewById(R.id.pin__create_chooser_items);
+        this.fingerprintAuthImageView = findViewById(R.id.pin__fingerprint_image);
 
         setupCreateCode();
     }
 
     private void setupCreateCode() {
-        descriptionView.setText(String.format(getString(R.string.pin__description_create),
-                String.valueOf(inputViewsCount),
-                getString(R.string.app_name)));
+        chooserParent.setVisibility(View.GONE);
+        fingerprintAuthImageView.setVisibility(View.GONE);
+        pinInputView.setVisibility(View.VISIBLE);
+
+        descriptionView.setText(R.string.pin__description_create_pin);
 
         inputController.setInputEventListener(new PINInputController.InputEventListener() {
             public void onInputEntered(String input) {
                 if(input.length() < inputViewsCount)
-                    descriptionView.setText(getString(R.string.pin__unlock_error_insufficient_selection));
+                    descriptionView.setText(R.string.pin__unlock_error_insufficient_selection);
                 else{
                     pinFirst = input;
                     setupConfirmCode();
@@ -49,17 +55,17 @@ public class CreateLockActivity extends BaseLockActivity {
     }
 
     private void setupConfirmCode() {
-        descriptionView.setText(getString(R.string.pin__description_confirm));
+        descriptionView.setText(R.string.pin__description_confirm);
 
         inputController.setInputEventListener(new PINInputController.InputEventListener() {
             public void onInputEntered(String input) {
                 if(input.length() < inputViewsCount)
-                    descriptionView.setText(getString(R.string.pin__unlock_error_insufficient_selection));
-                else if(input.equals(pinFirst)){
-                    Toast.makeText(CreateLockActivity.this, String.format(getString(R.string.pin__toast_lock_success), getString(R.string.app_name)), Toast.LENGTH_LONG)
+                    descriptionView.setText(R.string.pin__unlock_error_insufficient_selection);
+                else if(input.equals(pinFirst)) {
+                    Toast.makeText(CreateLockActivity.this, getString(R.string.pin__toast_lock_success), Toast.LENGTH_LONG)
                             .show();
 
-                    lockingHelper.saveLockPIN(input);
+                    PINUtils.savePIN(CreateLockActivity.this, input);
 
                     setResult(Activity.RESULT_OK);
                     finish();
@@ -73,5 +79,4 @@ public class CreateLockActivity extends BaseLockActivity {
             }
         });
     }
-
 }

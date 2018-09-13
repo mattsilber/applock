@@ -5,20 +5,17 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
-import com.guardanis.applock.locking.ActivityLockingHelper;
 import com.guardanis.applock.pin.PINInputController;
 
-public class UnlockActivity extends BaseLockActivity implements ActivityLockingHelper.LockEventListener {
+public class UnlockActivity extends BaseLockActivity implements AppLock.LockEventListener {
 
     public static final String INTENT_ALLOW_UNLOCKED_EXIT = "pin_allow_activity_exit"; // false by default
-
-    private ActivityLockingHelper lockingHelper;
 
     @Override
     public void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
 
-        setContentView(R.layout.activity_app_lock);
+        setContentView(R.layout.applock__main);
         setup();
     }
 
@@ -40,25 +37,23 @@ public class UnlockActivity extends BaseLockActivity implements ActivityLockingH
     protected void setup() {
         super.setup();
 
-        lockingHelper = new ActivityLockingHelper(this, this);
-
         setupUnlock();
     }
 
     private void setupUnlock() {
-        descriptionView.setText(String.format(getString(R.string.pin__description_unlock),
-                getString(R.string.app_name)));
+        descriptionView.setText(R.string.pin__description_unlock);
 
         inputController.setInputEventListener(new PINInputController.InputEventListener() {
             public void onInputEntered(String input) {
-                lockingHelper.attemptUnlock(input);
+                AppLock.getInstance(UnlockActivity.this)
+                        .attemptUnlock(input, UnlockActivity.this);
             }
         });
     }
 
     @Override
     public void onUnlockSuccessful() {
-        Toast.makeText(UnlockActivity.this, String.format(getString(R.string.pin__toast_unlock_success), getString(R.string.app_name)), Toast.LENGTH_LONG)
+        Toast.makeText(UnlockActivity.this, getString(R.string.pin__toast_unlock_success), Toast.LENGTH_LONG)
                 .show();
 
         setResult(Activity.RESULT_OK);
@@ -69,5 +64,4 @@ public class UnlockActivity extends BaseLockActivity implements ActivityLockingH
     public void onUnlockFailed(String reason) {
         descriptionView.setText(reason);
     }
-
 }

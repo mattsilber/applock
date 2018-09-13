@@ -2,13 +2,14 @@ package com.guardanis.applock;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.guardanis.applock.locking.ActivityLockingHelper;
 import com.guardanis.applock.pin.PINInputController;
+import com.guardanis.applock.utils.PINUtils;
 
-public class CreateLockDialogBuilder extends AppLockDialogBuilder<ActivityLockingHelper> {
+public class CreateLockDialogBuilder extends AppLockDialogBuilder {
 
     public interface LockCreationListener {
         public void onLockSuccessful();
@@ -16,8 +17,10 @@ public class CreateLockDialogBuilder extends AppLockDialogBuilder<ActivityLockin
     }
 
     protected LockCreationListener eventListener;
-
     protected String pinFirst;
+
+    protected View chooserParent;
+    protected View fingerprintAuthImageView;
 
     public CreateLockDialogBuilder(Activity activity, LockCreationListener eventListener){
         super(activity);
@@ -26,27 +29,26 @@ public class CreateLockDialogBuilder extends AppLockDialogBuilder<ActivityLockin
     }
 
     @Override
-    protected ActivityLockingHelper buildLockingHelper() {
-        return new ActivityLockingHelper(activity, null);
-    }
-
-    @Override
-    protected void setupInputViews(){
+    protected void setupInputViews() {
         super.setupInputViews();
+
+        this.chooserParent = parentView.findViewById(R.id.pin__create_chooser_items);
+        this.fingerprintAuthImageView = parentView.findViewById(R.id.pin__fingerprint_image);
 
         setupCreateCode();
     }
 
-    private void setupCreateCode(){
-        descriptionView = (TextView) parentView.findViewById(R.id.pin__description);
-        descriptionView.setText(String.format(activity.getString(R.string.pin__description_create),
-                String.valueOf(inputViewsCount),
-                activity.getString(R.string.app_name)));
+    private void setupCreateCode() {
+        chooserParent.setVisibility(View.GONE);
+        fingerprintAuthImageView.setVisibility(View.GONE);
+        pinInputView.setVisibility(View.VISIBLE);
+
+        descriptionView.setText(R.string.pin__description_create_pin);
 
         inputController.setInputEventListener(new PINInputController.InputEventListener() {
             public void onInputEntered(String input) {
                 if(input.length() < inputViewsCount)
-                    descriptionView.setText(activity.getString(R.string.pin__unlock_error_insufficient_selection));
+                    descriptionView.setText(R.string.pin__unlock_error_insufficient_selection);
                 else{
                     pinFirst = input;
                     setupConfirmCode();
@@ -56,17 +58,17 @@ public class CreateLockDialogBuilder extends AppLockDialogBuilder<ActivityLockin
     }
 
     private void setupConfirmCode() {
-        descriptionView.setText(activity.getString(R.string.pin__description_confirm));
+        descriptionView.setText(R.string.pin__description_confirm);
 
         inputController.setInputEventListener(new PINInputController.InputEventListener() {
             public void onInputEntered(String input) {
                 if(input.length() < inputViewsCount)
-                    descriptionView.setText(activity.getString(R.string.pin__unlock_error_insufficient_selection));
-                else if(input.equals(pinFirst)){
-                    Toast.makeText(activity, String.format(activity.getString(R.string.pin__toast_lock_success), activity.getString(R.string.app_name)),
-                            Toast.LENGTH_LONG).show();
+                    descriptionView.setText(R.string.pin__unlock_error_insufficient_selection);
+                else if(input.equals(pinFirst)) {
+                    Toast.makeText(activity, activity.getString(R.string.pin__toast_lock_success), Toast.LENGTH_LONG)
+                            .show();
 
-                    lockingHelper.saveLockPIN(input);
+                    PINUtils.savePIN(activity, input);
 
                     if(eventListener != null)
                         eventListener.onLockSuccessful();
@@ -74,13 +76,23 @@ public class CreateLockDialogBuilder extends AppLockDialogBuilder<ActivityLockin
                     dismissDialog();
                 }
                 else {
-                    Toast.makeText(activity, activity.getString(R.string.pin__unlock_error_match_failed),
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(activity, activity.getString(R.string.pin__unlock_error_match_failed), Toast.LENGTH_LONG)
+                            .show();
 
                     setupCreateCode();
                 }
             }
         });
+    }
+
+    private void setupChooser() {
+        chooserParent.setVisibility(View.VISIBLE);
+        fingerprintAuthImageView.setVisibility(View.GONE);
+        pinInputView.setVisibility(View.GONE);
+
+        descriptionView.setText(R.string.pin__description_chooser);
+
+
     }
 
     @Override
@@ -95,5 +107,4 @@ public class CreateLockDialogBuilder extends AppLockDialogBuilder<ActivityLockin
 
         super.onCancel(dialogInterface);
     }
-
 }

@@ -11,4 +11,7 @@
     <color name="pin__default_item_background">#3C9ADF</color>
     <color name="pin__default_item_text">#FAFAFA</color>
 
+    <color name="pin__default_create_choose_option_bg">#00FFFFFF</color>
+    <color name="pin__default_create_choose_option_bg_pressed">#11000000</color>
+
 </resources>

@@ -10,29 +10,25 @@ import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.TextView;
 
-import com.guardanis.applock.locking.LockingHelper;
 import com.guardanis.applock.pin.PINInputController;
 import com.guardanis.applock.pin.PINInputView;
 
-public abstract class AppLockDialogBuilder<L extends LockingHelper>
-        implements DialogInterface.OnCancelListener, PINInputController.InputEventListener {
+public abstract class AppLockDialogBuilder implements DialogInterface.OnCancelListener, PINInputController.InputEventListener {
 
     protected Activity activity;
 
     protected PINInputController inputController;
+    protected PINInputView pinInputView;
     protected TextView descriptionView;
 
     protected int inputViewsCount = 0;
     protected boolean passwordCharsEnabled = true;
-
-    protected L lockingHelper;
 
     protected Dialog dialog;
     protected View parentView;
 
     public AppLockDialogBuilder(Activity activity){
         this.activity = activity;
-        this.lockingHelper = buildLockingHelper();
 
         this.inputViewsCount = activity.getResources()
                 .getInteger(R.integer.pin__default_input_count);
@@ -41,14 +37,12 @@ public abstract class AppLockDialogBuilder<L extends LockingHelper>
                 .getBoolean(R.bool.pin__default_item_password_chars_enabled);
     }
 
-    protected abstract L buildLockingHelper();
-
-    public AppLockDialogBuilder<L> setInputViewsCount(int inputViewsCount) {
+    public AppLockDialogBuilder setInputViewsCount(int inputViewsCount) {
         this.inputViewsCount = inputViewsCount;
         return this;
     }
 
-    public AppLockDialogBuilder<L> setPasswordCharsEnabled(boolean passwordCharsEnabled) {
+    public AppLockDialogBuilder setPasswordCharsEnabled(boolean passwordCharsEnabled) {
         this.passwordCharsEnabled = passwordCharsEnabled;
         return this;
     }
@@ -60,17 +54,19 @@ public abstract class AppLockDialogBuilder<L extends LockingHelper>
         builder.setView(parentView);
         builder.setOnCancelListener(this);
 
-        dialog = builder.show();
+        this.dialog = builder.show();
+
         return dialog;
     }
 
     protected void setupInputViews(){
         this.parentView = activity.getLayoutInflater()
-                .inflate(R.layout.activity_app_lock, null, false);
+                .inflate(R.layout.applock__main, null, false);
 
-        PINInputView view = (PINInputView) parentView.findViewById(R.id.pin__input_view);
+        this.descriptionView = (TextView) parentView.findViewById(R.id.pin__description);
+        this.pinInputView = (PINInputView) parentView.findViewById(R.id.pin__input_view);
 
-        inputController = new PINInputController(view, this)
+        this.inputController = new PINInputController(pinInputView, this)
                 .setInputNumbersCount(inputViewsCount)
                 .setPasswordCharactersEnabled(passwordCharsEnabled);
     }
@@ -90,15 +86,16 @@ public abstract class AppLockDialogBuilder<L extends LockingHelper>
                         if(!((Activity) context).isDestroyed())
                             dialog.dismiss();
                     }
-                    else dialog.dismiss();
+                    else
+                        dialog.dismiss();
                 }
             }
-            else dialog.dismiss();
+            else
+                dialog.dismiss();
         }
         catch(IllegalArgumentException e){ }
         catch(Throwable e){ }
 
-        dialog = null;
+        this.dialog = null;
     }
-
 }
