@@ -1,6 +1,7 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:applock="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/pin__container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/pin__default_activity_background"
@@ -52,7 +53,7 @@
             <android.support.v7.widget.AppCompatImageView
                 android:layout_width="@dimen/pin__default_fingerprint_image_size"
                 android:layout_height="@dimen/pin__default_fingerprint_image_size"
-                applock:srcCompat="@drawable/applock__fingerprint"
+                applock:srcCompat="@drawable/applock__pin"
                 applock:tint="@color/pin__default_item_background"/>
 
             <android.support.v7.widget.AppCompatTextView

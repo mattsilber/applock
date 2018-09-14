@@ -224,4 +224,8 @@ public class PINInputView extends LinearLayout implements TextWatcher {
     public void setPasswordCharacter(String passwordCharacter) {
         this.passwordCharacter = passwordCharacter;
     }
+
+    public boolean matchesRequiredPINLength(String input) {
+        return input.length() == inputViewsCount;
+    }
 }

@@ -1,6 +1,8 @@
-package com.guardanis.applock;
+package com.guardanis.applock.activities;
 
 import android.support.v7.app.AppCompatActivity;
+
+import com.guardanis.applock.AppLock;
 
 public class LockableAppCompatActivity extends AppCompatActivity {
 

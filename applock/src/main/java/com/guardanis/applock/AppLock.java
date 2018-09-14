@@ -6,11 +6,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 
+import com.guardanis.applock.activities.UnlockActivity;
+import com.guardanis.applock.dialogs.UnlockDialogBuilder;
 import com.guardanis.applock.utils.FingerprintUtils;
 import com.guardanis.applock.utils.PINUtils;
 
-import java.lang.ref.WeakReference;
-import java.security.MessageDigest;
 import java.util.concurrent.TimeUnit;
 
 public class AppLock {
@@ -175,6 +175,13 @@ public class AppLock {
      * This will remove all PIN and/or fingerprint data
      */
     public void clearData() {
+        resetUnlockFailure();
+
+        getPreferences()
+                .edit()
+                .putLong(PREF_UNLOCK_SUCCESS_TIME, 0)
+                .commit();
+
         PINUtils.removePIN(context);
         FingerprintUtils.removeAuthentications(context);
     }

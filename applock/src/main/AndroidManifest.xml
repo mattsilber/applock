@@ -11,14 +11,14 @@
 
     <application>
         <activity
-            android:name="com.guardanis.applock.CreateLockActivity"
+            android:name="com.guardanis.applock.activities.CreateLockActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/Pin__AppTheme" />
 
         <activity
-            android:name="com.guardanis.applock.UnlockActivity"
+            android:name="com.guardanis.applock.activities.UnlockActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:screenOrientation="portrait"

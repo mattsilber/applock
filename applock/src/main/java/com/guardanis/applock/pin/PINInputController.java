@@ -17,16 +17,11 @@ public class PINInputController implements TextView.OnEditorActionListener {
      * If you want to actually receive events after this, make sure you call setInputEventListener
      */
     public PINInputController(PINInputView inputView) {
-        this(inputView, null);
-    }
-
-    public PINInputController(PINInputView inputView, InputEventListener eventListener) {
         this.inputView = inputView;
         this.inputView.setOnEditorActionListener(this);
-        this.eventListener = eventListener;
 
-        inputView.postDelayed(new Runnable(){
-            public void run(){
+        inputView.postDelayed(new Runnable() {
+            public void run() {
                 PINInputController.this.inputView.ensureKeyboardVisible();
             }
         }, 300);
@@ -49,7 +44,7 @@ public class PINInputController implements TextView.OnEditorActionListener {
 
     @Override
     public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-        if(isSoftKeyboardFinishedAction(textView, i, keyEvent)){
+        if(isSoftKeyboardFinishedAction(textView, i, keyEvent)) {
             if(eventListener != null)
                 eventListener.onInputEntered(inputView.getText().toString());
 
@@ -69,4 +64,7 @@ public class PINInputController implements TextView.OnEditorActionListener {
                         || action == EditorInfo.IME_ACTION_SEND);
     }
 
+    public boolean matchesRequiredPINLength(String input) {
+        return inputView.matchesRequiredPINLength(input);
+    }
 }

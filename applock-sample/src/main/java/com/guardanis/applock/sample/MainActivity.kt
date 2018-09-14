@@ -4,10 +4,10 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.guardanis.applock.AppLock
-import com.guardanis.applock.CreateLockDialogBuilder.LockCreationListener
+import com.guardanis.applock.dialogs.CreateLockDialogBuilder.LockCreationListener
 import android.widget.Toast
-import com.guardanis.applock.CreateLockDialogBuilder
-import com.guardanis.applock.UnlockDialogBuilder.UnlockEventListener
+import com.guardanis.applock.dialogs.CreateLockDialogBuilder
+import com.guardanis.applock.dialogs.UnlockDialogBuilder.UnlockEventListener
 import com.guardanis.applock.utils.PINUtils
 
 class MainActivity: AppCompatActivity() {
@@ -30,7 +30,7 @@ class MainActivity: AppCompatActivity() {
     fun showCreateLockFlow() {
         CreateLockDialogBuilder(
                 this,
-                object: LockCreationListener {
+                object : LockCreationListener {
 
                     override fun onLockCanceled() {
                         Toast.makeText(this@MainActivity, "You canceled...", Toast.LENGTH_SHORT)
@@ -61,7 +61,8 @@ class MainActivity: AppCompatActivity() {
                         Toast.makeText(this@MainActivity, "Lock removed!", Toast.LENGTH_SHORT)
                                 .show()
 
-                        PINUtils.removePIN(this@MainActivity)
+                        AppLock.getInstance(this@MainActivity)
+                                .clearData()
                     }
         })
     }
