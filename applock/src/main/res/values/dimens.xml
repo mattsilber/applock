@@ -6,7 +6,7 @@
     <dimen name="pin__default_description_text">18dip</dimen>
     <dimen name="pin__default_description_padding_bottom">20dip</dimen>
 
-    <dimen name="pin__default_margin_horizontal">16dip</dimen>
-    <dimen name="pin__default_margin_vertical">30dip</dimen>
+    <dimen name="pin__default_margin_horizontal">24dip</dimen>
+    <dimen name="pin__default_margin_vertical">36dip</dimen>
 
 </resources>

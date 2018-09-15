@@ -3,6 +3,7 @@ package com.guardanis.applock.views;
 import android.view.View;
 import android.widget.Toast;
 
+import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
 import com.guardanis.applock.pin.PINInputController;
 import com.guardanis.applock.utils.PINUtils;
@@ -11,10 +12,12 @@ import java.lang.ref.WeakReference;
 
 public class LockCreationViewController extends AppLockViewController {
 
-    public interface LockCreationListener {
-        public void onLockSuccessful();
+    public interface Delegate {
+        public void onLockCreated();
+        public void onFingerprintPermissionRequired();
     }
 
+    protected WeakReference<Delegate> delegate;
     protected WeakReference<View> chooserParent;
     protected String pinFirst;
 
@@ -24,11 +27,18 @@ public class LockCreationViewController extends AppLockViewController {
         this.chooserParent = new WeakReference(parent.findViewById(R.id.pin__create_chooser_items));
     }
 
-    public void setupCreateFlow(LockCreationListener listener) {
-        setupCreationChooser(listener);
+    public LockCreationViewController setDelegate(Delegate delegate) {
+        this.delegate = new WeakReference<Delegate>(delegate);
+
+        return this;
     }
 
-    private void setupCreationChooser(final LockCreationListener listener) {
+    @Override
+    public void setupRootFlow() {
+        setupCreationChooser();
+    }
+
+    protected void setupCreationChooser() {
         hide(fingerprintAuthImageView);
         hide(pinInputView);
 
@@ -44,19 +54,19 @@ public class LockCreationViewController extends AppLockViewController {
         parent.findViewById(R.id.pin__create_option_pin)
                 .setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
-                        setupPINCreation(listener);
+                        setupPINCreation();
                     }
                 });
 
         parent.findViewById(R.id.pin__create_option_fingerprint)
                 .setOnClickListener(new View.OnClickListener() {
                     public void onClick(View view) {
-
+                        setupFingerprintAuthentication();
                     }
                 });
     }
 
-    private void setupPINCreation(final LockCreationListener listener) {
+    protected void setupPINCreation() {
         hide(fingerprintAuthImageView);
         hide(chooserParent);
 
@@ -73,12 +83,12 @@ public class LockCreationViewController extends AppLockViewController {
                 }
 
                 pinFirst = input;
-                setupPINConfirmation(listener);
+                setupPINConfirmation();
             }
         });
     }
 
-    private void setupPINConfirmation(final LockCreationListener listener) {
+    protected void setupPINConfirmation() {
         hide(fingerprintAuthImageView);
         hide(chooserParent);
 
@@ -95,31 +105,74 @@ public class LockCreationViewController extends AppLockViewController {
                 }
 
                 if(!input.equals(pinFirst)) {
-                    displayIndicatorMessage(R.string.pin__unlock_error_match_failed);
-                    setupPINCreation(listener);
+                    setupPINCreation();
+                    setDescription(R.string.pin__description_create_pin_reattempt);
 
                     return;
                 }
 
-                final View parent = getParent();
-
-                if (parent == null)
-                    return;
-
-                PINUtils.savePIN(parent.getContext(), input);
-
-                displayIndicatorMessage(R.string.pin__toast_lock_success);
-                listener.onLockSuccessful();
+                createPINLock(input);
             }
         });
     }
 
-    private void setupFingerprintAuthentication(final LockCreationListener listener) {
+    protected void createPINLock(String input) {
+        final View parent = getParent();
+
+        if (parent == null)
+            return;
+
+        PINUtils.savePIN(parent.getContext(), input);
+
+        displayIndicatorMessage(R.string.pin__toast_lock_success);
+
+        Delegate delegate = this.delegate.get();
+
+        if (delegate != null)
+            delegate.onLockCreated();
+    }
+
+    protected void setupFingerprintAuthentication() {
         hide(pinInputView);
         hide(chooserParent);
 
         show(fingerprintAuthImageView);
 
-        setDescription(R.string.pin__description_create_pin);
+        setDescription(R.string.pin__description_create_fingerprint);
+
+        attemptFingerprintAuthentication();
+    }
+
+    private void attemptFingerprintAuthentication() {
+        final View parent = getParent();
+
+        if (parent == null)
+            return;
+
+        AppLock.getInstance(parent.getContext())
+                .attemptFingerprintUnlock(new AppLock.UnlockDelegate() {
+                    public void onUnlockSuccessful() {
+                        Delegate delegate = LockCreationViewController.this.delegate.get();
+
+                        if (delegate != null)
+                            delegate.onLockCreated();
+                    }
+
+                    public void onFingerprintPermissionRequired() {
+                        Delegate delegate = LockCreationViewController.this.delegate.get();
+
+                        if (delegate != null)
+                            delegate.onFingerprintPermissionRequired();
+                    }
+
+                    public void onUnlockError(String message) {
+                        setDescription(message);
+                    }
+                });
+    }
+
+    @Override
+    public void handleSettingsOrPermissionsReturn() {
+        setupFingerprintAuthentication();
     }
 }

@@ -1,8 +1,11 @@
 package com.guardanis.applock.dialogs;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
@@ -14,56 +17,65 @@ import com.guardanis.applock.views.UnlockViewController;
 
 import java.lang.ref.WeakReference;
 
-public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewController> implements AppLock.LockEventListener {
+public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewController> implements UnlockViewController.Delegate {
 
-    public interface UnlockEventListener extends AppLock.LockEventListener {
-        public void onCanceled();
-    }
+    protected WeakReference<Runnable> unlockCallback;
+    protected WeakReference<Runnable> canceledCallback;
 
-    protected WeakReference<UnlockEventListener> eventListener;
-
-    public UnlockDialogBuilder(Activity activity, UnlockEventListener eventListener){
+    public UnlockDialogBuilder(Activity activity) {
         super(activity, R.layout.applock__unlock);
-
-        this.eventListener = new WeakReference<UnlockEventListener>(eventListener);
     }
 
-    @Override
-    public Dialog show() {
-        Dialog dialog = super.show();
+    public UnlockDialogBuilder onUnlocked(Runnable unlockCallback) {
+        this.unlockCallback = new WeakReference<Runnable>(unlockCallback);
 
-        viewController.setupUnlockFlow(this);
+        return this;
+    }
 
-        return dialog;
+    public UnlockDialogBuilder onCanceled(Runnable canceledCallback) {
+        this.canceledCallback = new WeakReference<Runnable>(canceledCallback);
+
+        return this;
     }
 
     @Override
     protected UnlockViewController buildViewControllerInstance(View parent) {
-        return new UnlockViewController(parent);
+        UnlockViewController controller = new UnlockViewController(parent);
+        controller.setDelegate(this);
+
+        return controller;
+    }
+
+    @Override
+    public void onFingerprintPermissionRequired() {
+        Activity activity = this.activity.get();
+
+        if (activity == null)
+            return;
+
+        ActivityCompat.requestPermissions(
+                activity,
+                new String[] { Manifest.permission.USE_FINGERPRINT },
+                AppLock.REQUEST_CODE_FINGERPRINT_PERMISSION);
     }
 
     @Override
     public void onUnlockSuccessful() {
         dismissDialog();
 
-        final UnlockEventListener eventListener = this.eventListener.get();
+        final Runnable unlockCallback = this.unlockCallback.get();
 
-        if(eventListener != null)
-            eventListener.onUnlockSuccessful();
+        if(unlockCallback != null)
+            unlockCallback.run();
     }
 
     @Override
-    public void onUnlockFailed(String reason) {
-        // Handled by vc
-    }
+    protected void handleCanceled() {
+        super.handleCanceled();
 
-    @Override
-    public void onCancel(DialogInterface dialogInterface) {
-        super.onCancel(dialogInterface);
+        final Runnable canceledCallback = this.canceledCallback.get();
 
-        final UnlockEventListener eventListener = this.eventListener.get();
-
-        if(eventListener != null)
-            eventListener.onCanceled();
+        if(canceledCallback != null)
+            canceledCallback.run();
     }
 }

@@ -1,55 +1,80 @@
 package com.guardanis.applock.dialogs;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.widget.Toast;
 
+import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
 import com.guardanis.applock.pin.PINInputController;
 import com.guardanis.applock.utils.PINUtils;
 import com.guardanis.applock.views.LockCreationViewController;
 
-public class CreateLockDialogBuilder extends AppLockDialogBuilder<LockCreationViewController> {
+import java.lang.ref.WeakReference;
 
-    public interface LockCreationListener extends LockCreationViewController.LockCreationListener {
-        public void onLockCanceled();
-    }
+public class CreateLockDialogBuilder extends AppLockDialogBuilder<LockCreationViewController> implements LockCreationViewController.Delegate {
 
-    protected LockCreationListener eventListener;
+    protected WeakReference<Runnable> lockCreatedCallback;
+    protected WeakReference<Runnable> canceledCallback;
 
-    public CreateLockDialogBuilder(Activity activity, LockCreationListener eventListener){
+    public CreateLockDialogBuilder(Activity activity) {
         super(activity, R.layout.applock__lock_creation);
-
-        this.eventListener = eventListener;
     }
 
-    @Override
-    public Dialog show() {
-        final Dialog dialog = super.show();
+    public CreateLockDialogBuilder onLockCreated(Runnable lockCreatedCallback) {
+        this.lockCreatedCallback = new WeakReference<Runnable>(lockCreatedCallback);
 
-        viewController.setupCreateFlow(new LockCreationViewController.LockCreationListener() {
-            public void onLockSuccessful() {
-                dismissDialog();
+        return this;
+    }
 
-                eventListener.onLockSuccessful();
-            }
-        });
+    public CreateLockDialogBuilder onCanceled(Runnable canceledCallback) {
+        this.canceledCallback = new WeakReference<Runnable>(canceledCallback);
 
-        return dialog;
+        return this;
     }
 
     @Override
     protected LockCreationViewController buildViewControllerInstance(View parent) {
-        return new LockCreationViewController(parent);
+        LockCreationViewController controller = new LockCreationViewController(parent);
+        controller.setDelegate(this);
+
+        return controller;
     }
 
     @Override
-    public void onCancel(DialogInterface dialogInterface) {
-        super.onCancel(dialogInterface);
+    public void onLockCreated() {
+        dismissDialog();
 
-        if(eventListener != null)
-            eventListener.onLockCanceled();
+        final Runnable lockCreatedCallback = this.lockCreatedCallback.get();
+
+        if(lockCreatedCallback != null)
+            lockCreatedCallback.run();
+    }
+
+    @Override
+    public void onFingerprintPermissionRequired() {
+        Activity activity = this.activity.get();
+
+        if (activity == null)
+            return;
+
+        ActivityCompat.requestPermissions(
+                activity,
+                new String[] { Manifest.permission.USE_FINGERPRINT },
+                AppLock.REQUEST_CODE_FINGERPRINT_PERMISSION);
+    }
+
+    @Override
+    protected void handleCanceled() {
+        super.handleCanceled();
+
+        final Runnable canceledCallback = this.canceledCallback.get();
+
+        if(canceledCallback != null)
+            canceledCallback.run();
     }
 }

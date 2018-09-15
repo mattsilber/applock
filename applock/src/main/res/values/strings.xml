@@ -2,10 +2,13 @@
 
     <string name="app_name">App Lock</string>
 
-    <string name="pin__description_chooser">Lock with a PIN or your fingerprints?</string>
-    <string name="pin__description_create_pin">Create a PIN</string>
+    <string name="pin__description_chooser">Secure this application with a PIN or your fingerprints?</string>
+    <string name="pin__description_create_pin">Create a PIN to secure this application.</string>
+    <string name="pin__description_create_pin_reattempt">PINs didn\'t match. Try again.</string>
+    <string name="pin__description_create_fingerprint">Scan your fingerprint to secure this application.</string>
     <string name="pin__description_confirm">Re-enter your PIN to confirm</string>
     <string name="pin__description_unlock">Enter your PIN to unlock</string>
+    <string name="pin__description_fingerprint_unlock">Scan your fingerprint to unlock.</string>
 
     <string name="pin__create_chooser_option_pin">PIN</string>
     <string name="pin__create_chooser_option_fingerprint">Fingerprint</string>
@@ -25,6 +28,9 @@
 
     <string name="pin__fingerprint_error_unrecognized">Your fingerprint wasn\'t recognized.</string>
     <string name="pin__fingerprint_error_unknown">Something weird happened.</string>
+    <string name="pin__fingerprint_error_none">No fingerprints found! Enable them in your system settings.</string>
+    <string name="pin__fingerprint_error_hardware">Missing fingerprint hardware?</string>
+    <string name="pin__fingerprint_error_permission">Fingerprint permission required.</string>
 
     <item name="pin__empty_item_min_size_percent" format="float" type="string">0.2</item>
 

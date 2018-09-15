@@ -3,30 +3,29 @@ package com.guardanis.applock.utils;
 import android.content.Context;
 
 import com.guardanis.applock.AppLock;
-import com.guardanis.applock.R;
 
 public class PINUtils {
 
     public interface MatchEventListener {
         public void onNoPIN();
-        public void onMatchFail();
-        public void onMatchSuccess();
+        public void onPINDoesNotMatch();
+        public void onPINMatches();
     }
 
     private static final String PREF_SAVED_LOCKED_PASSWORD = "pin__saved_locked_password";
 
-    public static void attemptUnlock(Context context, String pin, MatchEventListener eventListener) {
+    public static void authenticate(Context context, String pin, MatchEventListener eventListener) {
         if (!isPINPresent(context)) {
             eventListener.onNoPIN();
             return;
         }
 
         if (!getPIN(context).equals(CryptoUtils.encryptSha1(pin))) {
-            eventListener.onMatchFail();
+            eventListener.onPINDoesNotMatch();
             return;
         }
 
-        eventListener.onMatchSuccess();
+        eventListener.onPINMatches();
     }
 
     public static boolean isPINPresent(Context context) {

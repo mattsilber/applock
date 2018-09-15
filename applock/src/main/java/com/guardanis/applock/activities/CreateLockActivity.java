@@ -2,6 +2,7 @@ package com.guardanis.applock.activities;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
@@ -12,7 +13,7 @@ import com.guardanis.applock.utils.PINUtils;
 import com.guardanis.applock.views.AppLockViewController;
 import com.guardanis.applock.views.LockCreationViewController;
 
-public class CreateLockActivity extends AppCompatActivity {
+public class CreateLockActivity extends AppCompatActivity implements LockCreationViewController.Delegate {
 
     protected LockCreationViewController viewController;
 
@@ -23,12 +24,8 @@ public class CreateLockActivity extends AppCompatActivity {
         setContentView(R.layout.applock__lock_creation);
 
         this.viewController = new LockCreationViewController(findViewById(R.id.pin__container));
-        this.viewController.setupCreateFlow(new LockCreationViewController.LockCreationListener() {
-            public void onLockSuccessful() {
-                setResult(Activity.RESULT_OK);
-                finish();
-            }
-        });
+        this.viewController.setDelegate(this);
+        this.viewController.setupRootFlow();
     }
 
     @Override
@@ -36,5 +33,23 @@ public class CreateLockActivity extends AppCompatActivity {
         super.onDestroy();
 
         viewController.cancelPendingAuthentications();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // TODO
+    }
+
+    @Override
+    public void onLockCreated() {
+        setResult(Activity.RESULT_OK);
+        finish();
+    }
+
+    @Override
+    public void onFingerprintPermissionRequired() {
+        // TODO
     }
 }

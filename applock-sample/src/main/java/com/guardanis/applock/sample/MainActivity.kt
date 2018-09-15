@@ -1,13 +1,14 @@
 package com.guardanis.applock.sample
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.guardanis.applock.AppLock
-import com.guardanis.applock.dialogs.CreateLockDialogBuilder.LockCreationListener
 import android.widget.Toast
+import com.guardanis.applock.dialogs.AppLockDialogBuilder
 import com.guardanis.applock.dialogs.CreateLockDialogBuilder
-import com.guardanis.applock.dialogs.UnlockDialogBuilder.UnlockEventListener
+import com.guardanis.applock.dialogs.UnlockDialogBuilder
 import com.guardanis.applock.utils.PINUtils
 
 class MainActivity: AppCompatActivity() {
@@ -16,6 +17,19 @@ class MainActivity: AppCompatActivity() {
         super.onCreate(savedInstance)
 
         setContentView(R.layout.activity_main)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        when (requestCode) {
+            AppLock.REQUEST_CODE_FINGERPRINT_PERMISSION -> {
+                val intent = Intent()
+                        .setAction(AppLockDialogBuilder.ACTION_NOTIFY_PERMISSION_CHANGE)
+
+                sendBroadcast(intent)
+            }
+        }
     }
 
     fun openApplockFlowClicked(view: View?) {
@@ -28,42 +42,31 @@ class MainActivity: AppCompatActivity() {
     }
 
     fun showCreateLockFlow() {
-        CreateLockDialogBuilder(
-                this,
-                object : LockCreationListener {
-
-                    override fun onLockCanceled() {
-                        Toast.makeText(this@MainActivity, "You canceled...", Toast.LENGTH_SHORT)
-                                .show()
-                    }
-
-                    override fun onLockSuccessful() {
-                        Toast.makeText(this@MainActivity, "Lock created!", Toast.LENGTH_SHORT)
-                                .show()
-                    }
+        CreateLockDialogBuilder(this)
+                .onCanceled({
+                    Toast.makeText(this@MainActivity, "You canceled...", Toast.LENGTH_SHORT)
+                            .show()
+                })
+                .onLockCreated({
+                    Toast.makeText(this@MainActivity, "Lock created!", Toast.LENGTH_SHORT)
+                            .show()
                 })
                 .show()
     }
 
     fun showUnlockFlow() {
-        AppLock.unlockIfRequired(
-                this,
-                object: UnlockEventListener {
+        val helper = AppLock.getInstance(this)
 
-                    override fun onCanceled() {
-                        Toast.makeText(this@MainActivity, "Unlock canceled!", Toast.LENGTH_SHORT)
-                                .show()
-                    }
-
-                    override fun onUnlockFailed(reason: String) { } // Not called with default Dialog, instead is handled internally
-
-                    override fun onUnlockSuccessful() {
+        if (helper.isUnlockRequired())
+            UnlockDialogBuilder(this)
+                    .onCanceled(null)
+                    .onUnlocked({
                         Toast.makeText(this@MainActivity, "Lock removed!", Toast.LENGTH_SHORT)
                                 .show()
 
                         AppLock.getInstance(this@MainActivity)
                                 .clearData()
-                    }
-        })
+                    })
+                    .show()
     }
 }

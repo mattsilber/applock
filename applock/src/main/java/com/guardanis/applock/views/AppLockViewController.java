@@ -45,6 +45,10 @@ public abstract class AppLockViewController {
                 .setPasswordCharactersEnabled(passwordCharsEnabled);
     }
 
+    public abstract void setupRootFlow();
+
+    public abstract void handleSettingsOrPermissionsReturn();
+
     public void setDescription(int descriptionResId) {
         final TextView descriptionView = this.descriptionView.get();
 

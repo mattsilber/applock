@@ -2,6 +2,7 @@ package com.guardanis.applock.activities;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.widget.Toast;
@@ -12,7 +13,7 @@ import com.guardanis.applock.pin.PINInputController;
 import com.guardanis.applock.views.LockCreationViewController;
 import com.guardanis.applock.views.UnlockViewController;
 
-public class UnlockActivity extends AppCompatActivity {
+public class UnlockActivity extends AppCompatActivity implements UnlockViewController.Delegate {
 
     public static final String INTENT_ALLOW_UNLOCKED_EXIT = "pin__allow_activity_exit"; // false by default
 
@@ -25,16 +26,26 @@ public class UnlockActivity extends AppCompatActivity {
         setContentView(R.layout.applock__unlock);
 
         this.viewController = new UnlockViewController(findViewById(R.id.pin__container));
-        this.viewController.setupUnlockFlow(new AppLock.LockEventListener() {
-            public void onUnlockSuccessful() {
-                setResult(Activity.RESULT_OK);
-                finish();
-            }
+        this.viewController.setDelegate(this);
+        this.viewController.setupRootFlow();
+    }
 
-            public void onUnlockFailed(String reason) {
+    @Override
+    public void onUnlockSuccessful() {
+        setResult(Activity.RESULT_OK);
+        finish();
+    }
 
-            }
-        });
+    @Override
+    public void onFingerprintPermissionRequired() {
+        // TODO
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        // TODO
     }
 
     @Override

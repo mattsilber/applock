@@ -1,7 +1,6 @@
 package com.guardanis.applock.utils;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -19,11 +18,10 @@ import java.security.KeyStore;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
 
 public class FingerprintUtils {
 
-    public interface AuthenticationEventListener {
+    public interface AuthenticationDelegate {
         public void onHardwareNotPresent();
         public void onPermissionNotGranted();
         public void onNoFingerprints();
@@ -36,33 +34,35 @@ public class FingerprintUtils {
     private static final String PREF_ENROLLMENT_ALLOWED = "pin__fingerprint_enrollment_allowed";
     private static final String KEYSTORE_NAME  = "AndroidKeyStore";
 
-    public static void attemptUnlock(Context context, AuthenticationEventListener eventListener) {
+    public static void authenticate(Context context, AuthenticationDelegate delegate) {
         if (!isHardwarePresent(context)) {
-            eventListener.onHardwareNotPresent();
+            delegate.onHardwareNotPresent();
             return;
         }
 
         FingerprintManagerCompat manager = FingerprintManagerCompat.from(context);
 
-        if (!(isLocallyEnrolled(context) && manager.hasEnrolledFingerprints())) {
-            eventListener.onNoFingerprints();
+        if (!manager.hasEnrolledFingerprints()) {
+            delegate.onNoFingerprints();
             return;
         }
 
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
-            eventListener.onPermissionNotGranted();
+            delegate.onPermissionNotGranted();
             return;
         }
 
-        attemptAuthorization(context, manager, eventListener);
+        attemptAuthentication(context, manager, delegate);
     }
 
-    private static void attemptAuthorization(final Context context, FingerprintManagerCompat manager, final AuthenticationEventListener eventListener) {
+    private static void attemptAuthentication(final Context context, FingerprintManagerCompat manager, final AuthenticationDelegate delegate) {
+        final CancellationSignal cancellationSignal = new CancellationSignal();
+
         FingerprintManagerCompat.AuthenticationCallback callback = new FingerprintManagerCompat.AuthenticationCallback() {
             public void onAuthenticationError(int errMsgId, CharSequence errString) {
                 super.onAuthenticationError(errMsgId, errString);
 
-                eventListener.onAuthenticationFailed(context.getString(R.string.pin__fingerprint_error_unknown));
+                delegate.onAuthenticationFailed(context.getString(R.string.pin__fingerprint_error_unknown));
             }
 
             public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
@@ -72,19 +72,19 @@ public class FingerprintUtils {
             public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
 
-                eventListener.onAuthenticationSuccess();
+                setLocalEnrollmentEnabled(context);
+
+                delegate.onAuthenticationSuccess();
             }
 
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
 
-                eventListener.onAuthenticationFailed(context.getString(R.string.pin__fingerprint_error_unrecognized));
+                delegate.onAuthenticationFailed(context.getString(R.string.pin__fingerprint_error_unrecognized));
             }
         };
 
-        CancellationSignal cancellationSignal = new CancellationSignal();
-
-        eventListener.onAuthenticating(cancellationSignal);
+        delegate.onAuthenticating(cancellationSignal);
 
         try {
             Cipher cipher = generateAuthCipher(context, false, 0);
@@ -95,7 +95,7 @@ public class FingerprintUtils {
         catch (Exception e) {
             e.printStackTrace();
 
-            eventListener.onServiceNotAvailable();
+            delegate.onServiceNotAvailable();
         }
     }
 

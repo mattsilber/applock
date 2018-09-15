@@ -1,25 +1,39 @@
 package com.guardanis.applock.views;
 
+import android.app.Activity;
 import android.view.View;
 
 import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
 import com.guardanis.applock.pin.PINInputController;
-import com.guardanis.applock.utils.PINUtils;
 
 import java.lang.ref.WeakReference;
 
 public class UnlockViewController extends AppLockViewController {
 
+    public interface Delegate {
+        public void onUnlockSuccessful();
+        public void onFingerprintPermissionRequired();
+    }
+
+    protected WeakReference<Delegate> delegate;
+
     public UnlockViewController(View parent) {
         super(parent);
     }
 
-    public void setupUnlockFlow(AppLock.LockEventListener listener) {
-        setupPINUnlok(listener);
+    public UnlockViewController setDelegate(Delegate delegate) {
+        this.delegate = new WeakReference<Delegate>(delegate);
+
+        return this;
     }
 
-    protected void setupPINUnlok(final AppLock.LockEventListener listener) {
+    @Override
+    public void setupRootFlow() {
+        setupPINUnlock();
+    }
+
+    protected void setupPINUnlock() {
         hide(fingerprintAuthImageView);
         show(pinInputView);
 
@@ -33,35 +47,75 @@ public class UnlockViewController extends AppLockViewController {
                     return;
                 }
 
-                attemptUnlock(input, new AppLock.LockEventListener() {
-                    public void onUnlockSuccessful() {
-
-                        listener.onUnlockSuccessful();
-                    }
-
-                    public void onUnlockFailed(String reason) {
-                        setDescription(reason);
-                        listener.onUnlockFailed(reason);
-                    }
-                });
+                attemptPINUnlock(input);
             }
         });
     }
 
-    protected void attemptUnlock(String input, AppLock.LockEventListener listener) {
+    protected void attemptPINUnlock(String input) {
+        final View parent = this.parent.get();
+
+        if (parent == null)
+            return;
+
+        AppLock.UnlockDelegate unlockDelegate = new AppLock.UnlockDelegate() {
+            public void onUnlockSuccessful() {
+                Delegate delegate = UnlockViewController.this.delegate.get();
+
+                if (delegate != null)
+                    delegate.onUnlockSuccessful();
+            }
+
+            public void onFingerprintPermissionRequired() { }
+
+            public void onUnlockError(String message) {
+                setDescription(message);
+            }
+        };
+
+        AppLock.getInstance(parent.getContext())
+                .attemptUnlock(input, unlockDelegate);
+    }
+
+    protected void setupFingerprintUnlock() {
+        hide(pinInputView);
+        show(fingerprintAuthImageView);
+
+        setDescription(R.string.pin__description_create_pin);
+
+        attemptFingerprintAuthentication();
+    }
+
+    protected void attemptFingerprintAuthentication() {
         final View parent = this.parent.get();
 
         if (parent == null)
             return;
 
         AppLock.getInstance(parent.getContext())
-                .attemptUnlock(input, listener);
+                .attemptFingerprintUnlock(new AppLock.UnlockDelegate() {
+                    public void onUnlockSuccessful() {
+                        Delegate delegate = UnlockViewController.this.delegate.get();
+
+                        if (delegate != null)
+                            delegate.onUnlockSuccessful();
+                    }
+
+                    public void onFingerprintPermissionRequired() {
+                        Delegate delegate = UnlockViewController.this.delegate.get();
+
+                        if (delegate != null)
+                            delegate.onFingerprintPermissionRequired();
+                    }
+
+                    public void onUnlockError(String message) {
+                        setDescription(message);
+                    }
+                });
     }
 
-    protected void setupFingerprintUnlock(final AppLock.LockEventListener listener) {
-        hide(pinInputView);
-        show(fingerprintAuthImageView);
-
-        setDescription(R.string.pin__description_create_pin);
+    @Override
+    public void handleSettingsOrPermissionsReturn() {
+        setupFingerprintUnlock();
     }
 }

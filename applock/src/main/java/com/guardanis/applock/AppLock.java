@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.os.CancellationSignal;
 
 import com.guardanis.applock.activities.UnlockActivity;
 import com.guardanis.applock.dialogs.UnlockDialogBuilder;
@@ -15,9 +17,10 @@ import java.util.concurrent.TimeUnit;
 
 public class AppLock {
 
-    public interface LockEventListener {
+    public interface UnlockDelegate {
         public void onUnlockSuccessful();
-        public void onUnlockFailed(String reason);
+        public void onFingerprintPermissionRequired();
+        public void onUnlockError(String message);
     }
 
     private static AppLock instance;
@@ -29,7 +32,7 @@ public class AppLock {
     }
 
     public static final int REQUEST_CODE_UNLOCK = 9371;
-    public static final int REQUEST_CODE_CREATE_LOCK = 9372;
+    public static final int REQUEST_CODE_FINGERPRINT_PERMISSION = 9372;
 
     private static final String PREFS = "pin__preferences";
 
@@ -38,6 +41,7 @@ public class AppLock {
 
     protected Context context;
 
+    protected CancellationSignal fingerprintCancellationSignal;
     protected int retryCount = 1;
 
     protected AppLock(Context context){
@@ -62,12 +66,76 @@ public class AppLock {
         return lastSuccessValidMs < System.currentTimeMillis() - getUnlockSuccessTime();
     }
 
-    public void attemptFingerprintUnlock(final LockEventListener eventListener) {
-        // TODO: the obvious
+    public void attemptFingerprintUnlock(final UnlockDelegate eventListener) {
+        if (handleFailureBlocking(eventListener))
+            return;
+
+        FingerprintUtils.authenticate(context, new FingerprintUtils.AuthenticationDelegate() {
+            public void onHardwareNotPresent() {
+                handleResolvableError(R.string.pin__fingerprint_error_none);
+            }
+
+            public void onPermissionNotGranted() {
+                eventListener.onFingerprintPermissionRequired();
+            }
+
+            public void onNoFingerprints() {
+                handleResolvableError(R.string.pin__fingerprint_error_none);
+            }
+
+            public void onServiceNotAvailable() {
+                onHardwareNotPresent();
+            }
+
+            public void onAuthenticating(CancellationSignal cancellationSignal) {
+                AppLock.this.fingerprintCancellationSignal = cancellationSignal;
+            }
+
+            public void onAuthenticationSuccess() {
+                onUnlockSuccessful(eventListener);
+            }
+
+            private void handleResolvableError(int messageResId) {
+                String message = context.getString(messageResId);
+
+                if (eventListener != null)
+                    eventListener.onUnlockError(message);
+            }
+
+            public void onAuthenticationFailed(String message) {
+                handleUnlockFailure(message, eventListener);
+            }
+        });
     }
 
-    public void attemptUnlock(String pin, final LockEventListener eventListener) {
-        if(isUnlockFailureBlockEnabled()){
+    public void attemptUnlock(String pin, final UnlockDelegate eventListener) {
+        if (handleFailureBlocking(eventListener))
+            return;
+
+        PINUtils.authenticate(context, pin, new PINUtils.MatchEventListener() {
+            public void onNoPIN() {
+                onUnlockFailed(context.getString(R.string.pin__unlock_error_no_matching_pin_found));
+            }
+
+            public void onPINDoesNotMatch() {
+                onUnlockFailed(context.getString(R.string.pin__unlock_error_match_failed));
+            }
+
+            public void onPINMatches() {
+                onUnlockSuccessful(eventListener);
+            }
+
+            private void onUnlockFailed(String message) {
+                handleUnlockFailure(message, eventListener);
+            }
+        });
+    }
+
+    /**
+     * @return true if failure blocking is enabled
+     */
+    private boolean handleFailureBlocking(final UnlockDelegate eventListener) {
+        if (isUnlockFailureBlockEnabled()) {
             retryCount++;
 
             if(getFailureDelayMs() < System.currentTimeMillis() - getUnlockFailureBlockStart())
@@ -78,35 +146,23 @@ public class AppLock {
                         formatTimeRemaining());
 
                 if (eventListener != null)
-                    eventListener.onUnlockFailed(message);
+                    eventListener.onUnlockError(message);
 
-                return;
+                return true;
             }
         }
 
-        PINUtils.attemptUnlock(context, pin, new PINUtils.MatchEventListener() {
-            public void onNoPIN() {
-                onUnlockFailed(context.getString(R.string.pin__unlock_error_no_matching_pin_found));
-            }
+        return false;
+    }
 
-            public void onMatchFail() {
-                onUnlockFailed(context.getString(R.string.pin__unlock_error_match_failed));
-            }
+    private void handleUnlockFailure(String message, UnlockDelegate eventListener) {
+        retryCount++;
 
-            public void onMatchSuccess() {
-                onUnlockSuccessful(eventListener);
-            }
+        if (eventListener != null)
+            eventListener.onUnlockError(message);
 
-            private void onUnlockFailed(String message) {
-                retryCount++;
-
-                if (eventListener != null)
-                    eventListener.onUnlockFailed(message);
-
-                if(context.getResources().getInteger(R.integer.pin__default_max_retry_count) < retryCount)
-                    onFailureExceedsLimit();
-            }
-        });
+        if(context.getResources().getInteger(R.integer.pin__default_max_retry_count) < retryCount)
+            onFailureExceedsLimit();
     }
 
     public SharedPreferences getPreferences(){
@@ -130,7 +186,7 @@ public class AppLock {
                 .getLong(PREF_UNLOCK_FAILURE_TIME, 0);
     }
 
-    protected void onUnlockSuccessful(LockEventListener eventListener) {
+    protected void onUnlockSuccessful(UnlockDelegate eventListener) {
         getPreferences()
                 .edit()
                 .putLong(PREF_UNLOCK_SUCCESS_TIME, System.currentTimeMillis())
@@ -186,6 +242,13 @@ public class AppLock {
         FingerprintUtils.removeAuthentications(context);
     }
 
+    public void cancelPendingAuthentications() {
+        if (fingerprintCancellationSignal != null) {
+            this.fingerprintCancellationSignal.cancel();
+            this.fingerprintCancellationSignal = null;
+        }
+    }
+
     public static void onActivityResumed(Activity activity) {
         AppLock helper = new AppLock(activity);
 
@@ -202,7 +265,7 @@ public class AppLock {
      * @return true if unlock is required.
      */
     public static boolean unlockIfRequired(Activity activity) {
-        AppLock helper = new AppLock(activity);
+        AppLock helper = getInstance(activity);
 
         if(helper.isUnlockRequired()){
             Intent intent = new Intent(activity, UnlockActivity.class)
@@ -220,13 +283,15 @@ public class AppLock {
      * Check if an action-based unlock is required and opens an Unlock Dialog if true.
      * If not required, it will trigger eventListener.onUnlockSuccessful()
      */
-    public static void unlockIfRequired(Activity activity, @NonNull UnlockDialogBuilder.UnlockEventListener eventListener) {
-        AppLock helper = new AppLock(activity);
+    public static void unlockIfRequired(Activity activity, @NonNull Runnable allowed, @Nullable Runnable canceled) {
+        AppLock helper = getInstance(activity);
 
         if(helper.isUnlockRequired())
-            new UnlockDialogBuilder(activity, eventListener)
+            new UnlockDialogBuilder(activity)
+                    .onUnlocked(allowed)
+                    .onCanceled(canceled)
                     .show();
         else
-            eventListener.onUnlockSuccessful();
+            allowed.run();
     }
 }
