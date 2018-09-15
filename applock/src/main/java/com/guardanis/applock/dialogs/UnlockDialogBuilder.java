@@ -47,19 +47,6 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
     }
 
     @Override
-    public void onFingerprintPermissionRequired() {
-        Activity activity = this.activity.get();
-
-        if (activity == null)
-            return;
-
-        ActivityCompat.requestPermissions(
-                activity,
-                new String[] { Manifest.permission.USE_FINGERPRINT },
-                AppLock.REQUEST_CODE_FINGERPRINT_PERMISSION);
-    }
-
-    @Override
     public void onUnlockSuccessful() {
         dismissDialog();
 

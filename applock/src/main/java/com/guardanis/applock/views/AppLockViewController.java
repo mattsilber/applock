@@ -1,5 +1,6 @@
 package com.guardanis.applock.views;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
@@ -7,12 +8,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.os.CancellationSignal;
 import android.support.v7.widget.AppCompatImageView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
 import com.guardanis.applock.dialogs.AppLockDialogBuilder;
 import com.guardanis.applock.pin.PINInputController;
@@ -21,7 +26,7 @@ import com.guardanis.applock.utils.LifeCycleUtils;
 
 import java.lang.ref.WeakReference;
 
-public abstract class AppLockViewController extends BroadcastReceiver {
+public abstract class AppLockViewController implements LifeCycleUtils.AppLockActivityLifeCycleCallbacks.Delegate {
 
     protected PINInputController pinInputController;
 
@@ -32,16 +37,17 @@ public abstract class AppLockViewController extends BroadcastReceiver {
     protected WeakReference<AppCompatImageView> fingerprintAuthImageView;
 
     protected WeakReference<TextView> descriptionView;
+    protected WeakReference<View> actionSettings;
 
     protected CancellationSignal fingerprintAuthCancelSignal;
 
     protected Application.ActivityLifecycleCallbacks activityLifecycleCallbacks;
-    protected IntentFilter activityLifeCycleIntentFilter = LifeCycleUtils.buildIntentFilter();
 
     public AppLockViewController(Activity activity, View parent) {
         this.activity = new WeakReference<Activity>(activity);
         this.parent = new WeakReference<View>(parent);
         this.descriptionView = new WeakReference((TextView) parent.findViewById(R.id.pin__description));
+        this.actionSettings = new WeakReference<View>(parent.findViewById(R.id.pin__action_settings));
 
         this.pinInputView = new WeakReference((PINInputView) parent.findViewById(R.id.pin__input_view));
         this.fingerprintAuthImageView = new WeakReference(parent.findViewById(R.id.pin__fingerprint_image));
@@ -56,13 +62,10 @@ public abstract class AppLockViewController extends BroadcastReceiver {
                 .setInputNumbersCount(inputViewsCount)
                 .setPasswordCharactersEnabled(passwordCharsEnabled);
 
-        this.activityLifecycleCallbacks = LifeCycleUtils.attach(activity, this, activityLifeCycleIntentFilter);
+        this.activityLifecycleCallbacks = LifeCycleUtils.attach(activity, this);
     }
 
     public abstract void setupRootFlow();
-
-    public abstract void handleActivityPause();
-    public abstract void handleActivityResume();
 
     public void setDescription(int descriptionResId) {
         final TextView descriptionView = this.descriptionView.get();
@@ -116,20 +119,72 @@ public abstract class AppLockViewController extends BroadcastReceiver {
         this.fingerprintAuthCancelSignal = null;
     }
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        if (!activityLifeCycleIntentFilter.matchAction(intent.getAction()))
+    public void updateActionSettings(final int errorCode) {
+        View actionSettings = this.actionSettings.get();
+
+        if (actionSettings == null)
             return;
 
-        switch (intent.getAction()) {
-            case LifeCycleUtils.ACTION_NOTIFY_ACTIVITY_PAUSE:
-                handleActivityPause();
-                break;
-            case LifeCycleUtils.ACTION_NOTIFY_ACTIVITY_RESUME:
-                handleActivityResume();
+        if (getSettingsIntent(errorCode) == null) {
+            actionSettings.setVisibility(View.GONE);
+            return;
+        }
+
+        actionSettings.setVisibility(View.VISIBLE);
+        actionSettings.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                handleActionSettingsClicked(errorCode);
+            }
+        });
+    }
+
+    protected abstract void handleActionSettingsClicked(int errorCode);
+
+    protected void handleInitialErrorPrompt(int errorCode) {
+        Activity activity = this.activity.get();
+
+        if (activity == null)
+            return;
+
+        switch (errorCode) {
+            case AppLock.ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED:
+                ActivityCompat.requestPermissions(
+                        activity,
+                        new String[] { Manifest.permission.USE_FINGERPRINT },
+                        AppLock.REQUEST_CODE_FINGERPRINT_PERMISSION);
                 break;
             default:
                 break;
+        }
+    }
+
+    protected int getDescriptionResIdForError(int errorCode) {
+        switch (errorCode) {
+            case AppLock.ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED:
+                return R.string.pin__fingerprint_error_permission;
+            case AppLock.ERROR_CODE_FINGERPRINTS_EMPTY:
+                return R.string.pin__fingerprint_error_none;
+            case AppLock.ERROR_CODE_FINGERPRINTS_MISSING_HARDWARE:
+                return R.string.pin__fingerprint_error_hardware;
+            case AppLock.ERROR_CODE_FINGERPRINTS_NOT_LOCALLY_ENROLLED:
+                return R.string.pin__fingerprint_error_not_enrolled;
+            default:
+                return R.string.pin__fingerprint_error_unknown;
+        }
+    }
+
+    /**
+     * @return an Intent directed towards the correct system setting for the error, or null if there is none.
+     */
+    public Intent getSettingsIntent(int errorCode) {
+        switch (errorCode) {
+            case AppLock.ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED:
+                // TODO: App settings
+            case AppLock.ERROR_CODE_FINGERPRINTS_EMPTY:
+            case AppLock.ERROR_CODE_FINGERPRINTS_MISSING_HARDWARE:
+                return new Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS);
+            default:
+                return null;
         }
     }
 
@@ -139,9 +194,13 @@ public abstract class AppLockViewController extends BroadcastReceiver {
         if (activity == null)
             return;
 
-        activity.unregisterReceiver(this);
-
         activity.getApplication()
                 .unregisterActivityLifecycleCallbacks(activityLifecycleCallbacks);
     }
+
+    @Override
+    public void onActivityResumed() { }
+
+    @Override
+    public void onActivityPaused() { }
 }

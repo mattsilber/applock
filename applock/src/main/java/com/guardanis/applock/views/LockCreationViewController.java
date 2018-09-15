@@ -1,6 +1,11 @@
 package com.guardanis.applock.views;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 
 import com.guardanis.applock.AppLock;
@@ -14,7 +19,6 @@ public class LockCreationViewController extends AppLockViewController {
 
     public interface Delegate {
         public void onLockCreated();
-        public void onFingerprintPermissionRequired();
     }
 
     public enum DisplayVariant {
@@ -53,6 +57,7 @@ public class LockCreationViewController extends AppLockViewController {
 
         hide(fingerprintAuthImageView);
         hide(pinInputView);
+        hide(actionSettings);
 
         show(chooserParent);
 
@@ -83,6 +88,7 @@ public class LockCreationViewController extends AppLockViewController {
 
         hide(fingerprintAuthImageView);
         hide(chooserParent);
+        hide(actionSettings);
 
         show(pinInputView);
 
@@ -107,6 +113,7 @@ public class LockCreationViewController extends AppLockViewController {
 
         hide(fingerprintAuthImageView);
         hide(chooserParent);
+        hide(actionSettings);
 
         show(pinInputView);
 
@@ -148,6 +155,7 @@ public class LockCreationViewController extends AppLockViewController {
 
         hide(pinInputView);
         hide(chooserParent);
+        hide(actionSettings);
 
         show(fingerprintAuthImageView);
 
@@ -163,19 +171,18 @@ public class LockCreationViewController extends AppLockViewController {
             return;
 
         AppLock.getInstance(activity)
-                .attemptFingerprintUnlock(new AppLock.UnlockDelegate() {
+                .attemptFingerprintUnlock(false, new AppLock.UnlockDelegate() {
                     public void onUnlockSuccessful() {
                         handleLockCreated();
                     }
 
-                    public void onFingerprintPermissionRequired() {
-                        Delegate delegate = LockCreationViewController.this.delegate.get();
-
-                        if (delegate != null)
-                            delegate.onFingerprintPermissionRequired();
+                    public void onResolutionRequired(int errorCode) {
+                        setDescription(getDescriptionResIdForError(errorCode));
+                        updateActionSettings(errorCode);
+                        handleInitialErrorPrompt(errorCode);
                     }
 
-                    public void onUnlockError(String message) {
+                    public void onRecoverableUnlockError(String message) {
                         setDescription(message);
                     }
                 });
@@ -189,7 +196,7 @@ public class LockCreationViewController extends AppLockViewController {
     }
 
     @Override
-    public void handleActivityPause() {
+    public void onActivityPaused() {
         final Activity activity = this.activity.get();
 
         if (activity == null)
@@ -204,8 +211,29 @@ public class LockCreationViewController extends AppLockViewController {
     }
 
     @Override
-    public void handleActivityResume() {
-        if (displayVariant == DisplayVariant.FINGERPRINT_AUTHENTICATION)
-            setupFingerprintAuthentication();
+    public void onActivityResumed() {
+        final Activity activity = this.activity.get();
+
+        if (activity == null || displayVariant != DisplayVariant.FINGERPRINT_AUTHENTICATION)
+            return;
+
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            setDescription(R.string.pin__fingerprint_error_permission_multiple);
+            updateActionSettings(AppLock.ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED);
+            return;
+        }
+
+        setupFingerprintAuthentication();
+    }
+
+    @Override
+    protected void handleActionSettingsClicked(int errorCode) {
+        final Activity activity = this.activity.get();
+        Intent intent = getSettingsIntent(errorCode);
+
+        if (activity == null || intent == null)
+            return;
+
+        activity.startActivity(intent);
     }
 }

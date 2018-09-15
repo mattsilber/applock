@@ -22,10 +22,7 @@ import javax.crypto.KeyGenerator;
 public class FingerprintUtils {
 
     public interface AuthenticationDelegate {
-        public void onHardwareNotPresent();
-        public void onPermissionNotGranted();
-        public void onNoFingerprints();
-        public void onServiceNotAvailable();
+        public void onResolutionRequired(int errorCode);
         public void onAuthenticating(CancellationSignal cancellationSignal);
         public void onAuthenticationSuccess();
         public void onAuthenticationFailed(String message);
@@ -34,21 +31,26 @@ public class FingerprintUtils {
     private static final String PREF_ENROLLMENT_ALLOWED = "pin__fingerprint_enrollment_allowed";
     private static final String KEYSTORE_NAME  = "AndroidKeyStore";
 
-    public static void authenticate(Context context, AuthenticationDelegate delegate) {
+    public static void authenticate(Context context, boolean localEnrollmentRequired, AuthenticationDelegate delegate) {
         if (!isHardwarePresent(context)) {
-            delegate.onHardwareNotPresent();
+            delegate.onResolutionRequired(AppLock.ERROR_CODE_FINGERPRINTS_MISSING_HARDWARE);
             return;
         }
 
         FingerprintManagerCompat manager = FingerprintManagerCompat.from(context);
 
+        if (localEnrollmentRequired && !isLocallyEnrolled(context)) {
+            delegate.onResolutionRequired(AppLock.ERROR_CODE_FINGERPRINTS_NOT_LOCALLY_ENROLLED);
+            return;
+        }
+
         if (!manager.hasEnrolledFingerprints()) {
-            delegate.onNoFingerprints();
+            delegate.onResolutionRequired(AppLock.ERROR_CODE_FINGERPRINTS_EMPTY);
             return;
         }
 
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
-            delegate.onPermissionNotGranted();
+            delegate.onResolutionRequired(AppLock.ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED);
             return;
         }
 
@@ -95,7 +97,7 @@ public class FingerprintUtils {
         catch (Exception e) {
             e.printStackTrace();
 
-            delegate.onServiceNotAvailable();
+            delegate.onResolutionRequired(AppLock.ERROR_CODE_FINGERPRINTS_MISSING_HARDWARE);
         }
     }
 

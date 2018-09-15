@@ -5,26 +5,14 @@ import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 
 import java.lang.ref.WeakReference;
 
 public class LifeCycleUtils {
 
-    public static final String ACTION_NOTIFY_ACTIVITY_RESUME = "com.guardanis.applock.activity_resume";
-    public static final String ACTION_NOTIFY_ACTIVITY_PAUSE = "com.guardanis.applock.activity_pause";
-
-    public static IntentFilter buildIntentFilter() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_NOTIFY_ACTIVITY_RESUME);
-        filter.addAction(ACTION_NOTIFY_ACTIVITY_PAUSE);
-
-        return filter;
-    }
-
-    public static AppLockActivityLifeCycleCallbacks attach(Activity activity, BroadcastReceiver receiver, IntentFilter targetIntentFilters) {
-        activity.registerReceiver(receiver, targetIntentFilters);
-
-        AppLockActivityLifeCycleCallbacks callbacks = new AppLockActivityLifeCycleCallbacks(activity, receiver, targetIntentFilters);
+    public static AppLockActivityLifeCycleCallbacks attach(Activity activity, AppLockActivityLifeCycleCallbacks.Delegate delegate) {
+        AppLockActivityLifeCycleCallbacks callbacks = new AppLockActivityLifeCycleCallbacks(activity, delegate);
 
         activity.getApplication()
                 .registerActivityLifecycleCallbacks(callbacks);
@@ -32,16 +20,19 @@ public class LifeCycleUtils {
         return callbacks;
     }
 
-    protected static class AppLockActivityLifeCycleCallbacks implements Application.ActivityLifecycleCallbacks {
+    public static class AppLockActivityLifeCycleCallbacks implements Application.ActivityLifecycleCallbacks {
+
+        public interface Delegate {
+            public void onActivityResumed();
+            public void onActivityPaused();
+        }
 
         protected WeakReference<Activity> openedActivity;
-        protected WeakReference<BroadcastReceiver> targetReceiver;
-        protected IntentFilter targetIntentFilters;
+        protected WeakReference<Delegate> delegate;
 
-        public AppLockActivityLifeCycleCallbacks(Activity activity, BroadcastReceiver receiver, IntentFilter targetIntentFilters) {
+        public AppLockActivityLifeCycleCallbacks(Activity activity, Delegate delegate) {
             this.openedActivity = new WeakReference<Activity>(activity);
-            this.targetReceiver = new WeakReference<BroadcastReceiver>(receiver);
-            this.targetIntentFilters = targetIntentFilters;
+            this.delegate = new WeakReference<Delegate>(delegate);
         }
 
         @Override
@@ -59,23 +50,23 @@ public class LifeCycleUtils {
         @Override
         public void onActivityResumed(Activity activity) {
             Activity opened = this.openedActivity.get();
-            BroadcastReceiver receiver = this.targetReceiver.get();
+            Delegate delegate = this.delegate.get();
 
-            if (opened == null || receiver == null || opened != activity)
+            if (opened == null || delegate == null || opened != activity)
                 return;
 
-            opened.registerReceiver(receiver, targetIntentFilters);
+            delegate.onActivityResumed();
         }
 
         @Override
         public void onActivityPaused(Activity activity) {
             Activity opened = this.openedActivity.get();
-            BroadcastReceiver receiver = this.targetReceiver.get();
+            Delegate delegate = this.delegate.get();
 
-            if (opened == null || receiver == null || opened != activity)
+            if (opened == null || delegate == null || opened != activity)
                 return;
 
-            opened.unregisterReceiver(receiver);
+            delegate.onActivityPaused();
         }
 
         @Override

@@ -25,14 +25,17 @@
 
     <string name="pin__default_password_char">*</string>
 
+    <string name="pin__default_action_settings">Open System Settings</string>
+
     <string name="pin__fingerprint_alias">AppLock</string>
 
+    <string name="pin__fingerprint_error_not_enrolled">You haven\'t setup fingerprint unlocking.</string>
     <string name="pin__fingerprint_error_unrecognized">Your fingerprint wasn\'t recognized.</string>
     <string name="pin__fingerprint_error_unknown">Something weird happened.</string>
     <string name="pin__fingerprint_error_none">No fingerprints found! Enable them in your system settings.</string>
     <string name="pin__fingerprint_error_hardware">Missing fingerprint hardware?</string>
     <string name="pin__fingerprint_error_permission">Fingerprint permission required.</string>
-    <string name="pin__fingerprint_error_permission_multiple">Fingerprint permission denied.</string>
+    <string name="pin__fingerprint_error_permission_multiple">Fingerprint permission denied. Please enable fingerprint support in your system settings.</string>
 
     <item name="pin__empty_item_min_size_percent" format="float" type="string">0.2</item>
 

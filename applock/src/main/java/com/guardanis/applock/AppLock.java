@@ -19,8 +19,8 @@ public class AppLock {
 
     public interface UnlockDelegate {
         public void onUnlockSuccessful();
-        public void onFingerprintPermissionRequired();
-        public void onUnlockError(String message);
+        public void onResolutionRequired(int errorCode);
+        public void onRecoverableUnlockError(String message);
     }
 
     private static AppLock instance;
@@ -38,6 +38,11 @@ public class AppLock {
 
     private static final String PREF_UNLOCK_FAILURE_TIME = "pin__unlock_failure_time";
     private static final String PREF_UNLOCK_SUCCESS_TIME = "pin__unlock_success_time";
+
+    public static final int ERROR_CODE_FINGERPRINTS_MISSING_HARDWARE = 1;
+    public static final int ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED = 2;
+    public static final int ERROR_CODE_FINGERPRINTS_EMPTY = 3;
+    public static final int ERROR_CODE_FINGERPRINTS_NOT_LOCALLY_ENROLLED = 4;
 
     protected Context context;
 
@@ -66,26 +71,13 @@ public class AppLock {
         return lastSuccessValidMs < System.currentTimeMillis() - getUnlockSuccessTime();
     }
 
-    public void attemptFingerprintUnlock(final UnlockDelegate eventListener) {
+    public void attemptFingerprintUnlock(boolean localEnrollmentRequired, final UnlockDelegate eventListener) {
         if (handleFailureBlocking(eventListener))
             return;
 
-        FingerprintUtils.authenticate(context, new FingerprintUtils.AuthenticationDelegate() {
-            public void onHardwareNotPresent() {
-                handleResolvableError(R.string.pin__fingerprint_error_none);
-            }
-
-            public void onPermissionNotGranted() {
-                handleResolvableError(R.string.pin__fingerprint_error_permission);
-                eventListener.onFingerprintPermissionRequired();
-            }
-
-            public void onNoFingerprints() {
-                handleResolvableError(R.string.pin__fingerprint_error_none);
-            }
-
-            public void onServiceNotAvailable() {
-                onHardwareNotPresent();
+        FingerprintUtils.authenticate(context, localEnrollmentRequired, new FingerprintUtils.AuthenticationDelegate() {
+            public void onResolutionRequired(int errorCode) {
+                eventListener.onResolutionRequired(errorCode);
             }
 
             public void onAuthenticating(CancellationSignal cancellationSignal) {
@@ -94,13 +86,6 @@ public class AppLock {
 
             public void onAuthenticationSuccess() {
                 onUnlockSuccessful(eventListener);
-            }
-
-            private void handleResolvableError(int messageResId) {
-                String message = context.getString(messageResId);
-
-                if (eventListener != null)
-                    eventListener.onUnlockError(message);
             }
 
             public void onAuthenticationFailed(String message) {
@@ -147,7 +132,7 @@ public class AppLock {
                         formatTimeRemaining());
 
                 if (eventListener != null)
-                    eventListener.onUnlockError(message);
+                    eventListener.onRecoverableUnlockError(message);
 
                 return true;
             }
@@ -160,7 +145,7 @@ public class AppLock {
         retryCount++;
 
         if (eventListener != null)
-            eventListener.onUnlockError(message);
+            eventListener.onRecoverableUnlockError(message);
 
         if(context.getResources().getInteger(R.integer.pin__default_max_retry_count) < retryCount)
             onFailureExceedsLimit();

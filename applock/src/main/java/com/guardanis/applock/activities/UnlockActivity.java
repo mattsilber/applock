@@ -37,18 +37,6 @@ public class UnlockActivity extends AppCompatActivity implements UnlockViewContr
     }
 
     @Override
-    public void onFingerprintPermissionRequired() {
-        // TODO
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        // TODO
-    }
-
-    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0){
             if(!getIntent().getBooleanExtra(INTENT_ALLOW_UNLOCKED_EXIT, false)){

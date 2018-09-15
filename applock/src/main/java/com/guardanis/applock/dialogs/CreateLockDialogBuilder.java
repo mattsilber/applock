@@ -56,19 +56,6 @@ public class CreateLockDialogBuilder extends AppLockDialogBuilder<LockCreationVi
     }
 
     @Override
-    public void onFingerprintPermissionRequired() {
-        Activity activity = this.activity.get();
-
-        if (activity == null)
-            return;
-
-        ActivityCompat.requestPermissions(
-                activity,
-                new String[] { Manifest.permission.USE_FINGERPRINT },
-                AppLock.REQUEST_CODE_FINGERPRINT_PERMISSION);
-    }
-
-    @Override
     protected void handleCanceled() {
         super.handleCanceled();
 

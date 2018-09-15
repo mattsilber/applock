@@ -36,20 +36,8 @@ public class CreateLockActivity extends AppCompatActivity implements LockCreatio
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        // TODO
-    }
-
-    @Override
     public void onLockCreated() {
         setResult(Activity.RESULT_OK);
         finish();
-    }
-
-    @Override
-    public void onFingerprintPermissionRequired() {
-        // TODO
     }
 }

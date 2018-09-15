@@ -1,6 +1,11 @@
 package com.guardanis.applock.views;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 
 import com.guardanis.applock.AppLock;
@@ -10,11 +15,10 @@ import com.guardanis.applock.utils.FingerprintUtils;
 
 import java.lang.ref.WeakReference;
 
-public class UnlockViewController extends AppLockViewController {
+public class UnlockViewController extends AppLockViewController implements AppLock.UnlockDelegate {
 
     public interface Delegate {
         public void onUnlockSuccessful();
-        public void onFingerprintPermissionRequired();
     }
 
     public enum DisplayVariant {
@@ -53,6 +57,7 @@ public class UnlockViewController extends AppLockViewController {
         this.displayVariant = DisplayVariant.PIN_UNLOCK;
 
         hide(fingerprintAuthImageView);
+        hide(actionSettings);
         show(pinInputView);
 
         setDescription(R.string.pin__description_unlock_pin);
@@ -76,26 +81,15 @@ public class UnlockViewController extends AppLockViewController {
         if (activity == null)
             return;
 
-        AppLock.UnlockDelegate unlockDelegate = new AppLock.UnlockDelegate() {
-            public void onUnlockSuccessful() {
-                handleUnlockSuccessful();
-            }
-
-            public void onFingerprintPermissionRequired() { }
-
-            public void onUnlockError(String message) {
-                setDescription(message);
-            }
-        };
-
         AppLock.getInstance(activity)
-                .attemptUnlock(input, unlockDelegate);
+                .attemptUnlock(input, this);
     }
 
     protected void setupFingerprintUnlock() {
         this.displayVariant = DisplayVariant.FINGERPRINT_AUTHENTICATION;
 
         hide(pinInputView);
+        hide(actionSettings);
         show(fingerprintAuthImageView);
 
         setDescription(R.string.pin__description_unlock_fingerprint);
@@ -110,25 +104,11 @@ public class UnlockViewController extends AppLockViewController {
             return;
 
         AppLock.getInstance(activity)
-                .attemptFingerprintUnlock(new AppLock.UnlockDelegate() {
-                    public void onUnlockSuccessful() {
-                        handleUnlockSuccessful();
-                    }
-
-                    public void onFingerprintPermissionRequired() {
-                        Delegate delegate = UnlockViewController.this.delegate.get();
-
-                        if (delegate != null)
-                            delegate.onFingerprintPermissionRequired();
-                    }
-
-                    public void onUnlockError(String message) {
-                        setDescription(message);
-                    }
-                });
+                .attemptFingerprintUnlock(true, this);
     }
 
-    protected void handleUnlockSuccessful() {
+    @Override
+    public void onUnlockSuccessful() {
         Delegate delegate = this.delegate.get();
 
         if (delegate != null)
@@ -136,23 +116,54 @@ public class UnlockViewController extends AppLockViewController {
     }
 
     @Override
-    public void handleActivityPause() {
-        final Activity activity = this.activity.get();
-
-        if (activity == null)
-            return;
-
-        if (displayVariant == DisplayVariant.FINGERPRINT_AUTHENTICATION) {
-            setDescription(R.string.pin__description_create_fingerprint_paused);
-
-            AppLock.getInstance(activity)
-                    .cancelPendingAuthentications();
-        }
+    public void onResolutionRequired(int errorCode) {
+        setDescription(getDescriptionResIdForError(errorCode));
+        updateActionSettings(errorCode);
+        handleInitialErrorPrompt(errorCode);
     }
 
     @Override
-    public void handleActivityResume() {
-        if (displayVariant == DisplayVariant.FINGERPRINT_AUTHENTICATION)
-            setupFingerprintUnlock();
+    public void onRecoverableUnlockError(String message) {
+        setDescription(message);
+    }
+
+    @Override
+    public void onActivityPaused() {
+        final Activity activity = this.activity.get();
+
+        if (activity == null || displayVariant != DisplayVariant.FINGERPRINT_AUTHENTICATION)
+            return;
+
+        setDescription(R.string.pin__description_create_fingerprint_paused);
+
+        AppLock.getInstance(activity)
+                .cancelPendingAuthentications();
+    }
+
+    @Override
+    public void onActivityResumed() {
+        final Activity activity = this.activity.get();
+
+        if (activity == null || displayVariant != DisplayVariant.FINGERPRINT_AUTHENTICATION)
+            return;
+
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            setDescription(R.string.pin__fingerprint_error_permission_multiple);
+            updateActionSettings(AppLock.ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED);
+            return;
+        }
+
+        setupFingerprintUnlock();
+    }
+
+    @Override
+    protected void handleActionSettingsClicked(int errorCode) {
+        final Activity activity = this.activity.get();
+        Intent intent = getSettingsIntent(errorCode);
+
+        if (activity == null || intent == null)
+            return;
+
+        activity.startActivity(intent);
     }
 }
