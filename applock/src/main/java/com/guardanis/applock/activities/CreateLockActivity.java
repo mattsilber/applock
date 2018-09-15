@@ -23,7 +23,7 @@ public class CreateLockActivity extends AppCompatActivity implements LockCreatio
 
         setContentView(R.layout.applock__lock_creation);
 
-        this.viewController = new LockCreationViewController(findViewById(R.id.pin__container));
+        this.viewController = new LockCreationViewController(this, findViewById(R.id.pin__container));
         this.viewController.setDelegate(this);
         this.viewController.setupRootFlow();
     }

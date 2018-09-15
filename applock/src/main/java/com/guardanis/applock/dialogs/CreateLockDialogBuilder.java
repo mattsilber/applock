@@ -39,7 +39,7 @@ public class CreateLockDialogBuilder extends AppLockDialogBuilder<LockCreationVi
 
     @Override
     protected LockCreationViewController buildViewControllerInstance(View parent) {
-        LockCreationViewController controller = new LockCreationViewController(parent);
+        LockCreationViewController controller = new LockCreationViewController(activity.get(), parent);
         controller.setDelegate(this);
 
         return controller;

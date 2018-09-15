@@ -6,9 +6,10 @@
     <string name="pin__description_create_pin">Create a PIN to secure this application.</string>
     <string name="pin__description_create_pin_reattempt">PINs didn\'t match. Try again.</string>
     <string name="pin__description_create_fingerprint">Scan your fingerprint to secure this application.</string>
-    <string name="pin__description_confirm">Re-enter your PIN to confirm</string>
-    <string name="pin__description_unlock">Enter your PIN to unlock</string>
-    <string name="pin__description_fingerprint_unlock">Scan your fingerprint to unlock.</string>
+    <string name="pin__description_create_fingerprint_paused">Fingerprint authentication canceled. Reload this content to restart.</string>
+    <string name="pin__description_confirm">Re-enter your PIN to confirm.</string>
+    <string name="pin__description_unlock_pin">Enter your PIN to unlock.</string>
+    <string name="pin__description_unlock_fingerprint">Scan your fingerprint to unlock.</string>
 
     <string name="pin__create_chooser_option_pin">PIN</string>
     <string name="pin__create_chooser_option_fingerprint">Fingerprint</string>
@@ -31,6 +32,7 @@
     <string name="pin__fingerprint_error_none">No fingerprints found! Enable them in your system settings.</string>
     <string name="pin__fingerprint_error_hardware">Missing fingerprint hardware?</string>
     <string name="pin__fingerprint_error_permission">Fingerprint permission required.</string>
+    <string name="pin__fingerprint_error_permission_multiple">Fingerprint permission denied.</string>
 
     <item name="pin__empty_item_min_size_percent" format="float" type="string">0.2</item>
 

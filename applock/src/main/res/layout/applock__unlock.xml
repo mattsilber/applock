@@ -23,8 +23,8 @@
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/pin__fingerprint_image"
-        android:layout_width="@dimen/pin__default_fingerprint_image_size"
-        android:layout_height="@dimen/pin__default_fingerprint_image_size"
+        android:layout_width="@dimen/pin__default_fingerprint_scan_image_size"
+        android:layout_height="@dimen/pin__default_fingerprint_scan_image_size"
         applock:srcCompat="@drawable/applock__fingerprint"
         applock:tint="@color/pin__default_item_background" />
 

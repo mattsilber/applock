@@ -76,6 +76,7 @@ public class AppLock {
             }
 
             public void onPermissionNotGranted() {
+                handleResolvableError(R.string.pin__fingerprint_error_permission);
                 eventListener.onFingerprintPermissionRequired();
             }
 

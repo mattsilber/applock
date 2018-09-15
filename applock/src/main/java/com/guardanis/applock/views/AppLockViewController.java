@@ -1,6 +1,12 @@
 package com.guardanis.applock.views;
 
+import android.app.Activity;
+import android.app.Application;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v4.os.CancellationSignal;
 import android.support.v7.widget.AppCompatImageView;
 import android.view.View;
@@ -11,13 +17,15 @@ import com.guardanis.applock.R;
 import com.guardanis.applock.dialogs.AppLockDialogBuilder;
 import com.guardanis.applock.pin.PINInputController;
 import com.guardanis.applock.pin.PINInputView;
+import com.guardanis.applock.utils.LifeCycleUtils;
 
 import java.lang.ref.WeakReference;
 
-public abstract class AppLockViewController {
+public abstract class AppLockViewController extends BroadcastReceiver {
 
     protected PINInputController pinInputController;
 
+    protected WeakReference<Activity> activity;
     protected WeakReference<View> parent;
 
     protected WeakReference<PINInputView> pinInputView;
@@ -27,7 +35,11 @@ public abstract class AppLockViewController {
 
     protected CancellationSignal fingerprintAuthCancelSignal;
 
-    public AppLockViewController(View parent) {
+    protected Application.ActivityLifecycleCallbacks activityLifecycleCallbacks;
+    protected IntentFilter activityLifeCycleIntentFilter = LifeCycleUtils.buildIntentFilter();
+
+    public AppLockViewController(Activity activity, View parent) {
+        this.activity = new WeakReference<Activity>(activity);
         this.parent = new WeakReference<View>(parent);
         this.descriptionView = new WeakReference((TextView) parent.findViewById(R.id.pin__description));
 
@@ -43,11 +55,14 @@ public abstract class AppLockViewController {
         this.pinInputController = new PINInputController(pinInputView.get())
                 .setInputNumbersCount(inputViewsCount)
                 .setPasswordCharactersEnabled(passwordCharsEnabled);
+
+        this.activityLifecycleCallbacks = LifeCycleUtils.attach(activity, this, activityLifeCycleIntentFilter);
     }
 
     public abstract void setupRootFlow();
 
-    public abstract void handleSettingsOrPermissionsReturn();
+    public abstract void handleActivityPause();
+    public abstract void handleActivityResume();
 
     public void setDescription(int descriptionResId) {
         final TextView descriptionView = this.descriptionView.get();
@@ -85,16 +100,6 @@ public abstract class AppLockViewController {
         view.setVisibility(View.VISIBLE);
     }
 
-    protected void displayIndicatorMessage(int messageResId) {
-        final View parent = this.parent.get();
-
-        if (parent == null)
-            return;
-
-        Toast.makeText(parent.getContext(), parent.getResources().getString(messageResId), Toast.LENGTH_SHORT)
-                .show();
-    }
-
     public PINInputController getPINInputController() {
         return pinInputController;
     }
@@ -109,5 +114,34 @@ public abstract class AppLockViewController {
 
         this.fingerprintAuthCancelSignal.cancel();
         this.fingerprintAuthCancelSignal = null;
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if (!activityLifeCycleIntentFilter.matchAction(intent.getAction()))
+            return;
+
+        switch (intent.getAction()) {
+            case LifeCycleUtils.ACTION_NOTIFY_ACTIVITY_PAUSE:
+                handleActivityPause();
+                break;
+            case LifeCycleUtils.ACTION_NOTIFY_ACTIVITY_RESUME:
+                handleActivityResume();
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void unregisterReceivers() {
+        Activity activity = this.activity.get();
+
+        if (activity == null)
+            return;
+
+        activity.unregisterReceiver(this);
+
+        activity.getApplication()
+                .unregisterActivityLifecycleCallbacks(activityLifecycleCallbacks);
     }
 }

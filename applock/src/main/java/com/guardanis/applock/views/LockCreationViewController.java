@@ -1,7 +1,7 @@
 package com.guardanis.applock.views;
 
+import android.app.Activity;
 import android.view.View;
-import android.widget.Toast;
 
 import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
@@ -17,12 +17,22 @@ public class LockCreationViewController extends AppLockViewController {
         public void onFingerprintPermissionRequired();
     }
 
+    public enum DisplayVariant {
+        CHOOSER,
+        PIN_CREATION,
+        PIN_CONFIRMATION,
+        FINGERPRINT_AUTHENTICATION
+    }
+
+    protected DisplayVariant displayVariant = DisplayVariant.CHOOSER;
+
     protected WeakReference<Delegate> delegate;
     protected WeakReference<View> chooserParent;
+
     protected String pinFirst;
 
-    public LockCreationViewController(View parent) {
-        super(parent);
+    public LockCreationViewController(Activity activity, View parent) {
+        super(activity, parent);
 
         this.chooserParent = new WeakReference(parent.findViewById(R.id.pin__create_chooser_items));
     }
@@ -39,6 +49,8 @@ public class LockCreationViewController extends AppLockViewController {
     }
 
     protected void setupCreationChooser() {
+        this.displayVariant = DisplayVariant.CHOOSER;
+
         hide(fingerprintAuthImageView);
         hide(pinInputView);
 
@@ -67,6 +79,8 @@ public class LockCreationViewController extends AppLockViewController {
     }
 
     protected void setupPINCreation() {
+        this.displayVariant = DisplayVariant.PIN_CREATION;
+
         hide(fingerprintAuthImageView);
         hide(chooserParent);
 
@@ -89,6 +103,8 @@ public class LockCreationViewController extends AppLockViewController {
     }
 
     protected void setupPINConfirmation() {
+        this.displayVariant = DisplayVariant.PIN_CONFIRMATION;
+
         hide(fingerprintAuthImageView);
         hide(chooserParent);
 
@@ -117,22 +133,19 @@ public class LockCreationViewController extends AppLockViewController {
     }
 
     protected void createPINLock(String input) {
-        final View parent = getParent();
+        final Activity activity = this.activity.get();
 
-        if (parent == null)
+        if (activity == null)
             return;
 
-        PINUtils.savePIN(parent.getContext(), input);
+        PINUtils.savePIN(activity, input);
 
-        displayIndicatorMessage(R.string.pin__toast_lock_success);
-
-        Delegate delegate = this.delegate.get();
-
-        if (delegate != null)
-            delegate.onLockCreated();
+        handleLockCreated();
     }
 
     protected void setupFingerprintAuthentication() {
+        this.displayVariant = DisplayVariant.FINGERPRINT_AUTHENTICATION;
+
         hide(pinInputView);
         hide(chooserParent);
 
@@ -144,18 +157,15 @@ public class LockCreationViewController extends AppLockViewController {
     }
 
     private void attemptFingerprintAuthentication() {
-        final View parent = getParent();
+        final Activity activity = this.activity.get();
 
-        if (parent == null)
+        if (activity == null)
             return;
 
-        AppLock.getInstance(parent.getContext())
+        AppLock.getInstance(activity)
                 .attemptFingerprintUnlock(new AppLock.UnlockDelegate() {
                     public void onUnlockSuccessful() {
-                        Delegate delegate = LockCreationViewController.this.delegate.get();
-
-                        if (delegate != null)
-                            delegate.onLockCreated();
+                        handleLockCreated();
                     }
 
                     public void onFingerprintPermissionRequired() {
@@ -171,8 +181,31 @@ public class LockCreationViewController extends AppLockViewController {
                 });
     }
 
+    protected void handleLockCreated() {
+        Delegate delegate = this.delegate.get();
+
+        if (delegate != null)
+            delegate.onLockCreated();
+    }
+
     @Override
-    public void handleSettingsOrPermissionsReturn() {
-        setupFingerprintAuthentication();
+    public void handleActivityPause() {
+        final Activity activity = this.activity.get();
+
+        if (activity == null)
+            return;
+
+        if (displayVariant == DisplayVariant.FINGERPRINT_AUTHENTICATION) {
+            setDescription(R.string.pin__description_create_fingerprint_paused);
+
+            AppLock.getInstance(activity)
+                    .cancelPendingAuthentications();
+        }
+    }
+
+    @Override
+    public void handleActivityResume() {
+        if (displayVariant == DisplayVariant.FINGERPRINT_AUTHENTICATION)
+            setupFingerprintAuthentication();
     }
 }

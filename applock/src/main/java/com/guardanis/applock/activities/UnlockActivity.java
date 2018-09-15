@@ -25,7 +25,7 @@ public class UnlockActivity extends AppCompatActivity implements UnlockViewContr
 
         setContentView(R.layout.applock__unlock);
 
-        this.viewController = new UnlockViewController(findViewById(R.id.pin__container));
+        this.viewController = new UnlockViewController(this, findViewById(R.id.pin__container));
         this.viewController.setDelegate(this);
         this.viewController.setupRootFlow();
     }

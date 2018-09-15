@@ -1,7 +1,11 @@
 <resources>
 
     <dimen name="pin__default_item_size">50dip</dimen>
-    <dimen name="pin__default_fingerprint_image_size">65dip</dimen>
+    <dimen name="pin__default_fingerprint_scan_image_size">65dip</dimen>
+
+    <dimen name="pin__default_chooser_image_size">50dip</dimen>
+    <dimen name="pin__default_chooser_parent_padding_vertical">24dip</dimen>
+    <dimen name="pin__default_chooser_text_padding_top">12dip</dimen>
 
     <dimen name="pin__default_description_text">18dip</dimen>
     <dimen name="pin__default_description_padding_bottom">20dip</dimen>

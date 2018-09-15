@@ -40,7 +40,7 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
 
     @Override
     protected UnlockViewController buildViewControllerInstance(View parent) {
-        UnlockViewController controller = new UnlockViewController(parent);
+        UnlockViewController controller = new UnlockViewController(activity.get(), parent);
         controller.setDelegate(this);
 
         return controller;

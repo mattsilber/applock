@@ -17,9 +17,7 @@ import com.guardanis.applock.views.AppLockViewController;
 
 import java.lang.ref.WeakReference;
 
-public abstract class AppLockDialogBuilder<ALVC extends AppLockViewController> extends BroadcastReceiver {
-
-    public static final String ACTION_NOTIFY_PERMISSION_CHANGE = "com.guardanis.applock.permissions_updated";
+public abstract class AppLockDialogBuilder<ALVC extends AppLockViewController> {
 
     protected WeakReference<Activity> activity;
     protected ALVC viewController;
@@ -27,16 +25,9 @@ public abstract class AppLockDialogBuilder<ALVC extends AppLockViewController> e
     protected WeakReference<AppCompatDialog> dialog = new WeakReference<AppCompatDialog>(null);
     protected int layoutResId;
 
-    protected IntentFilter permissionChangeIntentFilter;
-
     public AppLockDialogBuilder(Activity activity, int layoutResId) {
         this.activity = new WeakReference<Activity>(activity);
         this.layoutResId = layoutResId;
-
-        this.permissionChangeIntentFilter = new IntentFilter();
-        this.permissionChangeIntentFilter.addAction(ACTION_NOTIFY_PERMISSION_CHANGE);
-
-        activity.registerReceiver(this, permissionChangeIntentFilter);
     }
 
     public Dialog show() {
@@ -76,25 +67,13 @@ public abstract class AppLockDialogBuilder<ALVC extends AppLockViewController> e
 
     protected abstract ALVC buildViewControllerInstance(View parent);
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        if (!permissionChangeIntentFilter.matchAction(intent.getAction()))
-            return;
-
-        this.viewController.handleSettingsOrPermissionsReturn();
-    }
-
     protected void handleCanceled() {
         dismissDialog();
     }
 
     protected void handleDismissed() {
         this.dialog = new WeakReference<AppCompatDialog>(null);
-
-        Activity activity = this.activity.get();
-
-        if (activity != null)
-            activity.unregisterReceiver(this);
+        this.viewController.unregisterReceivers();
     }
 
     protected void dismissDialog(){

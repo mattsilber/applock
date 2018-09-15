@@ -24,8 +24,8 @@
 
     <android.support.v7.widget.AppCompatImageView
         android:id="@+id/pin__fingerprint_image"
-        android:layout_width="@dimen/pin__default_fingerprint_image_size"
-        android:layout_height="@dimen/pin__default_fingerprint_image_size"
+        android:layout_width="@dimen/pin__default_fingerprint_scan_image_size"
+        android:layout_height="@dimen/pin__default_fingerprint_scan_image_size"
         applock:srcCompat="@drawable/applock__fingerprint"
         applock:tint="@color/pin__default_item_background" />
 
@@ -47,12 +47,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/applock__chooser_option_bg"
+            android:paddingTop="@dimen/pin__default_chooser_parent_padding_vertical"
+            android:paddingBottom="@dimen/pin__default_chooser_parent_padding_vertical"
             android:gravity="bottom|center_horizontal"
             android:orientation="vertical" >
 
             <android.support.v7.widget.AppCompatImageView
-                android:layout_width="@dimen/pin__default_fingerprint_image_size"
-                android:layout_height="@dimen/pin__default_fingerprint_image_size"
+                android:layout_width="@dimen/pin__default_chooser_image_size"
+                android:layout_height="@dimen/pin__default_chooser_image_size"
                 applock:srcCompat="@drawable/applock__pin"
                 applock:tint="@color/pin__default_item_background"/>
 
@@ -60,7 +62,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:paddingTop="8dp"
+                android:paddingTop="@dimen/pin__default_chooser_text_padding_top"
                 android:text="@string/pin__create_chooser_option_pin"
                 android:textColor="@color/pin__default_description_text"
                 android:textSize="@dimen/pin__default_description_text"/>
@@ -73,12 +75,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/applock__chooser_option_bg"
+            android:paddingTop="@dimen/pin__default_chooser_parent_padding_vertical"
+            android:paddingBottom="@dimen/pin__default_chooser_parent_padding_vertical"
             android:gravity="bottom|center_horizontal"
             android:orientation="vertical" >
 
             <android.support.v7.widget.AppCompatImageView
-                android:layout_width="@dimen/pin__default_fingerprint_image_size"
-                android:layout_height="@dimen/pin__default_fingerprint_image_size"
+                android:layout_width="@dimen/pin__default_chooser_image_size"
+                android:layout_height="@dimen/pin__default_chooser_image_size"
                 applock:srcCompat="@drawable/applock__fingerprint"
                 applock:tint="@color/pin__default_item_background"/>
 
@@ -86,7 +90,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:paddingTop="8dp"
+                android:paddingTop="@dimen/pin__default_chooser_text_padding_top"
                 android:text="@string/pin__create_chooser_option_fingerprint"
                 android:textColor="@color/pin__default_description_text"
                 android:textSize="@dimen/pin__default_description_text"/>

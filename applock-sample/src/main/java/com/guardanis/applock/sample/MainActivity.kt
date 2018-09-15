@@ -19,19 +19,6 @@ class MainActivity: AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        when (requestCode) {
-            AppLock.REQUEST_CODE_FINGERPRINT_PERMISSION -> {
-                val intent = Intent()
-                        .setAction(AppLockDialogBuilder.ACTION_NOTIFY_PERMISSION_CHANGE)
-
-                sendBroadcast(intent)
-            }
-        }
-    }
-
     fun openApplockFlowClicked(view: View?) {
         if (!AppLock.isUnlockMethodPresent(this)) {
             showCreateLockFlow()
@@ -43,30 +30,28 @@ class MainActivity: AppCompatActivity() {
 
     fun showCreateLockFlow() {
         CreateLockDialogBuilder(this)
-                .onCanceled({
-                    Toast.makeText(this@MainActivity, "You canceled...", Toast.LENGTH_SHORT)
-                            .show()
-                })
-                .onLockCreated({
-                    Toast.makeText(this@MainActivity, "Lock created!", Toast.LENGTH_SHORT)
-                            .show()
-                })
+                .onCanceled({ showIndicatorMessage("You canceled...") })
+                .onLockCreated({ showIndicatorMessage("Lock created!") })
                 .show()
     }
 
     fun showUnlockFlow() {
         val helper = AppLock.getInstance(this)
 
-        if (helper.isUnlockRequired())
+        if (helper.isUnlockRequired(1))
             UnlockDialogBuilder(this)
-                    .onCanceled(null)
+                    .onCanceled({ showIndicatorMessage("Unlock canceled!") })
                     .onUnlocked({
-                        Toast.makeText(this@MainActivity, "Lock removed!", Toast.LENGTH_SHORT)
-                                .show()
+                        showIndicatorMessage("Unlock success! Lock removed.")
 
                         AppLock.getInstance(this@MainActivity)
                                 .clearData()
                     })
                     .show()
+    }
+
+    private fun showIndicatorMessage(message: String) {
+        Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT)
+                .show()
     }
 }
