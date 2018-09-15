@@ -1,7 +1,6 @@
 package com.guardanis.applock.pin;
 
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Interpolator;
 
 import com.guardanis.applock.R;

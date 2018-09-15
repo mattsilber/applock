@@ -2,7 +2,6 @@ package com.guardanis.applock.pin;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Point;
 
 public class PINItemView {
 

@@ -3,9 +3,9 @@
     xmlns:applock="http://schemas.android.com/apk/res-auto"
     android:id="@+id/pin__container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/pin__default_activity_background"
-    android:gravity="center"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
     android:paddingBottom="@dimen/pin__default_margin_vertical"
     android:paddingLeft="@dimen/pin__default_margin_horizontal"
@@ -17,7 +17,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:paddingBottom="@dimen/pin__default_description_padding_bottom"
         android:text="This is some kind of instruction you should follow."
         android:textColor="@color/pin__default_description_text"
         android:textSize="@dimen/pin__default_description_text"/>
@@ -26,13 +25,15 @@
         android:id="@+id/pin__fingerprint_image"
         android:layout_width="@dimen/pin__default_fingerprint_scan_image_size"
         android:layout_height="@dimen/pin__default_fingerprint_scan_image_size"
+        android:layout_marginTop="@dimen/pin__default_fingerprint_scan_image_margin_top"
         applock:srcCompat="@drawable/applock__fingerprint"
         applock:tint="@color/pin__default_item_background" />
 
     <com.guardanis.applock.pin.PINInputView
         android:id="@+id/pin__input_view"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/pin__default_item_size"/>
+        android:layout_height="@dimen/pin__default_item_size"
+        android:layout_marginTop="@dimen/pin__default_item_margin_top"/>
 
     <LinearLayout
         android:id="@+id/pin__create_chooser_items"

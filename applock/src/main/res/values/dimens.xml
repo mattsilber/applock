@@ -1,6 +1,9 @@
 <resources>
 
+    <dimen name="pin__default_item_margin_top">20dip</dimen>
     <dimen name="pin__default_item_size">50dip</dimen>
+
+    <dimen name="pin__default_fingerprint_scan_image_margin_top">35dip</dimen>
     <dimen name="pin__default_fingerprint_scan_image_size">65dip</dimen>
 
     <dimen name="pin__default_chooser_image_size">50dip</dimen>
@@ -16,5 +19,7 @@
     <dimen name="pin__default_action_settings">14dip</dimen>
     <dimen name="pin__default_action_settings_padding">12dip</dimen>
     <dimen name="pin__default_action_settings_margin_top">24dip</dimen>
+
+    <dimen name="pin__default_activity_padding">24dip</dimen>
 
 </resources>

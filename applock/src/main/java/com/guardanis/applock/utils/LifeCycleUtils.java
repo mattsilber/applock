@@ -2,10 +2,7 @@ package com.guardanis.applock.utils;
 
 import android.app.Activity;
 import android.app.Application;
-import android.content.BroadcastReceiver;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 
 import java.lang.ref.WeakReference;
 

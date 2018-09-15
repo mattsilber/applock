@@ -32,7 +32,8 @@ public class AppLock {
     }
 
     public static final int REQUEST_CODE_UNLOCK = 9371;
-    public static final int REQUEST_CODE_FINGERPRINT_PERMISSION = 9372;
+    public static final int REQUEST_CODE_LOCK_CREATION = 9372;
+    public static final int REQUEST_CODE_FINGERPRINT_PERMISSION = 9373;
 
     private static final String PREFS = "pin__preferences";
 

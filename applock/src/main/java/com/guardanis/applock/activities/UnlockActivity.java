@@ -2,15 +2,11 @@ package com.guardanis.applock.activities;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
-import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
-import com.guardanis.applock.pin.PINInputController;
-import com.guardanis.applock.views.LockCreationViewController;
 import com.guardanis.applock.views.UnlockViewController;
 
 public class UnlockActivity extends AppCompatActivity implements UnlockViewController.Delegate {
@@ -23,7 +19,7 @@ public class UnlockActivity extends AppCompatActivity implements UnlockViewContr
     public void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
 
-        setContentView(R.layout.applock__unlock);
+        setContentView(R.layout.applock__activity_unlock);
 
         this.viewController = new UnlockViewController(this, findViewById(R.id.pin__container));
         this.viewController.setDelegate(this);

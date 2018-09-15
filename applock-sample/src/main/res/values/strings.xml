@@ -2,15 +2,16 @@
 
     <string name="app_name">Applock Sample</string>
 
-
     <string name="alert_action_ok">Ok</string>
     <string name="alert_action_cancel">Cancel</string>
     <string name="alert_action_leave">Leave</string>
-
 
     <string-array name="fu__font_family_resources">
         <item>roboto--normal=fonts/roboto.ttf,bold=fonts/roboto_bold.ttf</item>
     </string-array>
 
+    <string name="sample__main_description">This is an example of how to use AppLock as both a dialog, and an app-blocking Activity.</string>
+    <string name="sample__main_action_dialog">Dialog Create / Unlock</string>
+    <string name="sample__main_action_activity">Activity Create / Unlock</string>
 
 </resources>

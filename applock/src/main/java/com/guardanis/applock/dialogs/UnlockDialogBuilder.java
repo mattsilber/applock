@@ -1,18 +1,9 @@
 package com.guardanis.applock.dialogs;
 
-import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.TextView;
 
-import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
-import com.guardanis.applock.views.AppLockViewController;
-import com.guardanis.applock.views.LockCreationViewController;
 import com.guardanis.applock.views.UnlockViewController;
 
 import java.lang.ref.WeakReference;
