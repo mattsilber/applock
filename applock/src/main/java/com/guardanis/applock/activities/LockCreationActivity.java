@@ -23,13 +23,6 @@ public class LockCreationActivity extends AppCompatActivity implements LockCreat
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        viewController.cancelPendingAuthentications();
-    }
-
-    @Override
     public void onLockCreated() {
         setResult(Activity.RESULT_OK);
         finish();

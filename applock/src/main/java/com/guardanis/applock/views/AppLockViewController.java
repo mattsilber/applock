@@ -32,7 +32,6 @@ public abstract class AppLockViewController implements LifeCycleUtils.AppLockAct
     protected WeakReference<View> actionSettings;
 
     protected boolean autoAuthorizationEnabled = true;
-    protected CancellationSignal fingerprintAuthCancelSignal;
 
     protected Application.ActivityLifecycleCallbacks activityLifecycleCallbacks;
 
@@ -106,14 +105,6 @@ public abstract class AppLockViewController implements LifeCycleUtils.AppLockAct
 
     public void setAutoAuthorizationEnabled(boolean autoAuthorizationEnabled) {
         this.autoAuthorizationEnabled = autoAuthorizationEnabled;
-    }
-
-    public void cancelPendingAuthentications() {
-        if (fingerprintAuthCancelSignal == null)
-            return;
-
-        this.fingerprintAuthCancelSignal.cancel();
-        this.fingerprintAuthCancelSignal = null;
     }
 
     public void updateActionSettings(final int errorCode) {
