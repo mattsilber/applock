@@ -1,8 +1,10 @@
 package com.guardanis.applock.dialogs;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.view.View;
 
+import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
 import com.guardanis.applock.views.UnlockViewController;
 
@@ -55,5 +57,41 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
 
         if(canceledCallback != null)
             canceledCallback.run();
+    }
+
+    public Dialog showIfEnrolledOrSuccess() {
+        Activity activity = this.activity.get();
+
+        if (activity == null)
+            return null;
+
+        if (!AppLock.isEnrolled(activity)) {
+            final Runnable unlockCallback = this.unlockCallback.get();
+
+            if(unlockCallback != null)
+                unlockCallback.run();
+
+            return null;
+        }
+
+        return show();
+    }
+
+    public Dialog showIfRequiredOrSuccess(long longValidDurationMs) {
+        Activity activity = this.activity.get();
+
+        if (activity == null)
+            return null;
+
+        if (!AppLock.isUnlockRequired(activity, longValidDurationMs)) {
+            final Runnable unlockCallback = this.unlockCallback.get();
+
+            if(unlockCallback != null)
+                unlockCallback.run();
+
+            return null;
+        }
+
+        return show();
     }
 }

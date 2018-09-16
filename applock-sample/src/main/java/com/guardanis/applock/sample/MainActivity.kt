@@ -50,13 +50,10 @@ class MainActivity: AppCompatActivity() {
     }
 
     private fun showDialogUnlockFlow() {
-        val helper = AppLock.getInstance(this)
-
-        if (helper.isUnlockRequired(1))
-            UnlockDialogBuilder(this)
-                    .onCanceled({ showIndicatorMessage("Unlock canceled!") })
-                    .onUnlocked({ clearLocks() })
-                    .show()
+        UnlockDialogBuilder(this)
+                .onCanceled({ showIndicatorMessage("Unlock canceled!") })
+                .onUnlocked({ clearLocks() })
+                .showIfEnrolledOrSuccess()
     }
 
     fun activityFlowClicked(view: View?) {

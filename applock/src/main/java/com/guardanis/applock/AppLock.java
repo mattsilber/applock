@@ -73,16 +73,14 @@ public class AppLock {
     }
 
     public static boolean isUnlockRequired(Context context) {
-        AppLock helper = getInstance(context);
-
         int minutes = context.getResources()
                 .getInteger(R.integer.pin__default_activity_lock_reenable_minutes);
 
-        return helper.isUnlockRequired(TimeUnit.MINUTES.toMillis(minutes));
+        return isUnlockRequired(context, TimeUnit.MINUTES.toMillis(minutes));
     }
 
-    public boolean isUnlockRequired(long lastSuccessValidMs) {
-        return isEnrolled(context) && lastSuccessValidMs < System.currentTimeMillis() - getUnlockSuccessTime();
+    public static boolean isUnlockRequired(Context context, long lastSuccessValidMs) {
+        return isEnrolled(context) && lastSuccessValidMs < System.currentTimeMillis() - getUnlockSuccessTime(context);
     }
 
     public void attemptFingerprintUnlock(boolean localEnrollmentRequired, final UnlockDelegate eventListener) {
@@ -216,8 +214,9 @@ public class AppLock {
             eventListener.onUnlockSuccessful();
     }
 
-    protected long getUnlockSuccessTime() {
-        return getPreferences()
+    protected static long getUnlockSuccessTime(Context context) {
+        return AppLock.getInstance(context)
+                .getPreferences()
                 .getLong(PREF_UNLOCK_SUCCESS_TIME, 0);
     }
 
@@ -293,19 +292,5 @@ public class AppLock {
         }
         else
             return false;
-    }
-
-    /**
-     * Check if an action-based unlock is required and opens an Unlock Dialog if true.
-     * If not required, it will trigger eventListener.onUnlockSuccessful()
-     */
-    public static void unlockIfRequired(Activity activity, @NonNull Runnable allowed, @Nullable Runnable canceled) {
-        if(isUnlockRequired(activity))
-            new UnlockDialogBuilder(activity)
-                    .onUnlocked(allowed)
-                    .onCanceled(canceled)
-                    .show();
-        else
-            allowed.run();
     }
 }

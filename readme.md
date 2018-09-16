@@ -1,6 +1,6 @@
 # App Lock
 
-A simple library for locking and unlocking Activities (e.g. child lock) with a PIN code. 
+A simple library for locking and unlocking Activities (e.g. child lock) with a PIN code or Fingerprint. 
 
 ![AppLock Sample](https://github.com/mattsilber/applock/raw/master/applock.gif)
 
@@ -12,38 +12,38 @@ repositories {
 }
 
 dependencies {
-    compile('com.guardanis:applock:1.0.8')
+    compile('com.guardanis:applock:2.0.0')
 }
 ```
 
 # Usage
 
-The goal of AppLock is to allow users to enter and confirm a PIN in order to temporarily lock the application from being used, until the PIN is re-entered by the user. 
+The goal of AppLock is to allow users to enroll and authenticate with a PIN or Fingerprint to lock the application from being used by unauthorized parties. 
 
 To open the Activity to create a PIN, you can simply open the `AppLockActivity` via (PS: If you want to use the dialog instead of the Activity (which looks cooler), see the dialog stuff below) `Intents`:
 
 ```java
-Intent intent = new Intent(activity, CreateLockActivity.class);
+Intent intent = new Intent(activity, LockCreationActivity.class);
 startActivityForResult(intent, LockingHelper.REQUEST_CODE_CREATE_LOCK);
 ```
 
-To check if a saved PIN exists, you can simply call *LockingHelper.hasSavedPIN(Activity)* and redirect to the *UnlockActivity* if the action requires PIN-authentication:
+To check if the user has elected to enroll in AppLock authentication, you can simply call *AppLock.isEnrolled(Contect)* and redirect to the *UnlockActivity* if the action requires authentication:
 
 ```java
 Intent intent = new Intent(activity, UnlockActivity.class);
-startActivityForResult(intent, LockingHelper.REQUEST_CODE_ULOCK);    
+startActivityForResult(intent, AppLock.REQUEST_CODE_ULOCK);    
 ```
 
-If you want to do both of the above in a single step (that is, check if there's a saved PIN and open the unlock flow if yes), you can call:
+If you want to do both of the above in a single step (that is, check if the user is enrolled and open the unlock flow if true), you can call:
 
 ```java
-if(!ActionLockingHelper.unlockIfRequired(Activity))
+if(!AppLock.unlockIfRequired(Activity))
     doSomethingThatRequiresLockingIfEnabled();
 
 
 @Override
 public void onActivityResult(int requestCode, int resultCode, Intent data){
-    if(requestCode == LockingHelper.REQUEST_CODE_ULOCK)
+    if(requestCode == LockingHelper.REQUEST_CODE_ULOCK && resultCode == Activity.RESULT_OK)
         doSomethingThatRequiresLockingIfEnabled();
 }
 
@@ -52,41 +52,36 @@ public void onActivityResult(int requestCode, int resultCode, Intent data){
 If you want to do the above with a Dialog, instead of an Activity (which looks cooler, IMHO), you can simply call:
 
 ```java
-ActionLockingHelper.unlockIfRequired(Activity, new UnlockEventListener(){
-    public void onCanceled(){ } // Dialog was closed without entry
-    public void onUnlockFailed(String reason){ } // Not called with default Dialog, instead is handled internally
-    public void onUnlockSuccessful(){
-        doSomethingThatRequiresLockingIfEnabled();
-    }
-});
+new UnlockDialogBuilder(activity)
+    .onUnlocked(() -> { doSomethingThatRequiresLockingIfEnabled(); })
+    .onCanceled(() -> { })
+    .showIfRequiredOrSuccess(TimeUnit.MINUTES.toMillies(15));
 ```
 
-As of version 1.0.7, you can now create the lock PIN with a Dialog as well (why? because it looks cooler):
+
+Or, create the enrollment with a Dialog:
 
 ```java
-new CreateLockDialogBuilder(Activity, 
-    new LockCreationListener(){
-        public void onLockCanceled(){ } // Dialog was closed without entry
-        public void onLockSuccessful(){
-            doSomethingOnAppLocked();
-        }
-    })
-    .show();
+new LockCreationDialogBuilder(this)
+    .onCanceled(() -> { showIndicatorMessage("You canceled..."); })
+    .onLockCreated(() -> { showIndicatorMessage("Lock created!"); })
+    .show()
 ```
 
-If you want an Activity to remain fully locked once a PIN has been entered, ensure that you override *onPostResume()* and call *ActivityLockingHelper.onActivityResumed(Activity);* e.g.
+If you want an Activity to remain fully locked once a PIN has been entered, ensure that you override *onPostResume()* and call *AppLock.onActivityResumed(Activity);* e.g.
 
 ```java
 @Override
 protected void onPostResume(){
     super.onPostResume();
-    ActivityLockingHelper.onActivityResumed(this);
+    
+    AppLock.onActivityResumed(this);
 }
 ```
 
-or you can simply have your Activity extend one of the Lockable Activites available in the library (*LockableCompatActivity* and *LockableActionBarActivity*)
+or you can simply have your Activity extend the *LockableCompatActivity* supplied with this library.
 
-By default, the ActivityLockingHelper considers a successful login as valid for 15 minutes, regardless of application state. You can shorten or extend that length by overriding the integer value for *pin__default_activity_lock_reenable_minutes* in your resources. Doing so will cause any Activity to re-open the *UnlockActivity* after the delay has passed. If you only want PIN-validation on a specific action (e.g. payments), you should use the ActionLockingHelper's methods posted above instead of locking the entre Activity.
+By default, AppLock considers a successful login as valid for 15 minutes, regardless of application state. You can shorten or extend that length by overriding the integer value for *pin__default_activity_lock_reenable_minutes* in your resources. Doing so will cause any Activity to re-open the *UnlockActivity* after the delay has passed. If you only want authentication present on a specific action (e.g. payments), you should use the `UnlockDialogBuilder`'s methods posted above instead of locking the entire Activity.
 
 To change the default length of the PIN, you can override
 
@@ -94,17 +89,7 @@ To change the default length of the PIN, you can override
 <integer name="pin__default_input_count">4</integer>
 ```
 
-
 # Theme
 
-If you want to change the colors/themes, you can simply override the color values prefixed with *pin__*. For example, changing the ball/text colors from blue/white to green/yellow, respectively, could be done like so:
-
-```xml
-<color name="pin__default_item_background">#2ECC71</color>
-<color name="pin__default_item_text">#F1C40F</color>
-```
-
-*(I wouldn't use that color mix, though. It's ugly. That was just for example)*
-
-All colors you can change can be found in */values/colors.xml*
+All themes, styles, dimensions, strings, etc. are all customizable via overriding the resources.
 
