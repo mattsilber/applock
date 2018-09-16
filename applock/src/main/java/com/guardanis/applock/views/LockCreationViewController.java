@@ -21,13 +21,14 @@ public class LockCreationViewController extends AppLockViewController {
     }
 
     public enum DisplayVariant {
+        NONE,
         CHOOSER,
         PIN_CREATION,
         PIN_CONFIRMATION,
         FINGERPRINT_AUTHENTICATION
     }
 
-    protected DisplayVariant displayVariant = DisplayVariant.CHOOSER;
+    protected DisplayVariant displayVariant = DisplayVariant.NONE;
 
     protected WeakReference<Delegate> delegate;
     protected WeakReference<View> chooserParent;
@@ -139,7 +140,7 @@ public class LockCreationViewController extends AppLockViewController {
     }
 
     protected void createPINLock(String input) {
-        final Activity activity = this.activity.get();
+        Activity activity = this.activity.get();
 
         if (activity == null)
             return;
@@ -160,34 +161,49 @@ public class LockCreationViewController extends AppLockViewController {
 
         setDescription(R.string.pin__description_create_fingerprint);
 
-        attemptFingerprintAuthentication();
+        if (autoAuthorizationEnabled)
+            attemptFingerprintAuthentication();
     }
 
     private void attemptFingerprintAuthentication() {
-        final Activity activity = this.activity.get();
+        Activity activity = this.activity.get();
 
         if (activity == null)
             return;
 
+        final String unformattedHelpMessage = activity.getString(R.string.pin__description_unlock_fingerprint_help);
+
         AppLock.getInstance(activity)
                 .attemptFingerprintUnlock(false, new AppLock.UnlockDelegate() {
+                    @Override
                     public void onUnlockSuccessful() {
                         handleLockCreated();
                     }
 
+                    @Override
                     public void onResolutionRequired(int errorCode) {
                         setDescription(getDescriptionResIdForError(errorCode));
                         updateActionSettings(errorCode);
                         handleInitialErrorPrompt(errorCode);
                     }
 
-                    public void onRecoverableUnlockError(String message) {
+                    @Override
+                    public void onAuthenticationHelp(int code, String message) {
+                        String formatted = String.format(unformattedHelpMessage, message);
+
+                        setDescription(formatted);
+                    }
+
+                    @Override
+                    public void onFailureLimitExceeded(String message) {
                         setDescription(message);
                     }
                 });
     }
 
     protected void handleLockCreated() {
+        this.displayVariant = DisplayVariant.NONE;
+
         Delegate delegate = this.delegate.get();
 
         if (delegate != null)
@@ -196,22 +212,21 @@ public class LockCreationViewController extends AppLockViewController {
 
     @Override
     public void onActivityPaused() {
-        final Activity activity = this.activity.get();
+        Activity activity = this.activity.get();
 
         if (activity == null)
             return;
 
-        if (displayVariant == DisplayVariant.FINGERPRINT_AUTHENTICATION) {
-            setDescription(R.string.pin__description_create_fingerprint_paused);
+        AppLock.getInstance(activity)
+                .cancelPendingAuthentications();
 
-            AppLock.getInstance(activity)
-                    .cancelPendingAuthentications();
-        }
+        if (displayVariant == DisplayVariant.FINGERPRINT_AUTHENTICATION)
+            setDescription(R.string.pin__description_create_fingerprint_paused);
     }
 
     @Override
     public void onActivityResumed() {
-        final Activity activity = this.activity.get();
+        Activity activity = this.activity.get();
 
         if (activity == null || displayVariant != DisplayVariant.FINGERPRINT_AUTHENTICATION)
             return;
@@ -219,15 +234,18 @@ public class LockCreationViewController extends AppLockViewController {
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
             setDescription(R.string.pin__fingerprint_error_permission_multiple);
             updateActionSettings(AppLock.ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED);
+
             return;
         }
 
-        setupFingerprintAuthentication();
+        setDescription(R.string.pin__description_create_fingerprint);
+
+        attemptFingerprintAuthentication();
     }
 
     @Override
     protected void handleActionSettingsClicked(int errorCode) {
-        final Activity activity = this.activity.get();
+        Activity activity = this.activity.get();
         Intent intent = getSettingsIntent(errorCode);
 
         if (activity == null || intent == null)

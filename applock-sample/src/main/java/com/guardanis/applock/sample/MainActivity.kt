@@ -77,7 +77,7 @@ class MainActivity: AppCompatActivity() {
 
     private fun showActivityUnlockFlow() {
         val intent = Intent(this, UnlockActivity::class.java)
-                .putExtra(UnlockActivity.INTENT_ALLOW_UNLOCKED_EXIT, true)
+                .putExtra(UnlockActivity.INTENT_ALLOW_UNLOCKED_EXIT, false)
 
         startActivityForResult(intent, REQUEST_CODE_UNLOCK)
     }

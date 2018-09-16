@@ -20,7 +20,8 @@ public class AppLock {
     public interface UnlockDelegate {
         public void onUnlockSuccessful();
         public void onResolutionRequired(int errorCode);
-        public void onRecoverableUnlockError(String message);
+        public void onAuthenticationHelp(int code, String message);
+        public void onFailureLimitExceeded(String message);
     }
 
     private static AppLock instance;
@@ -77,18 +78,27 @@ public class AppLock {
             return;
 
         FingerprintUtils.authenticate(context, localEnrollmentRequired, new FingerprintUtils.AuthenticationDelegate() {
+            @Override
             public void onResolutionRequired(int errorCode) {
                 eventListener.onResolutionRequired(errorCode);
             }
 
+            @Override
+            public void onAuthenticationHelp(int code, CharSequence message) {
+                eventListener.onAuthenticationHelp(code, String.valueOf(message));
+            }
+
+            @Override
             public void onAuthenticating(CancellationSignal cancellationSignal) {
                 AppLock.this.fingerprintCancellationSignal = cancellationSignal;
             }
 
+            @Override
             public void onAuthenticationSuccess() {
                 onUnlockSuccessful(eventListener);
             }
 
+            @Override
             public void onAuthenticationFailed(String message) {
                 handleUnlockFailure(message, eventListener);
             }
@@ -100,14 +110,17 @@ public class AppLock {
             return;
 
         PINUtils.authenticate(context, pin, new PINUtils.MatchEventListener() {
+            @Override
             public void onNoPIN() {
                 onUnlockFailed(context.getString(R.string.pin__unlock_error_no_matching_pin_found));
             }
 
+            @Override
             public void onPINDoesNotMatch() {
                 onUnlockFailed(context.getString(R.string.pin__unlock_error_match_failed));
             }
 
+            @Override
             public void onPINMatches() {
                 onUnlockSuccessful(eventListener);
             }
@@ -133,7 +146,7 @@ public class AppLock {
                         formatTimeRemaining());
 
                 if (eventListener != null)
-                    eventListener.onRecoverableUnlockError(message);
+                    eventListener.onFailureLimitExceeded(message);
 
                 return true;
             }
@@ -146,7 +159,7 @@ public class AppLock {
         retryCount++;
 
         if (eventListener != null)
-            eventListener.onRecoverableUnlockError(message);
+            eventListener.onFailureLimitExceeded(message);
 
         if(context.getResources().getInteger(R.integer.pin__default_max_retry_count) < retryCount)
             onFailureExceedsLimit();

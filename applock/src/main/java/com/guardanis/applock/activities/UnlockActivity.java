@@ -22,8 +22,10 @@ public class UnlockActivity extends AppCompatActivity implements UnlockViewContr
         setContentView(R.layout.applock__activity_unlock);
 
         this.viewController = new UnlockViewController(this, findViewById(R.id.pin__container));
+        this.viewController.setAutoAuthorizationEnabled(false); // Disable auto authorization so fingerprint doesn't crash onResume
         this.viewController.setDelegate(this);
         this.viewController.setupRootFlow();
+        this.viewController.setAutoAuthorizationEnabled(true);
     }
 
     @Override
@@ -34,15 +36,30 @@ public class UnlockActivity extends AppCompatActivity implements UnlockViewContr
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0){
-            if(!getIntent().getBooleanExtra(INTENT_ALLOW_UNLOCKED_EXIT, false)){
-                Toast.makeText(this, getString(R.string.pin__toast_unlock_required), Toast.LENGTH_LONG)
-                        .show();
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            if (event.getRepeatCount() == 0)
+                handleBackPressed();
 
-                return true;
-            }
+            return true;
         }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onBackPressed() {
+        handleBackPressed();
+    }
+
+    protected void handleBackPressed() {
+        if(!getIntent().getBooleanExtra(INTENT_ALLOW_UNLOCKED_EXIT, false)){
+            Toast.makeText(this, getString(R.string.pin__toast_unlock_required), Toast.LENGTH_LONG)
+                    .show();
+
+            return;
+        }
+
+        setResult(Activity.RESULT_CANCELED);
+        finish();
     }
 }

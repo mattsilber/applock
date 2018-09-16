@@ -10,6 +10,7 @@
     <string name="pin__description_confirm">Re-enter your PIN to confirm.</string>
     <string name="pin__description_unlock_pin">Enter your PIN to unlock.</string>
     <string name="pin__description_unlock_fingerprint">Scan your fingerprint to unlock.</string>
+    <string name="pin__description_unlock_fingerprint_help">We\'re having trouble recognizing your fingerprint: %1$s</string>
 
     <string name="pin__create_chooser_option_pin">PIN</string>
     <string name="pin__create_chooser_option_fingerprint">Fingerprint</string>

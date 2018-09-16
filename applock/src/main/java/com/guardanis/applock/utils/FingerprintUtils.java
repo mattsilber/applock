@@ -23,6 +23,7 @@ public class FingerprintUtils {
 
     public interface AuthenticationDelegate {
         public void onResolutionRequired(int errorCode);
+        public void onAuthenticationHelp(int code, CharSequence message);
         public void onAuthenticating(CancellationSignal cancellationSignal);
         public void onAuthenticationSuccess();
         public void onAuthenticationFailed(String message);
@@ -61,16 +62,21 @@ public class FingerprintUtils {
         final CancellationSignal cancellationSignal = new CancellationSignal();
 
         FingerprintManagerCompat.AuthenticationCallback callback = new FingerprintManagerCompat.AuthenticationCallback() {
+            @Override
             public void onAuthenticationError(int errMsgId, CharSequence errString) {
                 super.onAuthenticationError(errMsgId, errString);
 
-                delegate.onAuthenticationFailed(context.getString(R.string.pin__fingerprint_error_unknown));
+                delegate.onResolutionRequired(R.string.pin__fingerprint_error_unknown);
             }
 
+            @Override
             public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
                 super.onAuthenticationHelp(helpMsgId, helpString);
+
+                delegate.onAuthenticationHelp(helpMsgId, helpString);
             }
 
+            @Override
             public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
 
@@ -79,6 +85,7 @@ public class FingerprintUtils {
                 delegate.onAuthenticationSuccess();
             }
 
+            @Override
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
 

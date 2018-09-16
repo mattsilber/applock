@@ -21,6 +21,7 @@ public class UnlockViewController extends AppLockViewController implements AppLo
     }
 
     public enum DisplayVariant {
+        NONE,
         PIN_UNLOCK,
         FINGERPRINT_AUTHENTICATION
     }
@@ -75,7 +76,7 @@ public class UnlockViewController extends AppLockViewController implements AppLo
     }
 
     protected void attemptPINUnlock(String input) {
-        final Activity activity = this.activity.get();
+        Activity activity = this.activity.get();
 
         if (activity == null)
             return;
@@ -93,11 +94,12 @@ public class UnlockViewController extends AppLockViewController implements AppLo
 
         setDescription(R.string.pin__description_unlock_fingerprint);
 
-        attemptFingerprintAuthentication();
+        if (autoAuthorizationEnabled)
+            attemptFingerprintAuthentication();
     }
 
     protected void attemptFingerprintAuthentication() {
-        final Activity activity = this.activity.get();
+        Activity activity = this.activity.get();
 
         if (activity == null)
             return;
@@ -108,6 +110,8 @@ public class UnlockViewController extends AppLockViewController implements AppLo
 
     @Override
     public void onUnlockSuccessful() {
+        this.displayVariant = DisplayVariant.NONE;
+
         Delegate delegate = this.delegate.get();
 
         if (delegate != null)
@@ -122,26 +126,40 @@ public class UnlockViewController extends AppLockViewController implements AppLo
     }
 
     @Override
-    public void onRecoverableUnlockError(String message) {
+    public void onAuthenticationHelp(int code, String message) {
+        Activity activity = this.activity.get();
+
+        if (activity == null)
+            return;
+
+        String unformattedHelpMessage = activity.getString(R.string.pin__description_unlock_fingerprint_help);
+        String formatted = String.format(unformattedHelpMessage, message);
+
+        setDescription(formatted);
+    }
+
+    @Override
+    public void onFailureLimitExceeded(String message) {
         setDescription(message);
     }
 
     @Override
     public void onActivityPaused() {
-        final Activity activity = this.activity.get();
+        Activity activity = this.activity.get();
 
-        if (activity == null || displayVariant != DisplayVariant.FINGERPRINT_AUTHENTICATION)
+        if (activity == null)
             return;
-
-        setDescription(R.string.pin__description_create_fingerprint_paused);
 
         AppLock.getInstance(activity)
                 .cancelPendingAuthentications();
+
+        if (displayVariant == DisplayVariant.FINGERPRINT_AUTHENTICATION)
+            setDescription(R.string.pin__description_create_fingerprint_paused);
     }
 
     @Override
     public void onActivityResumed() {
-        final Activity activity = this.activity.get();
+        Activity activity = this.activity.get();
 
         if (activity == null || displayVariant != DisplayVariant.FINGERPRINT_AUTHENTICATION)
             return;
@@ -152,12 +170,14 @@ public class UnlockViewController extends AppLockViewController implements AppLo
             return;
         }
 
-        setupFingerprintUnlock();
+        setDescription(R.string.pin__description_unlock_fingerprint);
+
+        attemptFingerprintAuthentication();
     }
 
     @Override
     protected void handleActionSettingsClicked(int errorCode) {
-        final Activity activity = this.activity.get();
+        Activity activity = this.activity.get();
         Intent intent = getSettingsIntent(errorCode);
 
         if (activity == null || intent == null)
