@@ -17,12 +17,18 @@ public class LockCreationDialogBuilder extends AppLockDialogBuilder<LockCreation
         super(activity, R.layout.applock__lock_creation);
     }
 
+    /**
+     * Set a Runnable to be triggered when a user has successfully enrolled in locking.
+     */
     public LockCreationDialogBuilder onLockCreated(Runnable lockCreatedCallback) {
         this.lockCreatedCallback = new WeakReference<Runnable>(lockCreatedCallback);
 
         return this;
     }
 
+    /**
+     * Set a Runnable to be triggered when a user has canceled enrollment.
+     */
     public LockCreationDialogBuilder onCanceled(Runnable canceledCallback) {
         this.canceledCallback = new WeakReference<Runnable>(canceledCallback);
 

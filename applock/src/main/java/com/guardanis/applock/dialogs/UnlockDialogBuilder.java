@@ -19,12 +19,18 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
         super(activity, R.layout.applock__unlock);
     }
 
+    /**
+     * Set a Runnable to be triggered when a user has successfully unlocked.
+     */
     public UnlockDialogBuilder onUnlocked(Runnable unlockCallback) {
         this.unlockCallback = new WeakReference<Runnable>(unlockCallback);
 
         return this;
     }
 
+    /**
+     * Set a Runnable to be triggered when a user has canceled unlocking.
+     */
     public UnlockDialogBuilder onCanceled(Runnable canceledCallback) {
         this.canceledCallback = new WeakReference<Runnable>(canceledCallback);
 
@@ -59,6 +65,12 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
             canceledCallback.run();
     }
 
+    /**
+     * Check if the user is actually enrolled in locking before opening the unlock dialog.
+     * If the user is enrolled, show() will be called. Otherwise, this function will trigger this
+     * instance's UnlockDialogBuilder.unlockCallback immediately.
+     * @return Dialog if show() is called
+     */
     public Dialog showIfEnrolledOrSuccess() {
         Activity activity = this.activity.get();
 
@@ -77,6 +89,13 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
         return show();
     }
 
+    /**
+     * Check if the user is both enrolled in locking and that unlocking is required before
+     * opening the unlock dialog. If the user is enrolled, show() will be called. Otherwise,
+     * this function will trigger this instance's UnlockDialogBuilder.unlockCallback immediately.
+     * @param longValidDurationMs the milliseconds a user's last unlock is valid for
+     * @return Dialog if show() is called
+     */
     public Dialog showIfRequiredOrSuccess(long longValidDurationMs) {
         Activity activity = this.activity.get();
 

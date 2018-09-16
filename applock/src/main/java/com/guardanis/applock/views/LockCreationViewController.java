@@ -61,7 +61,7 @@ public class LockCreationViewController extends AppLockViewController implements
 
         show(chooserParent);
 
-        setDescription(R.string.pin__description_chooser);
+        setDescription(R.string.applock__description_chooser);
 
         View parent = this.parent.get();
 
@@ -92,7 +92,7 @@ public class LockCreationViewController extends AppLockViewController implements
 
         show(pinInputView);
 
-        setDescription(R.string.pin__description_create_pin);
+        setDescription(R.string.applock__description_create_pin);
 
         pinInputController.ensureKeyboardVisible();
         pinInputController.setInputEventListener(this);
@@ -107,7 +107,7 @@ public class LockCreationViewController extends AppLockViewController implements
 
         show(pinInputView);
 
-        setDescription(R.string.pin__description_confirm);
+        setDescription(R.string.applock__description_confirm);
 
         pinInputController.ensureKeyboardVisible();
         pinInputController.setInputEventListener(this);
@@ -118,7 +118,7 @@ public class LockCreationViewController extends AppLockViewController implements
         switch (displayVariant) {
             case PIN_CREATION:
                 if(!pinInputController.matchesRequiredPINLength(input)) {
-                    setDescription(R.string.pin__unlock_error_insufficient_selection);
+                    setDescription(R.string.applock__unlock_error_insufficient_selection);
 
                     return;
                 }
@@ -130,7 +130,7 @@ public class LockCreationViewController extends AppLockViewController implements
                 break;
             case PIN_CONFIRMATION:
                 if(!pinInputController.matchesRequiredPINLength(input)) {
-                    setDescription(R.string.pin__unlock_error_insufficient_selection);
+                    setDescription(R.string.applock__unlock_error_insufficient_selection);
 
                     return;
                 }
@@ -139,7 +139,7 @@ public class LockCreationViewController extends AppLockViewController implements
                     this.pinFirst = null;
 
                     setupPINCreation();
-                    setDescription(R.string.pin__description_create_pin_reattempt);
+                    setDescription(R.string.applock__description_create_pin_reattempt);
 
                     return;
                 }
@@ -174,19 +174,19 @@ public class LockCreationViewController extends AppLockViewController implements
 
         show(fingerprintAuthImageView);
 
-        setDescription(R.string.pin__description_create_fingerprint);
+        setDescription(R.string.applock__description_create_fingerprint);
 
         if (autoAuthorizationEnabled)
             attemptFingerprintAuthentication();
     }
 
-    private void attemptFingerprintAuthentication() {
+    protected void attemptFingerprintAuthentication() {
         Activity activity = this.activity.get();
 
         if (activity == null)
             return;
 
-        final String unformattedHelpMessage = activity.getString(R.string.pin__description_unlock_fingerprint_help);
+        final String unformattedHelpMessage = activity.getString(R.string.applock__description_unlock_fingerprint_help);
 
         AppLock.getInstance(activity)
                 .attemptFingerprintUnlock(false, new AppLock.UnlockDelegate() {
@@ -236,7 +236,7 @@ public class LockCreationViewController extends AppLockViewController implements
                 .cancelPendingAuthentications();
 
         if (displayVariant == DisplayVariant.FINGERPRINT_AUTHENTICATION)
-            setDescription(R.string.pin__description_create_fingerprint_paused);
+            setDescription(R.string.applock__description_create_fingerprint_paused);
     }
 
     @Override
@@ -247,13 +247,13 @@ public class LockCreationViewController extends AppLockViewController implements
             return;
 
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
-            setDescription(R.string.pin__fingerprint_error_permission_multiple);
+            setDescription(R.string.applock__fingerprint_error_permission_multiple);
             updateActionSettings(AppLock.ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED);
 
             return;
         }
 
-        setDescription(R.string.pin__description_create_fingerprint);
+        setDescription(R.string.applock__description_create_fingerprint);
         hide(actionSettings);
 
         attemptFingerprintAuthentication();

@@ -63,7 +63,7 @@ public class UnlockViewController extends AppLockViewController implements AppLo
         hide(actionSettings);
         show(pinInputView);
 
-        setDescription(R.string.pin__description_unlock_pin);
+        setDescription(R.string.applock__description_unlock_pin);
 
         pinInputController.ensureKeyboardVisible();
         pinInputController.setInputEventListener(this);
@@ -72,7 +72,7 @@ public class UnlockViewController extends AppLockViewController implements AppLo
     @Override
     public void onInputEntered(String input) {
         if(!pinInputController.matchesRequiredPINLength(input)) {
-            setDescription(R.string.pin__unlock_error_insufficient_selection);
+            setDescription(R.string.applock__unlock_error_insufficient_selection);
 
             return;
         }
@@ -97,7 +97,7 @@ public class UnlockViewController extends AppLockViewController implements AppLo
         hide(actionSettings);
         show(fingerprintAuthImageView);
 
-        setDescription(R.string.pin__description_unlock_fingerprint);
+        setDescription(R.string.applock__description_unlock_fingerprint);
 
         if (autoAuthorizationEnabled)
             attemptFingerprintAuthentication();
@@ -137,7 +137,7 @@ public class UnlockViewController extends AppLockViewController implements AppLo
         if (activity == null)
             return;
 
-        String unformattedHelpMessage = activity.getString(R.string.pin__description_unlock_fingerprint_help);
+        String unformattedHelpMessage = activity.getString(R.string.applock__description_unlock_fingerprint_help);
         String formatted = String.format(unformattedHelpMessage, message);
 
         setDescription(formatted);
@@ -159,7 +159,7 @@ public class UnlockViewController extends AppLockViewController implements AppLo
                 .cancelPendingAuthentications();
 
         if (displayVariant == DisplayVariant.FINGERPRINT_AUTHENTICATION)
-            setDescription(R.string.pin__description_create_fingerprint_paused);
+            setDescription(R.string.applock__description_create_fingerprint_paused);
     }
 
     @Override
@@ -170,12 +170,12 @@ public class UnlockViewController extends AppLockViewController implements AppLo
             return;
 
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
-            setDescription(R.string.pin__fingerprint_error_permission_multiple);
+            setDescription(R.string.applock__fingerprint_error_permission_multiple);
             updateActionSettings(AppLock.ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED);
             return;
         }
 
-        setDescription(R.string.pin__description_unlock_fingerprint);
+        setDescription(R.string.applock__description_unlock_fingerprint);
         hide(actionSettings);
 
         attemptFingerprintAuthentication();

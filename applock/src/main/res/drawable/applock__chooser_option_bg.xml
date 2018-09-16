@@ -2,8 +2,8 @@
 <selector
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:drawable="@color/pin__default_create_choose_option_bg_pressed" android:state_selected="true"/>
-    <item android:drawable="@color/pin__default_create_choose_option_bg_pressed" android:state_pressed="true"/>
-    <item android:drawable="@color/pin__default_create_choose_option_bg" />
+    <item android:drawable="@color/applock__default_create_choose_option_bg_pressed" android:state_selected="true"/>
+    <item android:drawable="@color/applock__default_create_choose_option_bg_pressed" android:state_pressed="true"/>
+    <item android:drawable="@color/applock__default_create_choose_option_bg" />
 
 </selector>

@@ -51,7 +51,7 @@ public class PINLockService extends LockService {
     }
 
     @Override
-    public void invalidateEnrollment(Context context) {
+    public void invalidateEnrollments(Context context) {
         AppLock.getInstance(context)
                 .getPreferences()
                 .edit()

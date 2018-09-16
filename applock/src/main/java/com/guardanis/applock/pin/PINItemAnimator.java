@@ -30,7 +30,7 @@ public class PINItemAnimator extends Thread {
         this.inputView = new WeakReference<PINInputView>(inputView);
         this.itemView = itemView;
         this.animationDirection = animationDirection;
-        this.minSizePercent = Float.parseFloat(inputView.getResources().getString(R.string.pin__empty_item_min_size_percent));
+        this.minSizePercent = Float.parseFloat(inputView.getResources().getString(R.string.applock__empty_item_min_size_percent));
     }
 
     @Override

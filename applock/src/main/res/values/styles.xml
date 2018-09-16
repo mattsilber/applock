@@ -1,10 +1,10 @@
 <resources>
 
     <!-- Base activity theme. -->
-    <style name="pin__theme_activity" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="applock__theme_activity" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowTitleSize">0dp</item>
         <item name="android:windowIsTranslucent">false</item>
-        <item name="android:windowBackground">@color/pin__default_activity_background</item>
+        <item name="android:windowBackground">@color/applock__default_activity_background</item>
         <item name="android:windowFullscreen">false</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowActionBar">false</item>
@@ -14,80 +14,80 @@
     </style>
 
     <!-- Base AppLock content. -->
-    <style name="pin__content_parent">
+    <style name="applock__content_parent">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:background">@color/pin__default_activity_background</item>
+        <item name="android:background">@color/applock__default_activity_background</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:orientation">vertical</item>
-        <item name="android:paddingLeft">@dimen/pin__default_margin_horizontal</item>
-        <item name="android:paddingTop">@dimen/pin__default_margin_vertical</item>
-        <item name="android:paddingRight">@dimen/pin__default_margin_horizontal</item>
-        <item name="android:paddingBottom">@dimen/pin__default_margin_vertical</item>
+        <item name="android:paddingLeft">@dimen/applock__default_margin_horizontal</item>
+        <item name="android:paddingTop">@dimen/applock__default_margin_vertical</item>
+        <item name="android:paddingRight">@dimen/applock__default_margin_horizontal</item>
+        <item name="android:paddingBottom">@dimen/applock__default_margin_vertical</item>
     </style>
 
-    <style name="pin__description">
+    <style name="applock__description">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center</item>
         <item name="android:text">These is some kind of instructions you should follow.</item>
-        <item name="android:textColor">@color/pin__default_description_text</item>
-        <item name="android:textSize">@dimen/pin__default_description_text</item>
+        <item name="android:textColor">@color/applock__default_description_text</item>
+        <item name="android:textSize">@dimen/applock__default_description_text</item>
     </style>
 
-    <style name="pin__input_pin_view">
+    <style name="applock__input_pin_view">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/pin__default_item_size</item>
-        <item name="android:layout_marginTop">@dimen/pin__default_item_margin_top</item>
+        <item name="android:layout_height">@dimen/applock__default_item_size</item>
+        <item name="android:layout_marginTop">@dimen/applock__default_item_margin_top</item>
     </style>
 
-    <style name="pin__input_fingerprint_view">
-        <item name="android:layout_width">@dimen/pin__default_fingerprint_scan_image_size</item>
-        <item name="android:layout_height">@dimen/pin__default_fingerprint_scan_image_size</item>
-        <item name="android:layout_marginTop">@dimen/pin__default_fingerprint_scan_image_margin_top</item>
+    <style name="applock__input_fingerprint_view">
+        <item name="android:layout_width">@dimen/applock__default_fingerprint_scan_image_size</item>
+        <item name="android:layout_height">@dimen/applock__default_fingerprint_scan_image_size</item>
+        <item name="android:layout_marginTop">@dimen/applock__default_fingerprint_scan_image_margin_top</item>
     </style>
 
-    <style name="pin__action_chooser_parent">
+    <style name="applock__action_chooser_parent">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center</item>
         <item name="android:orientation">horizontal</item>
     </style>
 
-    <style name="pin__action_chooser_item_group">
+    <style name="applock__action_chooser_item_group">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_weight">1</item>
         <item name="android:background">@drawable/applock__chooser_option_bg</item>
         <item name="android:gravity">bottom|center_horizontal</item>
         <item name="android:orientation">vertical</item>
-        <item name="android:paddingBottom">@dimen/pin__default_chooser_parent_padding_vertical</item>
-        <item name="android:paddingTop">@dimen/pin__default_chooser_parent_padding_vertical</item>
+        <item name="android:paddingBottom">@dimen/applock__default_chooser_parent_padding_vertical</item>
+        <item name="android:paddingTop">@dimen/applock__default_chooser_parent_padding_vertical</item>
     </style>
 
-    <style name="pin__action_chooser_item_image">
-        <item name="android:layout_width">@dimen/pin__default_chooser_image_size</item>
-        <item name="android:layout_height">@dimen/pin__default_chooser_image_size</item>
+    <style name="applock__action_chooser_item_image">
+        <item name="android:layout_width">@dimen/applock__default_chooser_image_size</item>
+        <item name="android:layout_height">@dimen/applock__default_chooser_image_size</item>
     </style>
 
-    <style name="pin__action_chooser_item_text">
+    <style name="applock__action_chooser_item_text">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:gravity">center</item>
-        <item name="android:paddingTop">@dimen/pin__default_chooser_text_padding_top</item>
-        <item name="android:textColor">@color/pin__default_description_text</item>
-        <item name="android:textSize">@dimen/pin__default_description_text</item>
+        <item name="android:paddingTop">@dimen/applock__default_chooser_text_padding_top</item>
+        <item name="android:textColor">@color/applock__default_description_text</item>
+        <item name="android:textSize">@dimen/applock__default_description_text</item>
     </style>
 
-    <style name="pin__action_settings">
+    <style name="applock__action_settings">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">@dimen/pin__default_action_settings_margin_top</item>
+        <item name="android:layout_marginTop">@dimen/applock__default_action_settings_margin_top</item>
         <item name="android:gravity">center</item>
-        <item name="android:padding">@dimen/pin__default_action_settings_padding</item>
-        <item name="android:text">@string/pin__default_action_settings</item>
-        <item name="android:textColor">@color/pin__default_action_settings</item>
-        <item name="android:textSize">@dimen/pin__default_action_settings</item>
+        <item name="android:padding">@dimen/applock__default_action_settings_padding</item>
+        <item name="android:text">@string/applock__default_action_settings</item>
+        <item name="android:textColor">@color/applock__default_action_settings</item>
+        <item name="android:textSize">@dimen/applock__default_action_settings</item>
     </style>
 
 </resources>

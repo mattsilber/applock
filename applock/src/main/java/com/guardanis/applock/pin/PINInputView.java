@@ -51,15 +51,15 @@ public class PINInputView extends LinearLayout implements TextWatcher {
 
         itemTextPaint = new Paint();
         itemTextPaint.setColor(a.getColor(R.styleable.PINInputView_pinTextColor,
-                getResources().getColor(R.color.pin__default_item_text)));
+                getResources().getColor(R.color.applock__default_item_text)));
 
         itemBackgroundPaint = new Paint();
         itemBackgroundPaint.setColor(a.getColor(R.styleable.PINInputView_pinBackgroundColor,
-                getResources().getColor(R.color.pin__default_item_background)));
+                getResources().getColor(R.color.applock__default_item_background)));
 
-        inputViewsCount = getResources().getInteger(R.integer.pin__default_input_count);
+        inputViewsCount = getResources().getInteger(R.integer.applock__default_input_pin_item_count);
 
-        passwordCharacter = getResources().getString(R.string.pin__default_password_char);
+        passwordCharacter = getResources().getString(R.string.applock__default_password_char);
 
         a.recycle();
     }
@@ -132,7 +132,7 @@ public class PINInputView extends LinearLayout implements TextWatcher {
 
         int cellWidth = canvas.getWidth() / inputViewsCount;
         int largestRadius = Math.min(cellWidth / 2, canvas.getHeight() / 2);
-        int smallestRadius = (int) (largestRadius * Float.parseFloat(getResources().getString(R.string.pin__empty_item_min_size_percent)));
+        int smallestRadius = (int) (largestRadius * Float.parseFloat(getResources().getString(R.string.applock__empty_item_min_size_percent)));
         int[] minMaxRadius = new int[] { smallestRadius, largestRadius };
 
         itemTextPaint.setTextSize((int)(largestRadius * .85));

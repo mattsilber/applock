@@ -69,7 +69,7 @@ public class FingerprintLockService extends LockService {
             public void onAuthenticationError(int errMsgId, CharSequence errString) {
                 super.onAuthenticationError(errMsgId, errString);
 
-                delegate.onResolutionRequired(R.string.pin__fingerprint_error_unknown);
+                delegate.onResolutionRequired(R.string.applock__fingerprint_error_unknown);
             }
 
             @Override
@@ -92,7 +92,7 @@ public class FingerprintLockService extends LockService {
             public void onAuthenticationFailed() {
                 super.onAuthenticationFailed();
 
-                delegate.onAuthenticationFailed(context.getString(R.string.pin__fingerprint_error_unrecognized));
+                delegate.onAuthenticationFailed(context.getString(R.string.applock__fingerprint_error_unrecognized));
             }
         };
 
@@ -138,7 +138,7 @@ public class FingerprintLockService extends LockService {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
             return null;
 
-        String alias = context.getString(R.string.pin__fingerprint_alias);
+        String alias = context.getString(R.string.applock__fingerprint_alias);
 
         KeyStore keyStore = KeyStore.getInstance(KEYSTORE_NAME);
         keyStore.load(null);
@@ -183,7 +183,7 @@ public class FingerprintLockService extends LockService {
     }
 
     @Override
-    public void invalidateEnrollment(Context context) {
+    public void invalidateEnrollments(Context context) {
         AppLock.getInstance(context)
                 .getPreferences()
                 .edit()

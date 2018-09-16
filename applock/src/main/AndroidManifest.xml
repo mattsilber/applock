@@ -15,13 +15,13 @@
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/pin__theme_activity" />
+            android:theme="@style/applock__theme_activity" />
 
         <activity
             android:name="com.guardanis.applock.activities.UnlockActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/pin__theme_activity" />
+            android:theme="@style/applock__theme_activity" />
     </application>
 </manifest>

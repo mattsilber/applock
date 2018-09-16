@@ -46,10 +46,10 @@ public abstract class AppLockViewController implements LifeCycleUtils.AppLockAct
         this.fingerprintAuthImageView = new WeakReference(parent.findViewById(R.id.pin__fingerprint_image));
 
         int inputViewsCount = parent.getResources()
-                .getInteger(R.integer.pin__default_input_count);
+                .getInteger(R.integer.applock__default_input_pin_item_count);
 
         boolean passwordCharsEnabled = parent.getResources()
-                .getBoolean(R.bool.pin__default_item_password_chars_enabled);
+                .getBoolean(R.bool.applock__default_item_password_chars_enabled);
 
         this.pinInputController = new PINInputController(pinInputView.get())
                 .setInputNumbersCount(inputViewsCount)
@@ -158,15 +158,15 @@ public abstract class AppLockViewController implements LifeCycleUtils.AppLockAct
     protected int getDescriptionResIdForError(int errorCode) {
         switch (errorCode) {
             case AppLock.ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED:
-                return R.string.pin__fingerprint_error_permission;
+                return R.string.applock__fingerprint_error_permission;
             case AppLock.ERROR_CODE_FINGERPRINTS_EMPTY:
-                return R.string.pin__fingerprint_error_none;
+                return R.string.applock__fingerprint_error_none;
             case AppLock.ERROR_CODE_FINGERPRINTS_MISSING_HARDWARE:
-                return R.string.pin__fingerprint_error_hardware;
+                return R.string.applock__fingerprint_error_hardware;
             case AppLock.ERROR_CODE_FINGERPRINTS_NOT_LOCALLY_ENROLLED:
-                return R.string.pin__fingerprint_error_not_enrolled;
+                return R.string.applock__fingerprint_error_not_enrolled;
             default:
-                return R.string.pin__fingerprint_error_unknown;
+                return R.string.applock__fingerprint_error_unknown;
         }
     }
 
@@ -176,7 +176,7 @@ public abstract class AppLockViewController implements LifeCycleUtils.AppLockAct
     public Intent getSettingsIntent(int errorCode) {
         switch (errorCode) {
             case AppLock.ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED:
-                // TODO: App settings
+                // TODO: App settings?
             case AppLock.ERROR_CODE_FINGERPRINTS_EMPTY:
             case AppLock.ERROR_CODE_FINGERPRINTS_MISSING_HARDWARE:
                 return new Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS);

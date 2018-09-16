@@ -83,7 +83,7 @@ class MainActivity: AppCompatActivity() {
         showIndicatorMessage("Unlock success! Lock removed.")
 
         AppLock.getInstance(this@MainActivity)
-                .clearData()
+                .invalidateEnrollments()
     }
 
     private fun showIndicatorMessage(message: String) {

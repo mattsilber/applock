@@ -4,12 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.os.CancellationSignal;
 
 import com.guardanis.applock.activities.UnlockActivity;
-import com.guardanis.applock.dialogs.UnlockDialogBuilder;
 import com.guardanis.applock.services.FingerprintLockService;
 import com.guardanis.applock.services.LockService;
 import com.guardanis.applock.services.PINLockService;
@@ -52,7 +49,7 @@ public class AppLock {
 
     protected HashMap<Class, LockService> lockServices = new HashMap<Class, LockService>();
 
-    protected int retryCount = 1;
+    protected int unlockAttemptsCount = 1;
 
     protected AppLock(Context context){
         this.context = context.getApplicationContext();
@@ -61,6 +58,9 @@ public class AppLock {
         this.lockServices.put(FingerprintLockService.class, new FingerprintLockService());
     }
 
+    /**
+     * @return true if the user has enrolled in either PIN or Fingerprint locking
+     */
     public static boolean isEnrolled(Context context) {
         AppLock helper = getInstance(context);
 
@@ -72,13 +72,19 @@ public class AppLock {
         return false;
     }
 
+    /**
+     * @return true if the user is enrolled in locking and the last successful unlock happened more than the default lock duration ago
+     */
     public static boolean isUnlockRequired(Context context) {
         int minutes = context.getResources()
-                .getInteger(R.integer.pin__default_activity_lock_reenable_minutes);
+                .getInteger(R.integer.applock__default_activity_lock_reenable_minutes);
 
         return isUnlockRequired(context, TimeUnit.MINUTES.toMillis(minutes));
     }
 
+    /**
+     * @return true if the user is enrolled in locking and the last successful unlock happened more than lastSuccessValidMs ago
+     */
     public static boolean isUnlockRequired(Context context, long lastSuccessValidMs) {
         return isEnrolled(context) && lastSuccessValidMs < System.currentTimeMillis() - getUnlockSuccessTime(context);
     }
@@ -125,12 +131,12 @@ public class AppLock {
         PINLockService.AuthenticationDelegate delegate = new PINLockService.AuthenticationDelegate() {
             @Override
             public void onNoPIN() {
-                onUnlockFailed(context.getString(R.string.pin__unlock_error_no_matching_pin_found));
+                onUnlockFailed(context.getString(R.string.applock__unlock_error_no_matching_pin_found));
             }
 
             @Override
             public void onPINDoesNotMatch() {
-                onUnlockFailed(context.getString(R.string.pin__unlock_error_match_failed));
+                onUnlockFailed(context.getString(R.string.applock__unlock_error_match_failed));
             }
 
             @Override
@@ -152,13 +158,13 @@ public class AppLock {
      */
     private boolean handleFailureBlocking(final UnlockDelegate eventListener) {
         if (isUnlockFailureBlockEnabled()) {
-            retryCount++;
+            unlockAttemptsCount++;
 
             if(getFailureDelayMs() < System.currentTimeMillis() - getUnlockFailureBlockStart())
                 resetUnlockFailure();
             else{
                 String message = String.format(
-                        context.getString(R.string.pin__unlock_error_retry_limit_exceeded),
+                        context.getString(R.string.applock__unlock_error_retry_limit_exceeded),
                         formatTimeRemaining());
 
                 if (eventListener != null)
@@ -171,13 +177,13 @@ public class AppLock {
         return false;
     }
 
-    private void handleUnlockFailure(String message, UnlockDelegate eventListener) {
-        retryCount++;
+    protected void handleUnlockFailure(String message, UnlockDelegate eventListener) {
+        this.unlockAttemptsCount++;
 
         if (eventListener != null)
             eventListener.onFailureLimitExceeded(message);
 
-        if(context.getResources().getInteger(R.integer.pin__default_max_retry_count) < retryCount)
+        if(context.getResources().getInteger(R.integer.applock__default_max_retry_count) < unlockAttemptsCount)
             onFailureExceedsLimit();
     }
 
@@ -193,7 +199,7 @@ public class AppLock {
     }
 
     public boolean isUnlockFailureBlockEnabled() {
-        return context.getResources().getInteger(R.integer.pin__default_max_retry_count) < retryCount
+        return context.getResources().getInteger(R.integer.applock__default_max_retry_count) < unlockAttemptsCount
                 || System.currentTimeMillis() - getUnlockFailureBlockStart() < getFailureDelayMs();
     }
 
@@ -221,7 +227,7 @@ public class AppLock {
     }
 
     protected void resetUnlockFailure() {
-        retryCount = 1;
+        unlockAttemptsCount = 1;
 
         getPreferences()
                 .edit()
@@ -241,13 +247,14 @@ public class AppLock {
 
     protected long getFailureDelayMs(){
         return TimeUnit.MINUTES.toMillis(context.getResources()
-                .getInteger(R.integer.pin__default_failure_retry_delay));
+                .getInteger(R.integer.applock__default_failure_retry_delay));
     }
 
     /**
-     * This will remove all PIN and/or fingerprint data
+     * This will remove all PIN and/or Fingerprint enrollment data.
+     * Users will need to re-enroll in AppLock after this call.
      */
-    public void clearData() {
+    public void invalidateEnrollments() {
         resetUnlockFailure();
 
         getPreferences()
@@ -256,7 +263,7 @@ public class AppLock {
                 .commit();
 
         for (LockService service : lockServices.values())
-            service.invalidateEnrollment(context);
+            service.invalidateEnrollments(context);
     }
 
     public void cancelPendingAuthentications() {

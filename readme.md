@@ -40,6 +40,7 @@ If you want to do both of the above in a single step (that is, check if the user
 if(!AppLock.unlockIfRequired(Activity))
     doSomethingThatRequiresLockingIfEnabled();
 
+...
 
 @Override
 public void onActivityResult(int requestCode, int resultCode, Intent data){
@@ -86,7 +87,7 @@ By default, AppLock considers a successful login as valid for 15 minutes, regard
 To change the default length of the PIN, you can override
 
 ```xml
-<integer name="pin__default_input_count">4</integer>
+<integer name="applock__default_input_pin_item_count">4</integer>
 ```
 
 # Theme
