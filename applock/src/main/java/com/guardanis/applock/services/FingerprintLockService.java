@@ -15,6 +15,7 @@ import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
 
 import java.security.KeyStore;
+import java.security.UnrecoverableKeyException;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -166,6 +167,12 @@ public class FingerprintLockService extends LockService {
             return cipher;
         }
         catch (KeyPermanentlyInvalidatedException e) {
+            e.printStackTrace();
+
+            if (1 < attempts)
+                return generateAuthCipher(context, true, attempts + 1);
+        }
+        catch (UnrecoverableKeyException e) {
             e.printStackTrace();
 
             if (1 < attempts)
