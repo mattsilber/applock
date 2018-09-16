@@ -10,7 +10,7 @@ import android.view.View;
 import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
 import com.guardanis.applock.pin.PINInputController;
-import com.guardanis.applock.utils.PINUtils;
+import com.guardanis.applock.services.PINLockService;
 
 import java.lang.ref.WeakReference;
 
@@ -158,7 +158,9 @@ public class LockCreationViewController extends AppLockViewController implements
         if (activity == null)
             return;
 
-        PINUtils.savePIN(activity, input);
+        AppLock.getInstance(activity)
+                .getLockService(PINLockService.class)
+                .enroll(activity, input);
 
         handleLockCreated();
     }

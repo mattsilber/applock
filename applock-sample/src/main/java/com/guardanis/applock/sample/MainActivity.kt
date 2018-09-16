@@ -34,7 +34,7 @@ class MainActivity: AppCompatActivity() {
     }
 
     fun dialogFlowClicked(view: View?) {
-        if (!AppLock.isUnlockMethodPresent(this)) {
+        if (!AppLock.isEnrolled(this)) {
             showDialogCreateLockFlow()
             return
         }
@@ -60,7 +60,7 @@ class MainActivity: AppCompatActivity() {
     }
 
     fun activityFlowClicked(view: View?) {
-        if (!AppLock.isUnlockMethodPresent(this)) {
+        if (!AppLock.isEnrolled(this)) {
             showActivityCreateLockFlow()
             return
         }

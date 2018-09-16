@@ -1,4 +1,4 @@
-package com.guardanis.applock.utils;
+package com.guardanis.applock.services;
 
 import android.Manifest;
 import android.content.Context;
@@ -19,7 +19,7 @@ import java.security.KeyStore;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 
-public class FingerprintUtils {
+public class FingerprintLockService extends LockService {
 
     public interface AuthenticationDelegate {
         public void onResolutionRequired(int errorCode);
@@ -32,7 +32,9 @@ public class FingerprintUtils {
     private static final String PREF_ENROLLMENT_ALLOWED = "pin__fingerprint_enrollment_allowed";
     private static final String KEYSTORE_NAME  = "AndroidKeyStore";
 
-    public static void authenticate(Context context, boolean localEnrollmentRequired, AuthenticationDelegate delegate) {
+    protected CancellationSignal fingerprintCancellationSignal;
+
+    public void authenticate(Context context, boolean localEnrollmentRequired, AuthenticationDelegate delegate) {
         if (!isHardwarePresent(context)) {
             delegate.onResolutionRequired(AppLock.ERROR_CODE_FINGERPRINTS_MISSING_HARDWARE);
             return;
@@ -40,7 +42,7 @@ public class FingerprintUtils {
 
         FingerprintManagerCompat manager = FingerprintManagerCompat.from(context);
 
-        if (localEnrollmentRequired && !isLocallyEnrolled(context)) {
+        if (localEnrollmentRequired && !isEnrolled(context)) {
             delegate.onResolutionRequired(AppLock.ERROR_CODE_FINGERPRINTS_NOT_LOCALLY_ENROLLED);
             return;
         }
@@ -58,8 +60,8 @@ public class FingerprintUtils {
         attemptAuthentication(context, manager, delegate);
     }
 
-    private static void attemptAuthentication(final Context context, FingerprintManagerCompat manager, final AuthenticationDelegate delegate) {
-        final CancellationSignal cancellationSignal = new CancellationSignal();
+    private void attemptAuthentication(final Context context, FingerprintManagerCompat manager, final AuthenticationDelegate delegate) {
+        this.fingerprintCancellationSignal = new CancellationSignal();
 
         FingerprintManagerCompat.AuthenticationCallback callback = new FingerprintManagerCompat.AuthenticationCallback() {
             @Override
@@ -80,7 +82,7 @@ public class FingerprintUtils {
             public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
 
-                setLocalEnrollmentEnabled(context);
+                notifyEnrolled(context);
 
                 delegate.onAuthenticationSuccess();
             }
@@ -93,13 +95,13 @@ public class FingerprintUtils {
             }
         };
 
-        delegate.onAuthenticating(cancellationSignal);
+        delegate.onAuthenticating(fingerprintCancellationSignal);
 
         try {
             Cipher cipher = generateAuthCipher(context, false, 0);
             FingerprintManagerCompat.CryptoObject cryptoObject = new FingerprintManagerCompat.CryptoObject(cipher);
 
-            manager.authenticate(cryptoObject, 0, cancellationSignal, callback, null);
+            manager.authenticate(cryptoObject, 0, fingerprintCancellationSignal, callback, null);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -108,7 +110,7 @@ public class FingerprintUtils {
         }
     }
 
-    public static boolean isHardwarePresent(Context context) {
+    public boolean isHardwarePresent(Context context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
             return false;
 
@@ -116,13 +118,14 @@ public class FingerprintUtils {
                 .isHardwareDetected();
     }
 
-    public static boolean isLocallyEnrolled(Context context) {
+    @Override
+    public boolean isEnrolled(Context context) {
         return AppLock.getInstance(context)
                 .getPreferences()
                 .getBoolean(PREF_ENROLLMENT_ALLOWED, false);
     }
 
-    public static void setLocalEnrollmentEnabled(Context context) {
+    protected void notifyEnrolled(Context context) {
         AppLock.getInstance(context)
                 .getPreferences()
                 .edit()
@@ -130,15 +133,7 @@ public class FingerprintUtils {
                 .commit();
     }
 
-    public static void removeAuthentications(Context context) {
-        AppLock.getInstance(context)
-                .getPreferences()
-                .edit()
-                .putBoolean(PREF_ENROLLMENT_ALLOWED, false)
-                .commit();
-    }
-
-    private static Cipher generateAuthCipher(Context context, boolean forceRegenerate, int attempts) throws Exception {
+    protected Cipher generateAuthCipher(Context context, boolean forceRegenerate, int attempts) throws Exception {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
             return null;
 
@@ -178,5 +173,22 @@ public class FingerprintUtils {
         }
 
         return null;
+    }
+
+    @Override
+    public void invalidateEnrollment(Context context) {
+        AppLock.getInstance(context)
+                .getPreferences()
+                .edit()
+                .putBoolean(PREF_ENROLLMENT_ALLOWED, false)
+                .commit();
+    }
+
+    @Override
+    public void cancelPendingAuthentications(Context context) {
+        if (fingerprintCancellationSignal != null) {
+            this.fingerprintCancellationSignal.cancel();
+            this.fingerprintCancellationSignal = null;
+        }
     }
 }

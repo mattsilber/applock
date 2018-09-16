@@ -10,7 +10,7 @@ import android.view.View;
 import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
 import com.guardanis.applock.pin.PINInputController;
-import com.guardanis.applock.utils.FingerprintUtils;
+import com.guardanis.applock.services.FingerprintLockService;
 
 import java.lang.ref.WeakReference;
 
@@ -47,7 +47,10 @@ public class UnlockViewController extends AppLockViewController implements AppLo
         if (parent == null)
             return;
 
-        if (FingerprintUtils.isLocallyEnrolled(parent.getContext()))
+        FingerprintLockService fingerprintService = AppLock.getInstance(parent.getContext())
+                .getLockService(FingerprintLockService.class);
+
+        if (fingerprintService.isEnrolled(parent.getContext()))
             setupFingerprintUnlock();
         else
             setupPINUnlock();
@@ -84,7 +87,7 @@ public class UnlockViewController extends AppLockViewController implements AppLo
             return;
 
         AppLock.getInstance(activity)
-                .attemptUnlock(input, this);
+                .attemptPINUnlock(input, this);
     }
 
     protected void setupFingerprintUnlock() {

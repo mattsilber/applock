@@ -10,9 +10,11 @@ import android.support.v4.os.CancellationSignal;
 
 import com.guardanis.applock.activities.UnlockActivity;
 import com.guardanis.applock.dialogs.UnlockDialogBuilder;
-import com.guardanis.applock.utils.FingerprintUtils;
-import com.guardanis.applock.utils.PINUtils;
+import com.guardanis.applock.services.FingerprintLockService;
+import com.guardanis.applock.services.LockService;
+import com.guardanis.applock.services.PINLockService;
 
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 public class AppLock {
@@ -48,36 +50,46 @@ public class AppLock {
 
     protected Context context;
 
-    protected CancellationSignal fingerprintCancellationSignal;
+    protected HashMap<Class, LockService> lockServices = new HashMap<Class, LockService>();
+
     protected int retryCount = 1;
 
     protected AppLock(Context context){
         this.context = context.getApplicationContext();
+
+        this.lockServices.put(PINLockService.class, new PINLockService());
+        this.lockServices.put(FingerprintLockService.class, new FingerprintLockService());
     }
 
-    public static boolean isUnlockMethodPresent(Context context) {
-        return PINUtils.isPINPresent(context) || FingerprintUtils.isLocallyEnrolled(context);
+    public static boolean isEnrolled(Context context) {
+        AppLock helper = getInstance(context);
+
+        for (LockService service : helper.lockServices.values()) {
+            if (service.isEnrolled(context))
+                return true;
+        }
+
+        return false;
     }
 
-    public boolean isUnlockRequired() {
-        if (!isUnlockMethodPresent(context))
-            return false;
+    public static boolean isUnlockRequired(Context context) {
+        AppLock helper = getInstance(context);
 
         int minutes = context.getResources()
                 .getInteger(R.integer.pin__default_activity_lock_reenable_minutes);
 
-        return isUnlockRequired(TimeUnit.MINUTES.toMillis(minutes));
+        return helper.isUnlockRequired(TimeUnit.MINUTES.toMillis(minutes));
     }
 
     public boolean isUnlockRequired(long lastSuccessValidMs) {
-        return lastSuccessValidMs < System.currentTimeMillis() - getUnlockSuccessTime();
+        return isEnrolled(context) && lastSuccessValidMs < System.currentTimeMillis() - getUnlockSuccessTime();
     }
 
     public void attemptFingerprintUnlock(boolean localEnrollmentRequired, final UnlockDelegate eventListener) {
         if (handleFailureBlocking(eventListener))
             return;
 
-        FingerprintUtils.authenticate(context, localEnrollmentRequired, new FingerprintUtils.AuthenticationDelegate() {
+        FingerprintLockService.AuthenticationDelegate delegate = new FingerprintLockService.AuthenticationDelegate() {
             @Override
             public void onResolutionRequired(int errorCode) {
                 eventListener.onResolutionRequired(errorCode);
@@ -90,7 +102,7 @@ public class AppLock {
 
             @Override
             public void onAuthenticating(CancellationSignal cancellationSignal) {
-                AppLock.this.fingerprintCancellationSignal = cancellationSignal;
+                // Handled internally
             }
 
             @Override
@@ -102,14 +114,17 @@ public class AppLock {
             public void onAuthenticationFailed(String message) {
                 handleUnlockFailure(message, eventListener);
             }
-        });
+        };
+
+        getLockService(FingerprintLockService.class)
+                    .authenticate(context, localEnrollmentRequired, delegate);
     }
 
-    public void attemptUnlock(String pin, final UnlockDelegate eventListener) {
+    public void attemptPINUnlock(String pin, final UnlockDelegate eventListener) {
         if (handleFailureBlocking(eventListener))
             return;
 
-        PINUtils.authenticate(context, pin, new PINUtils.MatchEventListener() {
+        PINLockService.AuthenticationDelegate delegate = new PINLockService.AuthenticationDelegate() {
             @Override
             public void onNoPIN() {
                 onUnlockFailed(context.getString(R.string.pin__unlock_error_no_matching_pin_found));
@@ -128,7 +143,10 @@ public class AppLock {
             private void onUnlockFailed(String message) {
                 handleUnlockFailure(message, eventListener);
             }
-        });
+        };
+
+        getLockService(PINLockService.class)
+                .authenticate(context, pin, delegate);
     }
 
     /**
@@ -238,21 +256,21 @@ public class AppLock {
                 .putLong(PREF_UNLOCK_SUCCESS_TIME, 0)
                 .commit();
 
-        PINUtils.removePIN(context);
-        FingerprintUtils.removeAuthentications(context);
+        for (LockService service : lockServices.values())
+            service.invalidateEnrollment(context);
     }
 
     public void cancelPendingAuthentications() {
-        if (fingerprintCancellationSignal != null) {
-            this.fingerprintCancellationSignal.cancel();
-            this.fingerprintCancellationSignal = null;
-        }
+        for (LockService service : lockServices.values())
+            service.cancelPendingAuthentications(context);
+    }
+
+    public <T extends LockService> T getLockService(Class<T> named) {
+        return (T) lockServices.get(named);
     }
 
     public static void onActivityResumed(Activity activity) {
-        AppLock helper = new AppLock(activity);
-
-        if(helper.isUnlockRequired()){
+        if(isUnlockRequired(activity)){
             Intent intent = new Intent(activity, UnlockActivity.class)
                     .putExtra(UnlockActivity.INTENT_ALLOW_UNLOCKED_EXIT, false);
 
@@ -265,9 +283,7 @@ public class AppLock {
      * @return true if unlock is required.
      */
     public static boolean unlockIfRequired(Activity activity) {
-        AppLock helper = getInstance(activity);
-
-        if(helper.isUnlockRequired()){
+        if(isUnlockRequired(activity)){
             Intent intent = new Intent(activity, UnlockActivity.class)
                     .putExtra(UnlockActivity.INTENT_ALLOW_UNLOCKED_EXIT, true);
 
@@ -284,9 +300,7 @@ public class AppLock {
      * If not required, it will trigger eventListener.onUnlockSuccessful()
      */
     public static void unlockIfRequired(Activity activity, @NonNull Runnable allowed, @Nullable Runnable canceled) {
-        AppLock helper = getInstance(activity);
-
-        if(helper.isUnlockRequired())
+        if(isUnlockRequired(activity))
             new UnlockDialogBuilder(activity)
                     .onUnlocked(allowed)
                     .onCanceled(canceled)

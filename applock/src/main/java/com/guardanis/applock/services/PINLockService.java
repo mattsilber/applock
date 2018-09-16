@@ -1,12 +1,13 @@
-package com.guardanis.applock.utils;
+package com.guardanis.applock.services;
 
 import android.content.Context;
 
 import com.guardanis.applock.AppLock;
+import com.guardanis.applock.utils.CryptoUtils;
 
-public class PINUtils {
+public class PINLockService extends LockService {
 
-    public interface MatchEventListener {
+    public interface AuthenticationDelegate {
         public void onNoPIN();
         public void onPINDoesNotMatch();
         public void onPINMatches();
@@ -14,13 +15,13 @@ public class PINUtils {
 
     private static final String PREF_SAVED_LOCKED_PASSWORD = "pin__saved_locked_password";
 
-    public static void authenticate(Context context, String pin, MatchEventListener eventListener) {
-        if (!isPINPresent(context)) {
+    public void authenticate(Context context, String pin, AuthenticationDelegate eventListener) {
+        if (!isEnrolled(context)) {
             eventListener.onNoPIN();
             return;
         }
 
-        if (!getPIN(context).equals(CryptoUtils.encryptSha1(pin))) {
+        if (!getEnrolledPIN(context).equals(CryptoUtils.encryptSha1(pin))) {
             eventListener.onPINDoesNotMatch();
             return;
         }
@@ -28,19 +29,20 @@ public class PINUtils {
         eventListener.onPINMatches();
     }
 
-    public static boolean isPINPresent(Context context) {
+    @Override
+    public boolean isEnrolled(Context context) {
         return AppLock.getInstance(context)
                 .getPreferences()
                 .getString(PREF_SAVED_LOCKED_PASSWORD, null) != null;
     }
 
-    private static String getPIN(Context context) {
+    private String getEnrolledPIN(Context context) {
         return AppLock.getInstance(context)
                 .getPreferences()
                 .getString(PREF_SAVED_LOCKED_PASSWORD, null);
     }
 
-    public static void savePIN(Context context, String pin) {
+    public void enroll(Context context, String pin) {
         AppLock.getInstance(context)
                 .getPreferences()
                 .edit()
@@ -48,11 +50,17 @@ public class PINUtils {
                 .commit();
     }
 
-    public static void removePIN(Context context) {
+    @Override
+    public void invalidateEnrollment(Context context) {
         AppLock.getInstance(context)
                 .getPreferences()
                 .edit()
                 .remove(PREF_SAVED_LOCKED_PASSWORD)
                 .commit();
+    }
+
+    @Override
+    public void cancelPendingAuthentications(Context context) {
+        // There are none
     }
 }
