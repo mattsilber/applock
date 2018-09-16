@@ -5,16 +5,18 @@ import android.view.animation.Interpolator;
 
 import com.guardanis.applock.R;
 
+import java.lang.ref.WeakReference;
+
 public class PINItemAnimator extends Thread {
 
     public enum ItemAnimationDirection {
-        IN, OUT;
+        IN, OUT
     }
 
     private static final int ANIMATION_DURATION = 250;
     private static final int UPDATE_RATE = 25;
 
-    private PINInputView inputView;
+    private WeakReference<PINInputView> inputView;
     private PINItemView itemView;
     private ItemAnimationDirection animationDirection;
     private Interpolator itemInterpolator = new AccelerateDecelerateInterpolator();
@@ -25,7 +27,7 @@ public class PINItemAnimator extends Thread {
     private boolean canceled = false;
 
     public PINItemAnimator(PINInputView inputView, PINItemView itemView, ItemAnimationDirection animationDirection) {
-        this.inputView = inputView;
+        this.inputView = new WeakReference<PINInputView>(inputView);
         this.itemView = itemView;
         this.animationDirection = animationDirection;
         this.minSizePercent = Float.parseFloat(inputView.getResources().getString(R.string.pin__empty_item_min_size_percent));
@@ -73,6 +75,11 @@ public class PINItemAnimator extends Thread {
     }
 
     private void updateView(final float percent) {
+        final PINInputView inputView = this.inputView.get();
+
+        if (inputView == null)
+            return;
+
         inputView.post(new Runnable() {
             public void run() {
                 itemView.onAnimationUpdate(percent);

@@ -1,7 +1,9 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:applock="http://schemas.android.com/apk/res-auto"
-    style="@style/pin__content_parent">
+    style="@style/pin__content_parent"
+    android:descendantFocusability="beforeDescendants"
+    android:focusableInTouchMode="true">
 
     <TextView
         android:id="@+id/pin__description"

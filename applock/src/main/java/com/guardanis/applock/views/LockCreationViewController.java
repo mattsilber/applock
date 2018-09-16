@@ -14,7 +14,7 @@ import com.guardanis.applock.utils.PINUtils;
 
 import java.lang.ref.WeakReference;
 
-public class LockCreationViewController extends AppLockViewController {
+public class LockCreationViewController extends AppLockViewController implements PINInputController.InputEventListener {
 
     public interface Delegate {
         public void onLockCreated();
@@ -94,18 +94,8 @@ public class LockCreationViewController extends AppLockViewController {
 
         setDescription(R.string.pin__description_create_pin);
 
-        pinInputController.setInputEventListener(new PINInputController.InputEventListener() {
-            public void onInputEntered(String input) {
-                if(!pinInputController.matchesRequiredPINLength(input)) {
-                    setDescription(R.string.pin__unlock_error_insufficient_selection);
-
-                    return;
-                }
-
-                pinFirst = input;
-                setupPINConfirmation();
-            }
-        });
+        pinInputController.ensureKeyboardVisible();
+        pinInputController.setInputEventListener(this);
     }
 
     protected void setupPINConfirmation() {
@@ -119,8 +109,26 @@ public class LockCreationViewController extends AppLockViewController {
 
         setDescription(R.string.pin__description_confirm);
 
-        pinInputController.setInputEventListener(new PINInputController.InputEventListener() {
-            public void onInputEntered(String input) {
+        pinInputController.ensureKeyboardVisible();
+        pinInputController.setInputEventListener(this);
+    }
+
+    @Override
+    public void onInputEntered(String input) {
+        switch (displayVariant) {
+            case PIN_CREATION:
+                if(!pinInputController.matchesRequiredPINLength(input)) {
+                    setDescription(R.string.pin__unlock_error_insufficient_selection);
+
+                    return;
+                }
+
+                this.pinFirst = input;
+
+                setupPINConfirmation();
+
+                break;
+            case PIN_CONFIRMATION:
                 if(!pinInputController.matchesRequiredPINLength(input)) {
                     setDescription(R.string.pin__unlock_error_insufficient_selection);
 
@@ -128,6 +136,8 @@ public class LockCreationViewController extends AppLockViewController {
                 }
 
                 if(!input.equals(pinFirst)) {
+                    this.pinFirst = null;
+
                     setupPINCreation();
                     setDescription(R.string.pin__description_create_pin_reattempt);
 
@@ -135,8 +145,11 @@ public class LockCreationViewController extends AppLockViewController {
                 }
 
                 createPINLock(input);
-            }
-        });
+
+                break;
+            default:
+                break;
+        }
     }
 
     protected void createPINLock(String input) {
@@ -239,6 +252,7 @@ public class LockCreationViewController extends AppLockViewController {
         }
 
         setDescription(R.string.pin__description_create_fingerprint);
+        hide(actionSettings);
 
         attemptFingerprintAuthentication();
     }

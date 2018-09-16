@@ -58,5 +58,4 @@ public class PINItemView {
     public boolean isAnimatedOut() {
         return animationDirection == PINItemAnimator.ItemAnimationDirection.OUT;
     }
-
 }

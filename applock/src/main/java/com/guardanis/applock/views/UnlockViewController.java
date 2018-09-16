@@ -14,7 +14,7 @@ import com.guardanis.applock.utils.FingerprintUtils;
 
 import java.lang.ref.WeakReference;
 
-public class UnlockViewController extends AppLockViewController implements AppLock.UnlockDelegate {
+public class UnlockViewController extends AppLockViewController implements AppLock.UnlockDelegate, PINInputController.InputEventListener {
 
     public interface Delegate {
         public void onUnlockSuccessful();
@@ -62,17 +62,19 @@ public class UnlockViewController extends AppLockViewController implements AppLo
 
         setDescription(R.string.pin__description_unlock_pin);
 
-        pinInputController.setInputEventListener(new PINInputController.InputEventListener() {
-            public void onInputEntered(String input) {
-                if(!pinInputController.matchesRequiredPINLength(input)) {
-                    setDescription(R.string.pin__unlock_error_insufficient_selection);
+        pinInputController.ensureKeyboardVisible();
+        pinInputController.setInputEventListener(this);
+    }
 
-                    return;
-                }
+    @Override
+    public void onInputEntered(String input) {
+        if(!pinInputController.matchesRequiredPINLength(input)) {
+            setDescription(R.string.pin__unlock_error_insufficient_selection);
 
-                attemptPINUnlock(input);
-            }
-        });
+            return;
+        }
+
+        attemptPINUnlock(input);
     }
 
     protected void attemptPINUnlock(String input) {
@@ -171,6 +173,7 @@ public class UnlockViewController extends AppLockViewController implements AppLo
         }
 
         setDescription(R.string.pin__description_unlock_fingerprint);
+        hide(actionSettings);
 
         attemptFingerprintAuthentication();
     }

@@ -4,47 +4,66 @@ import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
+
 public class PINInputController implements TextView.OnEditorActionListener {
 
     public interface InputEventListener {
         public void onInputEntered(String input);
     }
 
-    private PINInputView inputView;
-    private InputEventListener eventListener;
+    private WeakReference<PINInputView> inputView;
+    private WeakReference<InputEventListener> eventListener = new WeakReference<InputEventListener>(null);
 
     /**
      * If you want to actually receive events after this, make sure you call setInputEventListener
      */
     public PINInputController(PINInputView inputView) {
-        this.inputView = inputView;
-        this.inputView.setOnEditorActionListener(this);
+        this.inputView = new WeakReference<PINInputView>(inputView);
+
+        inputView.setOnEditorActionListener(this);
+    }
+
+    public PINInputController ensureKeyboardVisible() {
+        final PINInputView inputView = this.inputView.get();
+
+        if (inputView == null)
+            return this;
 
         inputView.postDelayed(new Runnable() {
             public void run() {
-                PINInputController.this.inputView.ensureKeyboardVisible();
+                inputView.ensureKeyboardVisible();
             }
         }, 300);
+
+        return this;
     }
 
     public PINInputController setPasswordCharactersEnabled(boolean passwordCharacterEnabled) {
-        this.inputView.setPasswordCharactersEnabled(passwordCharacterEnabled);
+        this.inputView.get().setPasswordCharactersEnabled(passwordCharacterEnabled);
         return this;
     }
 
     public PINInputController setInputNumbersCount(int inputNumbersCount) {
-        this.inputView.setInputViewsCount(inputNumbersCount);
+        this.inputView.get().setInputViewsCount(inputNumbersCount);
         return this;
     }
 
     public PINInputController setInputEventListener(InputEventListener eventListener) {
-        this.eventListener = eventListener;
+        this.eventListener = new WeakReference<InputEventListener>(eventListener);
         return this;
     }
 
     @Override
     public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+        PINInputView inputView = this.inputView.get();
+
+        if (inputView == null)
+            return false;
+
         if(isSoftKeyboardFinishedAction(textView, i, keyEvent)) {
+            InputEventListener eventListener = this.eventListener.get();
+
             if(eventListener != null)
                 eventListener.onInputEntered(inputView.getText().toString());
 
@@ -65,6 +84,11 @@ public class PINInputController implements TextView.OnEditorActionListener {
     }
 
     public boolean matchesRequiredPINLength(String input) {
+        final PINInputView inputView = this.inputView.get();
+
+        if (inputView == null)
+            return false;
+
         return inputView.matchesRequiredPINLength(input);
     }
 }
