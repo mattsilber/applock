@@ -89,7 +89,7 @@ public class AppLock {
         return isEnrolled(context) && lastSuccessValidMs < System.currentTimeMillis() - getUnlockSuccessTime(context);
     }
 
-    public void attemptFingerprintUnlock(boolean localEnrollmentRequired, final UnlockDelegate eventListener) {
+    public void attemptFingerprintUnlock(final UnlockDelegate eventListener) {
         if (handleFailureBlocking(eventListener))
             return;
 
@@ -121,7 +121,7 @@ public class AppLock {
         };
 
         getLockService(FingerprintLockService.class)
-                    .authenticate(context, localEnrollmentRequired, delegate);
+                    .authenticate(context, delegate);
     }
 
     public void attemptPINUnlock(String pin, final UnlockDelegate eventListener) {

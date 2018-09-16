@@ -35,33 +35,48 @@ public class FingerprintLockService extends LockService {
 
     protected CancellationSignal fingerprintCancellationSignal;
 
-    public void authenticate(Context context, boolean localEnrollmentRequired, AuthenticationDelegate delegate) {
-        if (!isHardwarePresent(context)) {
-            delegate.onResolutionRequired(AppLock.ERROR_CODE_FINGERPRINTS_MISSING_HARDWARE);
-            return;
-        }
-
-        FingerprintManagerCompat manager = FingerprintManagerCompat.from(context);
-
-        if (localEnrollmentRequired && !isEnrolled(context)) {
-            delegate.onResolutionRequired(AppLock.ERROR_CODE_FINGERPRINTS_NOT_LOCALLY_ENROLLED);
-            return;
-        }
-
-        if (!manager.hasEnrolledFingerprints()) {
-            delegate.onResolutionRequired(AppLock.ERROR_CODE_FINGERPRINTS_EMPTY);
-            return;
-        }
-
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
-            delegate.onResolutionRequired(AppLock.ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED);
-            return;
-        }
-
-        attemptAuthentication(context, manager, delegate);
+    public void enroll(Context context, AuthenticationDelegate delegate) {
+        authenticate(context, false, delegate);
     }
 
-    private void attemptAuthentication(final Context context, FingerprintManagerCompat manager, final AuthenticationDelegate delegate) {
+    public void authenticate(Context context, AuthenticationDelegate delegate) {
+        authenticate(context, true, delegate);
+    }
+
+    protected void authenticate(Context context, boolean localEnrollmentRequired, AuthenticationDelegate delegate) {
+        int errorCode = getRequiredResolutionErrorCode(context, localEnrollmentRequired);
+
+        if (-1 < errorCode) {
+            delegate.onResolutionRequired(errorCode);
+
+            return;
+        }
+
+        attemptFingerprintManagerAuthentication(context, delegate);
+    }
+
+    /**
+     * @return the resolvable error code or -1 if there are no issues requiring a resolution
+     */
+    protected int getRequiredResolutionErrorCode(Context context, boolean localEnrollmentRequired) {
+        FingerprintManagerCompat manager = FingerprintManagerCompat.from(context);
+
+        if (localEnrollmentRequired && !isEnrolled(context))
+            return AppLock.ERROR_CODE_FINGERPRINTS_NOT_LOCALLY_ENROLLED;
+
+        if (!isHardwarePresent(context))
+            return AppLock.ERROR_CODE_FINGERPRINTS_MISSING_HARDWARE;
+
+        if (!manager.hasEnrolledFingerprints())
+            return AppLock.ERROR_CODE_FINGERPRINTS_EMPTY;
+
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED)
+            return AppLock.ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED;
+
+        return -1;
+    }
+
+    protected void attemptFingerprintManagerAuthentication(final Context context, final AuthenticationDelegate delegate) {
         this.fingerprintCancellationSignal = new CancellationSignal();
 
         FingerprintManagerCompat.AuthenticationCallback callback = new FingerprintManagerCompat.AuthenticationCallback() {
@@ -102,6 +117,7 @@ public class FingerprintLockService extends LockService {
             Cipher cipher = generateAuthCipher(context, false, 0);
             FingerprintManagerCompat.CryptoObject cryptoObject = new FingerprintManagerCompat.CryptoObject(cipher);
 
+            FingerprintManagerCompat manager = FingerprintManagerCompat.from(context);
             manager.authenticate(cryptoObject, 0, fingerprintCancellationSignal, callback, null);
         }
         catch (Exception e) {

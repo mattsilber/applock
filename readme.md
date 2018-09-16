@@ -82,7 +82,7 @@ protected void onPostResume(){
 
 or you can simply have your Activity extend the *LockableCompatActivity* supplied with this library.
 
-By default, AppLock considers a successful login as valid for 15 minutes, regardless of application state. You can shorten or extend that length by overriding the integer value for *pin__default_activity_lock_reenable_minutes* in your resources. Doing so will cause any Activity to re-open the *UnlockActivity* after the delay has passed. If you only want authentication present on a specific action (e.g. payments), you should use the `UnlockDialogBuilder`'s methods posted above instead of locking the entire Activity.
+By default, AppLock considers a successful login as valid for 15 minutes, regardless of application state. You can shorten or extend that length by overriding the integer value for *applock__default_activity_lock_reenable_minutes* in your resources. Doing so will cause any Activity to re-open the *UnlockActivity* after the delay has passed. If you only want authentication present on a specific action (e.g. payments), you should use the `UnlockDialogBuilder`'s methods posted above instead of locking the entire Activity.
 
 To change the default length of the PIN, you can override
 

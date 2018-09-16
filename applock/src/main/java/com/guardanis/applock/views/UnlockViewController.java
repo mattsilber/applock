@@ -110,7 +110,7 @@ public class UnlockViewController extends AppLockViewController implements AppLo
             return;
 
         AppLock.getInstance(activity)
-                .attemptFingerprintUnlock(true, this);
+                .attemptFingerprintUnlock(this);
     }
 
     @Override

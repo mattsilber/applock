@@ -5,11 +5,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.os.CancellationSignal;
 import android.view.View;
 
 import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
 import com.guardanis.applock.pin.PINInputController;
+import com.guardanis.applock.services.FingerprintLockService;
 import com.guardanis.applock.services.PINLockService;
 
 import java.lang.ref.WeakReference;
@@ -189,12 +191,8 @@ public class LockCreationViewController extends AppLockViewController implements
         final String unformattedHelpMessage = activity.getString(R.string.applock__description_unlock_fingerprint_help);
 
         AppLock.getInstance(activity)
-                .attemptFingerprintUnlock(false, new AppLock.UnlockDelegate() {
-                    @Override
-                    public void onUnlockSuccessful() {
-                        handleLockCreated();
-                    }
-
+                .getLockService(FingerprintLockService.class)
+                .enroll(activity, new FingerprintLockService.AuthenticationDelegate() {
                     @Override
                     public void onResolutionRequired(int errorCode) {
                         setDescription(getDescriptionResIdForError(errorCode));
@@ -203,14 +201,24 @@ public class LockCreationViewController extends AppLockViewController implements
                     }
 
                     @Override
-                    public void onAuthenticationHelp(int code, String message) {
+                    public void onAuthenticationHelp(int code, CharSequence message) {
                         String formatted = String.format(unformattedHelpMessage, message);
 
                         setDescription(formatted);
                     }
 
                     @Override
-                    public void onFailureLimitExceeded(String message) {
+                    public void onAuthenticating(CancellationSignal cancellationSignal) {
+                        // Handled internally
+                    }
+
+                    @Override
+                    public void onAuthenticationSuccess() {
+                        handleLockCreated();
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed(String message) {
                         setDescription(message);
                     }
                 });
