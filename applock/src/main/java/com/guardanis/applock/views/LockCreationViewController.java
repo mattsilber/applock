@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v4.os.CancellationSignal;
 import android.view.View;
 
@@ -234,7 +235,7 @@ public class LockCreationViewController extends AppLockViewController
     }
 
     @Override
-    public void onAuthenticationSuccess() {
+    public void onAuthenticationSuccess(FingerprintManagerCompat.AuthenticationResult result) {
         handleLockCreated();
     }
 

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v4.os.CancellationSignal;
 
 import com.guardanis.applock.activities.UnlockActivity;
@@ -111,7 +112,7 @@ public class AppLock {
             }
 
             @Override
-            public void onAuthenticationSuccess() {
+            public void onAuthenticationSuccess(FingerprintManagerCompat.AuthenticationResult result) {
                 onUnlockSuccessful(eventListener);
             }
 

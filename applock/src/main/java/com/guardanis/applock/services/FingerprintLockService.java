@@ -27,7 +27,7 @@ public class FingerprintLockService extends LockService {
         public void onResolutionRequired(int errorCode);
         public void onAuthenticationHelp(int code, CharSequence message);
         public void onAuthenticating(CancellationSignal cancellationSignal);
-        public void onAuthenticationSuccess();
+        public void onAuthenticationSuccess(FingerprintManagerCompat.AuthenticationResult result);
         public void onAuthenticationFailed(String message);
     }
 
@@ -116,7 +116,7 @@ public class FingerprintLockService extends LockService {
 
                 notifyEnrolled(context);
 
-                delegate.onAuthenticationSuccess();
+                delegate.onAuthenticationSuccess(result);
             }
 
             @Override

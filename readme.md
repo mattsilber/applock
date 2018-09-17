@@ -1,10 +1,10 @@
 # App Lock
 
-A simple library for locking and unlocking Activities (e.g. child lock) with a PIN code or Fingerprint. 
+A simple library for locking and unlocking Activities with a PIN code or Fingerprint (e.g. a child lock). 
 
 ![AppLock Sample](https://github.com/mattsilber/applock/raw/master/applock.gif)
 
-# Installation
+### Installation
 
 ```groovy
 repositories {
@@ -16,10 +16,11 @@ dependencies {
 }
 ```
 
-# Usage
+### Usage
 
 The goal of AppLock is to allow users to enroll and authenticate with a PIN or Fingerprint to lock the application from being used by unauthorized parties. 
 
+##### Activities
 To open the Activity to create a PIN, you can simply open the `AppLockActivity` via (PS: If you want to use the dialog instead of the Activity (which looks cooler), see the dialog stuff below) `Intents`:
 
 ```java
@@ -50,7 +51,9 @@ public void onActivityResult(int requestCode, int resultCode, Intent data){
 
 ```
 
-If you want to do the above with a Dialog, instead of an Activity (which looks cooler, IMHO), you can simply call:
+##### Dialogs
+
+If you want to do the above with a Dialog, instead of an Activity (which looks cooler), you can simply call:
 
 ```java
 new UnlockDialogBuilder(activity)
@@ -82,15 +85,17 @@ protected void onPostResume(){
 
 or you can simply have your Activity extend the *LockableCompatActivity* supplied with this library.
 
-By default, AppLock considers a successful login as valid for 15 minutes, regardless of application state. You can shorten or extend that length by overriding the integer value for *applock__default_activity_lock_reenable_minutes* in your resources. Doing so will cause any Activity to re-open the *UnlockActivity* after the delay has passed. If you only want authentication present on a specific action (e.g. payments), you should use the `UnlockDialogBuilder`'s methods posted above instead of locking the entire Activity.
+By default, AppLock considers a successful login as valid for 15 minutes, regardless of application state. You can shorten or extend that length by overriding the integer value for *applock__activity_lock_reenable_minutes* in your resources. Doing so will cause any Activity to re-open the *UnlockActivity* after the delay has passed. If you only want authentication present on a specific action (e.g. payments), you should use the `UnlockDialogBuilder`'s methods posted above instead of locking the entire Activity.
 
 To change the default length of the PIN, you can override
 
 ```xml
-<integer name="applock__default_input_pin_item_count">4</integer>
+<integer name="applock__input_pin_item_count">4</integer>
 ```
 
-# Theme
+### Theme
 
-All themes, styles, dimensions, strings, etc. are all customizable via overriding the resources.
+All themes, styles, dimensions, strings, etc. are all customizable via overriding the resources. See `applock/src/main/res/values/` for details.
 
+### TODO:
+* Allow backup authentication options
