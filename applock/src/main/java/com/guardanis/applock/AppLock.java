@@ -227,6 +227,17 @@ public class AppLock {
                 .getLong(PREF_UNLOCK_SUCCESS_TIME, 0);
     }
 
+    /**
+     * Reset the last login time to require the user to re-authenticate with
+     * AppLock the next time they are eligible to unlock.
+     */
+    public void setAuthenticationRequired() {
+        getPreferences()
+                .edit()
+                .putLong(PREF_UNLOCK_SUCCESS_TIME, 0)
+                .commit();
+    }
+
     protected void resetUnlockFailure() {
         unlockAttemptsCount = 1;
 
@@ -257,11 +268,7 @@ public class AppLock {
      */
     public void invalidateEnrollments() {
         resetUnlockFailure();
-
-        getPreferences()
-                .edit()
-                .putLong(PREF_UNLOCK_SUCCESS_TIME, 0)
-                .commit();
+        setAuthenticationRequired();
 
         for (LockService service : lockServices.values())
             service.invalidateEnrollments(context);
@@ -278,8 +285,11 @@ public class AppLock {
 
     public static void onActivityResumed(Activity activity) {
         if(isUnlockRequired(activity)){
+            boolean unlockActivityReturnAllowed = activity.getResources()
+                    .getBoolean(R.bool.applock__unlock_activity_return_allowed);
+
             Intent intent = new Intent(activity, UnlockActivity.class)
-                    .putExtra(UnlockActivity.INTENT_ALLOW_UNLOCKED_EXIT, false);
+                    .putExtra(UnlockActivity.INTENT_ALLOW_UNLOCKED_EXIT, unlockActivityReturnAllowed);
 
             activity.startActivityForResult(intent, REQUEST_CODE_UNLOCK);
         }
