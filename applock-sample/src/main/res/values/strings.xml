@@ -14,4 +14,6 @@
     <string name="sample__main_action_dialog">Dialog Create / Unlock</string>
     <string name="sample__main_action_activity">Activity Create / Unlock</string>
 
+    <string name="sample__locked_example_description">This content is locked. \n\nWhen there\'s a lock enabled, you can\'t see this without authenticating. \n\nThe default unlock duration is 15 minutes, which you can adjust by overriding the value in your resources.</string>
+
 </resources>

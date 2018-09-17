@@ -45,10 +45,10 @@ public abstract class AppLockViewController implements LifeCycleUtils.AppLockAct
         this.fingerprintAuthImageView = new WeakReference(parent.findViewById(R.id.pin__fingerprint_image));
 
         int inputViewsCount = parent.getResources()
-                .getInteger(R.integer.applock__default_input_pin_item_count);
+                .getInteger(R.integer.applock__input_pin_item_count);
 
         boolean passwordCharsEnabled = parent.getResources()
-                .getBoolean(R.bool.applock__default_item_password_chars_enabled);
+                .getBoolean(R.bool.applock__item_password_chars_enabled);
 
         this.pinInputController = new PINInputController(pinInputView.get())
                 .setInputNumbersCount(inputViewsCount)

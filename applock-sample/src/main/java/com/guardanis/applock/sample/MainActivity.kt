@@ -19,17 +19,13 @@ class MainActivity: AppCompatActivity() {
     override fun onCreate(savedInstance: Bundle?) {
         super.onCreate(savedInstance)
 
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.sample__activity_main)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
-            AppLock.REQUEST_CODE_LOCK_CREATION -> {
-                if (resultCode == Activity.RESULT_OK)
-                    showIndicatorMessage("Lock created!")
-            }
             AppLock.REQUEST_CODE_UNLOCK -> {
                 if (resultCode == Activity.RESULT_OK)
                     clearLocks()
@@ -77,10 +73,9 @@ class MainActivity: AppCompatActivity() {
     }
 
     private fun showActivityUnlockFlow() {
-        val intent = Intent(this, UnlockActivity::class.java)
-                .putExtra(UnlockActivity.INTENT_ALLOW_UNLOCKED_EXIT, false)
+        val intent = Intent(this, ExampleLockedActivity::class.java)
 
-        startActivityForResult(intent, REQUEST_CODE_UNLOCK)
+        startActivity(intent)
     }
 
     private fun clearLocks() {

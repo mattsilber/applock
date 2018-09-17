@@ -78,7 +78,7 @@ public class AppLock {
      */
     public static boolean isUnlockRequired(Context context) {
         int minutes = context.getResources()
-                .getInteger(R.integer.applock__default_activity_lock_reenable_minutes);
+                .getInteger(R.integer.applock__activity_lock_reenable_minutes);
 
         return isUnlockRequired(context, TimeUnit.MINUTES.toMillis(minutes));
     }
@@ -184,7 +184,7 @@ public class AppLock {
         if (eventListener != null)
             eventListener.onFailureLimitExceeded(message);
 
-        if(context.getResources().getInteger(R.integer.applock__default_max_retry_count) < unlockAttemptsCount)
+        if(context.getResources().getInteger(R.integer.applock__max_retry_count) < unlockAttemptsCount)
             onFailureExceedsLimit();
     }
 
@@ -200,7 +200,7 @@ public class AppLock {
     }
 
     public boolean isUnlockFailureBlockEnabled() {
-        return context.getResources().getInteger(R.integer.applock__default_max_retry_count) < unlockAttemptsCount
+        return context.getResources().getInteger(R.integer.applock__max_retry_count) < unlockAttemptsCount
                 || System.currentTimeMillis() - getUnlockFailureBlockStart() < getFailureDelayMs();
     }
 
@@ -248,7 +248,7 @@ public class AppLock {
 
     protected long getFailureDelayMs(){
         return TimeUnit.MINUTES.toMillis(context.getResources()
-                .getInteger(R.integer.applock__default_failure_retry_delay));
+                .getInteger(R.integer.applock__failure_retry_delay));
     }
 
     /**

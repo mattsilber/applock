@@ -22,9 +22,9 @@
 
     <string name="applock__toast_unlock_required">You can\'t do that</string>
 
-    <string name="applock__default_password_char">*</string>
+    <string name="applock__password_char">*</string>
 
-    <string name="applock__default_action_settings">Open System Settings</string>
+    <string name="applock__action_settings">Open System Settings</string>
 
     <string name="applock__fingerprint_alias">AppLock</string>
 

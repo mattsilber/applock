@@ -51,15 +51,15 @@ public class PINInputView extends LinearLayout implements TextWatcher {
 
         itemTextPaint = new Paint();
         itemTextPaint.setColor(a.getColor(R.styleable.PINInputView_pinTextColor,
-                getResources().getColor(R.color.applock__default_item_text)));
+                getResources().getColor(R.color.applock__item_text)));
 
         itemBackgroundPaint = new Paint();
         itemBackgroundPaint.setColor(a.getColor(R.styleable.PINInputView_pinBackgroundColor,
-                getResources().getColor(R.color.applock__default_item_background)));
+                getResources().getColor(R.color.applock__item_background)));
 
-        inputViewsCount = getResources().getInteger(R.integer.applock__default_input_pin_item_count);
+        inputViewsCount = getResources().getInteger(R.integer.applock__input_pin_item_count);
 
-        passwordCharacter = getResources().getString(R.string.applock__default_password_char);
+        passwordCharacter = getResources().getString(R.string.applock__password_char);
 
         a.recycle();
     }
