@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/sample__main_bg"
+    android:orientation="vertical"
+    android:padding="24dp"
+    tools:context=".MainActivity">
+
+    <com.guardanis.fontutils.TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/sample__main_description"
+        android:textColor="@color/base__text_dark_1"
+        android:textSize="16sp"/>
+
+    <com.guardanis.fontutils.TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/base__rounded_content"
+        android:clickable="true"
+        android:gravity="center"
+        android:onClick="dialogFlowClicked"
+        android:padding="12sp"
+        android:text="@string/sample__main_action_dialog"
+        android:textColor="@color/base__text_dark_0"
+        android:textSize="14dp"/>
+
+    <com.guardanis.fontutils.TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/base__rounded_content"
+        android:clickable="true"
+        android:gravity="center"
+        android:onClick="activityFlowClicked"
+        android:padding="12sp"
+        android:text="@string/sample__main_action_activity"
+        android:textColor="@color/base__text_dark_0"
+        android:textSize="14dp"/>
+
+    <com.guardanis.fontutils.TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/base__rounded_content"
+        android:clickable="true"
+        android:gravity="center"
+        android:onClick="exampleLockedActivityClicked"
+        android:padding="12sp"
+        android:text="@string/sample__main_action_example"
+        android:textColor="@color/base__text_dark_0"
+        android:textSize="14dp"/>
+
+</LinearLayout>

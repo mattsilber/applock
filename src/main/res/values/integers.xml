@@ -1,9 +1,0 @@
-<resources>
-
-    <integer name="pin__default_input_count">4</integer>
-    <integer name="pin__default_max_retry_count">5</integer>
-    <integer name="pin__default_failure_retry_delay">5</integer>
-
-    <integer name="pin__default_activity_lock_reenable_minutes">15</integer>
-
-</resources>

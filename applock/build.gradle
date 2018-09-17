@@ -1,0 +1,50 @@
+buildscript {
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 27
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+}
+
+group = 'com.guardanis'
+
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'applock'
+
+    publishedGroupId = 'com.guardanis'
+    libraryName = 'applock'
+    artifact = 'applock'
+
+    libraryDescription = 'A simple library for locking and unlocking Activities (e.g. child lock) with a PIN code or Fingerprint.'
+    libraryVersion = '2.0.0'
+
+    developerId = 'mattsilber'
+    developerName = 'Matt Silber'
+    developerEmail = 'matt@guardanis.com'
+}
+
+apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/installv1.gradle'
+apply from: 'https://raw.githubusercontent.com/attwellBrian/JCenter/master/bintrayv1.gradle'
