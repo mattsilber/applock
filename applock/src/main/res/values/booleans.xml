@@ -2,4 +2,6 @@
 
     <bool name="applock__default_item_password_chars_enabled">true</bool>
 
+    <bool name="applock__fingerprint_service_enabled">true</bool>
+
 </resources>

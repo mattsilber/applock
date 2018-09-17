@@ -44,6 +44,7 @@ public class AppLock {
     public static final int ERROR_CODE_FINGERPRINTS_PERMISSION_REQUIRED = 2;
     public static final int ERROR_CODE_FINGERPRINTS_EMPTY = 3;
     public static final int ERROR_CODE_FINGERPRINTS_NOT_LOCALLY_ENROLLED = 4;
+    public static final int ERROR_CODE_SDK_VERSION_MINIMUM = 5;
 
     protected Context context;
 

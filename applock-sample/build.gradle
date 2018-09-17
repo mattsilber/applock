@@ -23,18 +23,11 @@ android {
     sourceSets.main.assets.srcDirs = ['assets']
 }
 
-ext.support_library_version = '27.1.1'
-
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-
-    implementation "com.android.support:appcompat-v7:$support_library_version"
-    implementation "com.android.support:support-v4:$support_library_version"
-    implementation "com.android.support:design:$support_library_version"
+    implementation "com.android.support:appcompat-v7:27.1.1"
+    implementation "com.guardanis:font-utils:1.0.2"
 
     implementation project(path: ':applock')
-    implementation "com.guardanis:font-utils:1.0.2"
 }
 

@@ -7,6 +7,7 @@ import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyPermanentlyInvalidatedException;
 import android.security.keystore.KeyProperties;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v4.os.CancellationSignal;
@@ -35,6 +36,13 @@ public class FingerprintLockService extends LockService {
 
     protected CancellationSignal fingerprintCancellationSignal;
 
+    @Override
+    public boolean isEnrollmentEligible(Context context) {
+        return Build.VERSION_CODES.M <= Build.VERSION.SDK_INT
+                && context.getResources().getBoolean(R.bool.applock__fingerprint_service_enabled)
+                && isHardwarePresent(context);
+    }
+
     public void enroll(Context context, AuthenticationDelegate delegate) {
         authenticate(context, false, delegate);
     }
@@ -52,6 +60,10 @@ public class FingerprintLockService extends LockService {
             return;
         }
 
+        // Should be handled by getRequiredResolutionErrorCode(Context, boolean)
+        if (Build.VERSION.SDK_INT <  Build.VERSION_CODES.M)
+            return;
+
         attemptFingerprintManagerAuthentication(context, delegate);
     }
 
@@ -60,6 +72,9 @@ public class FingerprintLockService extends LockService {
      */
     protected int getRequiredResolutionErrorCode(Context context, boolean localEnrollmentRequired) {
         FingerprintManagerCompat manager = FingerprintManagerCompat.from(context);
+
+        if (Build.VERSION.SDK_INT <  Build.VERSION_CODES.M)
+            return AppLock.ERROR_CODE_SDK_VERSION_MINIMUM;
 
         if (localEnrollmentRequired && !isEnrolled(context))
             return AppLock.ERROR_CODE_FINGERPRINTS_NOT_LOCALLY_ENROLLED;
@@ -76,6 +91,7 @@ public class FingerprintLockService extends LockService {
         return -1;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     protected void attemptFingerprintManagerAuthentication(final Context context, final AuthenticationDelegate delegate) {
         this.fingerprintCancellationSignal = new CancellationSignal();
 
@@ -128,9 +144,6 @@ public class FingerprintLockService extends LockService {
     }
 
     public boolean isHardwarePresent(Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-            return false;
-
         return FingerprintManagerCompat.from(context)
                 .isHardwareDetected();
     }
@@ -150,10 +163,8 @@ public class FingerprintLockService extends LockService {
                 .commit();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
     protected Cipher generateAuthCipher(Context context, boolean forceRegenerate, int attempts) throws Exception {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-            return null;
-
         String alias = context.getString(R.string.applock__fingerprint_alias);
 
         KeyStore keyStore = KeyStore.getInstance(KEYSTORE_NAME);

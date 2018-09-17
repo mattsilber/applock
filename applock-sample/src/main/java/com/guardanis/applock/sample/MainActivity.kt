@@ -26,6 +26,10 @@ class MainActivity: AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
+            AppLock.REQUEST_CODE_LOCK_CREATION -> {
+                if (resultCode == Activity.RESULT_OK)
+                    showIndicatorMessage("Lock created!")
+            }
             AppLock.REQUEST_CODE_UNLOCK -> {
                 if (resultCode == Activity.RESULT_OK)
                     clearLocks()

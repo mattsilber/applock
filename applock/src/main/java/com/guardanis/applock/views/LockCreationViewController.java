@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.os.CancellationSignal;
 import android.view.View;
@@ -16,7 +17,8 @@ import com.guardanis.applock.services.PINLockService;
 
 import java.lang.ref.WeakReference;
 
-public class LockCreationViewController extends AppLockViewController implements PINInputController.InputEventListener {
+public class LockCreationViewController extends AppLockViewController
+        implements PINInputController.InputEventListener, FingerprintLockService.AuthenticationDelegate {
 
     public interface Delegate {
         public void onLockCreated();
@@ -51,6 +53,20 @@ public class LockCreationViewController extends AppLockViewController implements
 
     @Override
     public void setupRootFlow() {
+        Activity activity = this.activity.get();
+
+        if (activity == null)
+            return;
+
+        FingerprintLockService fingerprintService = AppLock.getInstance(activity)
+                .getLockService(FingerprintLockService.class);
+
+        if (!fingerprintService.isEnrollmentEligible(activity)) {
+            setupPINCreation();
+
+            return;
+        }
+
         setupCreationChooser();
     }
 
@@ -188,40 +204,43 @@ public class LockCreationViewController extends AppLockViewController implements
         if (activity == null)
             return;
 
-        final String unformattedHelpMessage = activity.getString(R.string.applock__description_unlock_fingerprint_help);
-
         AppLock.getInstance(activity)
                 .getLockService(FingerprintLockService.class)
-                .enroll(activity, new FingerprintLockService.AuthenticationDelegate() {
-                    @Override
-                    public void onResolutionRequired(int errorCode) {
-                        setDescription(getDescriptionResIdForError(errorCode));
-                        updateActionSettings(errorCode);
-                        handleInitialErrorPrompt(errorCode);
-                    }
+                .enroll(activity, this);
+    }
+    @Override
+    public void onResolutionRequired(int errorCode) {
+        setDescription(getDescriptionResIdForError(errorCode));
+        updateActionSettings(errorCode);
+        handleInitialErrorPrompt(errorCode);
+    }
 
-                    @Override
-                    public void onAuthenticationHelp(int code, CharSequence message) {
-                        String formatted = String.format(unformattedHelpMessage, message);
+    @Override
+    public void onAuthenticationHelp(int code, CharSequence message) {
+        Activity activity = this.activity.get();
 
-                        setDescription(formatted);
-                    }
+        if (activity == null)
+            return;
 
-                    @Override
-                    public void onAuthenticating(CancellationSignal cancellationSignal) {
-                        // Handled internally
-                    }
+        String unformattedHelpMessage = activity.getString(R.string.applock__description_unlock_fingerprint_help);
+        String formatted = String.format(unformattedHelpMessage, message);
 
-                    @Override
-                    public void onAuthenticationSuccess() {
-                        handleLockCreated();
-                    }
+        setDescription(formatted);
+    }
 
-                    @Override
-                    public void onAuthenticationFailed(String message) {
-                        setDescription(message);
-                    }
-                });
+    @Override
+    public void onAuthenticating(CancellationSignal cancellationSignal) {
+        // Handled internally
+    }
+
+    @Override
+    public void onAuthenticationSuccess() {
+        handleLockCreated();
+    }
+
+    @Override
+    public void onAuthenticationFailed(String message) {
+        setDescription(message);
     }
 
     protected void handleLockCreated() {

@@ -15,6 +15,12 @@ public class PINLockService extends LockService {
 
     private static final String PREF_SAVED_LOCKED_PASSWORD = "pin__saved_locked_password";
 
+    @Override
+    public boolean isEnrollmentEligible(Context context) {
+        // I couldn't find a good reason to allow the disabling of the PIN as an option.
+        return true;
+    }
+
     public void authenticate(Context context, String pin, AuthenticationDelegate eventListener) {
         if (!isEnrolled(context)) {
             eventListener.onNoPIN();

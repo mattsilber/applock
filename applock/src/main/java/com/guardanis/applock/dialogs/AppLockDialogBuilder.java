@@ -10,6 +10,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialog;
 import android.view.View;
 
+import com.guardanis.applock.AppLock;
 import com.guardanis.applock.views.AppLockViewController;
 
 import java.lang.ref.WeakReference;
@@ -71,6 +72,14 @@ public abstract class AppLockDialogBuilder<ALVC extends AppLockViewController> {
     protected void handleDismissed() {
         this.dialog = new WeakReference<AppCompatDialog>(null);
         this.viewController.unregisterReceivers();
+
+        Activity activity = this.activity.get();
+
+        if (activity == null)
+            return;
+
+        AppLock.getInstance(activity)
+                .cancelPendingAuthentications();
     }
 
     protected void dismissDialog(){
