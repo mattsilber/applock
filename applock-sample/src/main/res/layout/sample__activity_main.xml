@@ -43,4 +43,17 @@
         android:textColor="@color/base__text_dark_0"
         android:textSize="14dp"/>
 
+    <com.guardanis.fontutils.TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/base__rounded_content"
+        android:clickable="true"
+        android:gravity="center"
+        android:onClick="exampleLockedActivityClicked"
+        android:padding="12sp"
+        android:text="@string/sample__main_action_example"
+        android:textColor="@color/base__text_dark_0"
+        android:textSize="14dp"/>
+
 </LinearLayout>
