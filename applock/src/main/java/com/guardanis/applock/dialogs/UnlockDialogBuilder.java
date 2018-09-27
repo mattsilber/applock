@@ -12,8 +12,8 @@ import java.lang.ref.WeakReference;
 
 public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewController> implements UnlockViewController.Delegate {
 
-    protected WeakReference<Runnable> unlockCallback;
-    protected WeakReference<Runnable> canceledCallback;
+    protected WeakReference<Runnable> unlockCallback = new WeakReference<Runnable>(null);
+    protected WeakReference<Runnable> canceledCallback = new WeakReference<Runnable>(null);
 
     public UnlockDialogBuilder(Activity activity) {
         super(activity, R.layout.applock__unlock);

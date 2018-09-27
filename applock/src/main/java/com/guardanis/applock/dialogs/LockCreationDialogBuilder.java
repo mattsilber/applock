@@ -10,8 +10,8 @@ import java.lang.ref.WeakReference;
 
 public class LockCreationDialogBuilder extends AppLockDialogBuilder<LockCreationViewController> implements LockCreationViewController.Delegate {
 
-    protected WeakReference<Runnable> lockCreatedCallback;
-    protected WeakReference<Runnable> canceledCallback;
+    protected WeakReference<Runnable> lockCreatedCallback = new WeakReference<Runnable>(null);
+    protected WeakReference<Runnable> canceledCallback = new WeakReference<Runnable>(null);
 
     public LockCreationDialogBuilder(Activity activity) {
         super(activity, R.layout.applock__lock_creation);
