@@ -8,12 +8,10 @@ import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
 import com.guardanis.applock.views.UnlockViewController;
 
-import java.lang.ref.WeakReference;
-
 public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewController> implements UnlockViewController.Delegate {
 
-    protected Runnable unlockCallback = null;
-    protected Runnable canceledCallback = nulll;
+    private Runnable unlockCallback = null;
+    private Runnable canceledCallback = null;
 
     public UnlockDialogBuilder(Activity activity) {
         super(activity, R.layout.applock__unlock);
@@ -23,7 +21,7 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
      * Set a Runnable to be triggered when a user has successfully unlocked.
      */
     public UnlockDialogBuilder onUnlocked(Runnable unlockCallback) {
-        this.unlockCallback = unlockCallback
+        this.unlockCallback = unlockCallback;
 
         return this;
     }
