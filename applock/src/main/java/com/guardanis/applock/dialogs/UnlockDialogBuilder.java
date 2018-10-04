@@ -12,8 +12,8 @@ import java.lang.ref.WeakReference;
 
 public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewController> implements UnlockViewController.Delegate {
 
-    protected WeakReference<Runnable> unlockCallback = new WeakReference<Runnable>(null);
-    protected WeakReference<Runnable> canceledCallback = new WeakReference<Runnable>(null);
+    protected Runnable unlockCallback = null;
+    protected Runnable canceledCallback = nulll;
 
     public UnlockDialogBuilder(Activity activity) {
         super(activity, R.layout.applock__unlock);
@@ -23,7 +23,7 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
      * Set a Runnable to be triggered when a user has successfully unlocked.
      */
     public UnlockDialogBuilder onUnlocked(Runnable unlockCallback) {
-        this.unlockCallback = new WeakReference<Runnable>(unlockCallback);
+        this.unlockCallback = unlockCallback
 
         return this;
     }
@@ -32,7 +32,7 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
      * Set a Runnable to be triggered when a user has canceled unlocking.
      */
     public UnlockDialogBuilder onCanceled(Runnable canceledCallback) {
-        this.canceledCallback = new WeakReference<Runnable>(canceledCallback);
+        this.canceledCallback = canceledCallback;
 
         return this;
     }
@@ -49,20 +49,20 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
     public void onUnlockSuccessful() {
         dismissDialog();
 
-        final Runnable unlockCallback = this.unlockCallback.get();
-
         if(unlockCallback != null)
             unlockCallback.run();
+
+        unlockCallback = null;
     }
 
     @Override
     protected void handleCanceled() {
         super.handleCanceled();
 
-        final Runnable canceledCallback = this.canceledCallback.get();
-
         if(canceledCallback != null)
             canceledCallback.run();
+
+        canceledCallback = null;
     }
 
     /**
@@ -78,10 +78,10 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
             return null;
 
         if (!AppLock.isEnrolled(activity)) {
-            final Runnable unlockCallback = this.unlockCallback.get();
-
             if(unlockCallback != null)
                 unlockCallback.run();
+
+            unlockCallback = null;
 
             return null;
         }
@@ -103,10 +103,10 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
             return null;
 
         if (!AppLock.isUnlockRequired(activity, longValidDurationMs)) {
-            final Runnable unlockCallback = this.unlockCallback.get();
-
             if(unlockCallback != null)
                 unlockCallback.run();
+
+            unlockCallback = null;
 
             return null;
         }
