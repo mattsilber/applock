@@ -1,25 +1,19 @@
 package com.guardanis.applock.services;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyPermanentlyInvalidatedException;
-import android.security.keystore.KeyProperties;
-import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.support.v4.os.CancellationSignal;
 
 import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
-
-import java.security.KeyStore;
-import java.security.UnrecoverableKeyException;
+import com.guardanis.applock.utils.CipherGenerator;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
 
 public class FingerprintLockService extends LockService {
 
@@ -32,7 +26,6 @@ public class FingerprintLockService extends LockService {
     }
 
     private static final String PREF_ENROLLMENT_ALLOWED = "pin__fingerprint_enrollment_allowed";
-    private static final String KEYSTORE_NAME  = "AndroidKeyStore";
 
     protected CancellationSignal fingerprintCancellationSignal;
 
@@ -91,7 +84,6 @@ public class FingerprintLockService extends LockService {
         return -1;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
     protected void attemptFingerprintManagerAuthentication(final Context context, final AuthenticationDelegate delegate) {
         this.fingerprintCancellationSignal = new CancellationSignal();
 
@@ -163,50 +155,13 @@ public class FingerprintLockService extends LockService {
                 .commit();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
+    @SuppressLint("NewApi")
     protected Cipher generateAuthCipher(Context context, boolean forceRegenerate, int attempts) throws Exception {
-        String alias = context.getString(R.string.applock__fingerprint_alias);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+            throw new RuntimeException("generateAuthCipher() not supported before Api 23");
 
-        KeyStore keyStore = KeyStore.getInstance(KEYSTORE_NAME);
-        keyStore.load(null);
-
-        if (forceRegenerate || !keyStore.containsAlias(alias)) {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_NAME);
-            keyGenerator.init(new KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-                    .setUserAuthenticationRequired(true)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
-                    .build());
-
-            keyGenerator.generateKey();
-        }
-
-        String cipherFormat = String.format(
-                "%s/%s/%s",
-                KeyProperties.KEY_ALGORITHM_AES,
-                KeyProperties.BLOCK_MODE_CBC,
-                KeyProperties.ENCRYPTION_PADDING_PKCS7);
-
-        try {
-            Cipher cipher = Cipher.getInstance(cipherFormat);
-            cipher.init(Cipher.ENCRYPT_MODE, keyStore.getKey(alias, null));
-
-            return cipher;
-        }
-        catch (KeyPermanentlyInvalidatedException e) {
-            e.printStackTrace();
-
-            if (1 < attempts)
-                return generateAuthCipher(context, true, attempts + 1);
-        }
-        catch (UnrecoverableKeyException e) {
-            e.printStackTrace();
-
-            if (1 < attempts)
-                return generateAuthCipher(context, true, attempts + 1);
-        }
-
-        return null;
+        return new CipherGenerator()
+            .generateAuthCipher(context, forceRegenerate, attempts);
     }
 
     @Override
