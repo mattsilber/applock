@@ -6,12 +6,10 @@ import android.view.View;
 import com.guardanis.applock.R;
 import com.guardanis.applock.views.LockCreationViewController;
 
-import java.lang.ref.WeakReference;
-
 public class LockCreationDialogBuilder extends AppLockDialogBuilder<LockCreationViewController> implements LockCreationViewController.Delegate {
 
-    protected WeakReference<Runnable> lockCreatedCallback = new WeakReference<Runnable>(null);
-    protected WeakReference<Runnable> canceledCallback = new WeakReference<Runnable>(null);
+    protected Runnable lockCreatedCallback;
+    protected Runnable canceledCallback;
 
     public LockCreationDialogBuilder(Activity activity) {
         super(activity, R.layout.applock__lock_creation);
@@ -21,7 +19,7 @@ public class LockCreationDialogBuilder extends AppLockDialogBuilder<LockCreation
      * Set a Runnable to be triggered when a user has successfully enrolled in locking.
      */
     public LockCreationDialogBuilder onLockCreated(Runnable lockCreatedCallback) {
-        this.lockCreatedCallback = new WeakReference<Runnable>(lockCreatedCallback);
+        this.lockCreatedCallback = lockCreatedCallback;
 
         return this;
     }
@@ -30,7 +28,7 @@ public class LockCreationDialogBuilder extends AppLockDialogBuilder<LockCreation
      * Set a Runnable to be triggered when a user has canceled enrollment.
      */
     public LockCreationDialogBuilder onCanceled(Runnable canceledCallback) {
-        this.canceledCallback = new WeakReference<Runnable>(canceledCallback);
+        this.canceledCallback = canceledCallback;
 
         return this;
     }
@@ -47,8 +45,6 @@ public class LockCreationDialogBuilder extends AppLockDialogBuilder<LockCreation
     public void onLockCreated() {
         dismissDialog();
 
-        final Runnable lockCreatedCallback = this.lockCreatedCallback.get();
-
         if(lockCreatedCallback != null)
             lockCreatedCallback.run();
     }
@@ -56,8 +52,6 @@ public class LockCreationDialogBuilder extends AppLockDialogBuilder<LockCreation
     @Override
     protected void handleCanceled() {
         super.handleCanceled();
-
-        final Runnable canceledCallback = this.canceledCallback.get();
 
         if(canceledCallback != null)
             canceledCallback.run();

@@ -5,7 +5,6 @@ import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyPermanentlyInvalidatedException;
 import android.security.keystore.KeyProperties;
-import android.support.annotation.RequiresApi;
 
 import com.guardanis.applock.R;
 
@@ -14,6 +13,8 @@ import java.security.UnrecoverableKeyException;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
+
+import androidx.annotation.RequiresApi;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class CipherGenerator {

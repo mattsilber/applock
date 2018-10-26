@@ -3,9 +3,9 @@ package com.guardanis.applock.sample
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.guardanis.applock.AppLock
 import com.guardanis.applock.AppLock.REQUEST_CODE_LOCK_CREATION
 import com.guardanis.applock.AppLock.REQUEST_CODE_UNLOCK

@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.support.v4.content.ContextCompat;
 import android.view.View;
 
 import com.guardanis.applock.AppLock;
@@ -13,6 +12,8 @@ import com.guardanis.applock.pin.PINInputController;
 import com.guardanis.applock.services.FingerprintLockService;
 
 import java.lang.ref.WeakReference;
+
+import androidx.core.content.ContextCompat;
 
 public class UnlockViewController extends AppLockViewController implements AppLock.UnlockDelegate, PINInputController.InputEventListener {
 

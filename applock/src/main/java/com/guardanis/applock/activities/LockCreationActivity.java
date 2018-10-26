@@ -2,10 +2,11 @@ package com.guardanis.applock.activities;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 
 import com.guardanis.applock.R;
 import com.guardanis.applock.views.LockCreationViewController;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class LockCreationActivity extends AppCompatActivity implements LockCreationViewController.Delegate {
 

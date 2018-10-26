@@ -10,8 +10,8 @@ import com.guardanis.applock.views.UnlockViewController;
 
 public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewController> implements UnlockViewController.Delegate {
 
-    private Runnable unlockCallback = null;
-    private Runnable canceledCallback = null;
+    protected Runnable unlockCallback;
+    protected Runnable canceledCallback;
 
     public UnlockDialogBuilder(Activity activity) {
         super(activity, R.layout.applock__unlock);
@@ -46,11 +46,7 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
     @Override
     public void onUnlockSuccessful() {
         dismissDialog();
-
-        if(unlockCallback != null)
-            unlockCallback.run();
-
-        unlockCallback = null;
+        triggerUnlockCallback();
     }
 
     @Override
@@ -59,8 +55,11 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
 
         if(canceledCallback != null)
             canceledCallback.run();
+    }
 
-        canceledCallback = null;
+    protected void triggerUnlockCallback() {
+        if(unlockCallback != null)
+            unlockCallback.run();
     }
 
     /**
@@ -76,10 +75,7 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
             return null;
 
         if (!AppLock.isEnrolled(activity)) {
-            if(unlockCallback != null)
-                unlockCallback.run();
-
-            unlockCallback = null;
+            triggerUnlockCallback();
 
             return null;
         }
@@ -101,10 +97,7 @@ public class UnlockDialogBuilder extends AppLockDialogBuilder<UnlockViewControll
             return null;
 
         if (!AppLock.isUnlockRequired(activity, longValidDurationMs)) {
-            if(unlockCallback != null)
-                unlockCallback.run();
-
-            unlockCallback = null;
+            triggerUnlockCallback();
 
             return null;
         }

@@ -5,15 +5,16 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
-import android.support.v4.os.CancellationSignal;
 
 import com.guardanis.applock.AppLock;
 import com.guardanis.applock.R;
 import com.guardanis.applock.utils.CipherGenerator;
 
 import javax.crypto.Cipher;
+
+import androidx.core.content.ContextCompat;
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
+import androidx.core.os.CancellationSignal;
 
 public class FingerprintLockService extends LockService {
 
