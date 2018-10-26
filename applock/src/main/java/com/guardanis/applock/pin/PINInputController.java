@@ -76,6 +76,10 @@ public class PINInputController implements TextView.OnEditorActionListener {
     }
 
     private boolean isSoftKeyboardFinishedAction(TextView view, int action, KeyEvent event) {
+        // Enter clicked on Bluetooth Keyboard (action is zero on hardware keyboards)
+        if (action == 0 && event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)
+            return true;
+
         // Some devices return null event on editor actions for Enter Button
         return (event == null || event.getAction() == KeyEvent.ACTION_DOWN)
                 && (action == EditorInfo.IME_ACTION_DONE
