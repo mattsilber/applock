@@ -21,8 +21,6 @@ import java.util.WeakHashMap;
 
 public class PINInputView extends LinearLayout implements TextWatcher {
 
-    private static final String TAG = "PIN";
-
     private Paint itemTextPaint;
     private Paint itemBackgroundPaint;
 
