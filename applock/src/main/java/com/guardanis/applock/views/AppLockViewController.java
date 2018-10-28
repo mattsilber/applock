@@ -4,9 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.os.CancellationSignal;
-import android.support.v7.widget.AppCompatImageView;
 import android.view.View;
 import android.widget.TextView;
 
@@ -17,6 +14,9 @@ import com.guardanis.applock.pin.PINInputView;
 import com.guardanis.applock.utils.LifeCycleUtils;
 
 import java.lang.ref.WeakReference;
+
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.core.app.ActivityCompat;
 
 public abstract class AppLockViewController implements LifeCycleUtils.AppLockActivityLifeCycleCallbacks.Delegate {
 

@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
-import android.support.v4.os.CancellationSignal;
 
 import com.guardanis.applock.activities.UnlockActivity;
 import com.guardanis.applock.services.FingerprintLockService;
@@ -14,6 +12,9 @@ import com.guardanis.applock.services.PINLockService;
 
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
+
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
+import androidx.core.os.CancellationSignal;
 
 public class AppLock {
 

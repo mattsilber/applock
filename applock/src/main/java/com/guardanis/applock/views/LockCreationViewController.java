@@ -4,10 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
-import android.support.v4.os.CancellationSignal;
 import android.view.View;
 
 import com.guardanis.applock.AppLock;
@@ -17,6 +13,10 @@ import com.guardanis.applock.services.FingerprintLockService;
 import com.guardanis.applock.services.PINLockService;
 
 import java.lang.ref.WeakReference;
+
+import androidx.core.content.ContextCompat;
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
+import androidx.core.os.CancellationSignal;
 
 public class LockCreationViewController extends AppLockViewController
         implements PINInputController.InputEventListener, FingerprintLockService.AuthenticationDelegate {

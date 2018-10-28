@@ -2,12 +2,13 @@ package com.guardanis.applock.activities;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
 import com.guardanis.applock.R;
 import com.guardanis.applock.views.UnlockViewController;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class UnlockActivity extends AppCompatActivity implements UnlockViewController.Delegate {
 

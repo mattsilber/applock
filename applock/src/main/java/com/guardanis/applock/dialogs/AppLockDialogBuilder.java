@@ -6,14 +6,15 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.os.Build;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatDialog;
 import android.view.View;
 
 import com.guardanis.applock.AppLock;
 import com.guardanis.applock.views.AppLockViewController;
 
 import java.lang.ref.WeakReference;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDialog;
 
 public abstract class AppLockDialogBuilder<ALVC extends AppLockViewController> {
 
