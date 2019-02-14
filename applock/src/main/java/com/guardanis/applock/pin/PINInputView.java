@@ -75,10 +75,9 @@ public class PINInputView extends LinearLayout implements TextWatcher {
         editText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_DONE);
         editText.addTextChangedListener(this);
 
-
-        //editText.setHeight(1);
-        //editText.setWidth(1);
-
+        // Can cause problems with keyboard not showing an 9 and above if not set
+        editText.setHeight(1);
+        editText.setWidth(1);
 
         addView(editText);
     }
