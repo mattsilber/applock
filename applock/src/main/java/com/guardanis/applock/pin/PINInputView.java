@@ -8,6 +8,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -65,19 +66,15 @@ public class PINInputView extends LinearLayout implements TextWatcher {
     protected void setupEditText() {
         removeAllViews();
 
-        editText = new EditText(getContext());
-        editText.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-        editText.setTextColor(getResources().getColor(android.R.color.transparent));
-        editText.setCursorVisible(false);
-        editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-        editText.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_DONE);
-        editText.addTextChangedListener(this);
-
-        // Can cause problems with keyboard not showing an 9 and above if not set
-        editText.setHeight(1);
-        editText.setWidth(1);
+        this.editText = inflateFakeEditText();
+        this.editText.addTextChangedListener(this);
 
         addView(editText);
+    }
+
+    protected EditText inflateFakeEditText() {
+        return (EditText) LayoutInflater.from(getContext())
+                .inflate(R.layout.applock__fake_edit_text, this, false);
     }
 
     public PINInputView setInputViewsCount(int inputViewsCount) {

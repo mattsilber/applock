@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    compile('com.guardanis:applock:3.0.0')
+    compile('com.guardanis:applock:3.0.1')
 }
 ```
 
