@@ -1,5 +1,8 @@
 # App Lock
 
+[![Download](https://img.shields.io/maven-central/v/com.guardanis/applock)](https://search.maven.org/artifact/com.guardanis/applock)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-applock-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/2995)
+
 A simple library for locking and unlocking Activities with a PIN code or Fingerprint (e.g. a child lock). 
 
 ![AppLock Sample](https://github.com/mattsilber/applock/raw/master/applock.gif)
@@ -8,11 +11,11 @@ A simple library for locking and unlocking Activities with a PIN code or Fingerp
 
 ```groovy
 repositories {
-    jcenter()
+    maveCentral()
 }
 
 dependencies {
-    compile('com.guardanis:applock:3.0.1')
+    compile('com.guardanis:applock:3.0.2')
 }
 ```
 
@@ -96,6 +99,10 @@ To change the default length of the PIN, you can override
 ### Theme
 
 All themes, styles, dimensions, strings, etc. are all customizable via overriding the resources. See `applock/src/main/res/values/` for details.
+
+### Moved to MavenCentral
+
+As of version 3.0.2, applock will be hosted on MavenCentral. Versions 3.0.1 and below will remain on JCenter.
 
 ### TODO:
 * Allow backup authentication options

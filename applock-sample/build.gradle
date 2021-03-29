@@ -1,23 +1,21 @@
 buildscript {
-    ext.kotlin_version = '1.2.71'
+    ext.kotlin_version = '1.4.31'
 
     dependencies {
-        classpath 'com.novoda:gradle-android-command-plugin:1.2.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'android-command'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdkVersion rootProject.ext.targetSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 28
+        targetSdkVersion rootProject.ext.targetSdkVersion
     }
 
     sourceSets.main.assets.srcDirs = ['assets']
@@ -25,8 +23,8 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "androidx.appcompat:appcompat:1.0.0"
-    implementation "com.guardanis:font-utils:1.0.2"
+    implementation "androidx.appcompat:appcompat:1.2.0"
+    implementation "com.guardanis:font-utils:1.0.4"
 
     implementation project(path: ':applock')
 }
