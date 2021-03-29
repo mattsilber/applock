@@ -1,5 +1,8 @@
 # App Lock
 
+[![Download](https://img.shields.io/maven-central/v/com.guardanis/applock)](https://search.maven.org/artifact/com.guardanis/applock)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-applock-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/2995)
+
 A simple library for locking and unlocking Activities with a PIN code or Fingerprint (e.g. a child lock). 
 
 ![AppLock Sample](https://github.com/mattsilber/applock/raw/master/applock.gif)
